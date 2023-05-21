@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
 
 #include "Identifier.h"
 #include "Field.h"
@@ -37,6 +38,14 @@ public:
 
 	const std::vector<const Field*>& GetFields() const {
 		return fields_;
+	}
+
+	const Field* GetFieldByName(const std::string& name) {
+		auto it = std::find_if(fields_.begin(), fields_.end(), [&name](const auto* field) {
+			return field->GetName() == name;
+		});
+
+		return *it;
 	}
 
 private:

@@ -19,19 +19,36 @@ public:
 	size_t Number;
 };
 
-TEST(FieldTests, GetValue_SetObjectFieldValue_ValueEqualToObjectFieldValue) {
+class TestClass2 {
+AOE_REFLECTION_BEGIN(TestClass2)
+AOE_REFLECTION_FIELD(Numbers)
+AOE_REFLECTION_END()
+
+public:
+	std::vector<size_t> Numbers;
+};
+
+TEST(FieldTests, GetValue_SetObjectFieldValue_ReflectionFieldValueEqualToObjectFieldValue) {
 	TestClass1 test;
 	test.Number = 1;
 
 	auto& type = aoe::Reflector::GetType<TestClass1>();
-	auto& fields = type.GetFields();
-	auto predicate = [](const aoe::Field* f) { return f->GetName() == "Number"; };
-	auto number_field_it = std::find_if(fields.begin(), fields.end(), predicate);
-	auto number_field = *number_field_it;
-
+	auto number_field = type.GetFieldByName("Number");
 	size_t number = number_field->GetValue<size_t>(&test);
 
 	ASSERT_EQ(test.Number, number);
+}
+
+TEST(FieldTests, SetValue_SetValueViaReflectionField_ObjectFieldValueIsEuivalentToSetted) {
+	TestClass2 test;
+	std::vector<size_t> value = { 1, 2, 3, 4 };
+
+	auto& type = aoe::Reflector::GetType<TestClass2>();
+	auto numbers_field = type.GetFieldByName("Numbers");
+	numbers_field->SetValue(&test, value);
+	
+	ASSERT_NE(value.data(), test.Numbers.data());
+	ASSERT_TRUE(std::equal(test.Numbers.begin(), test.Numbers.end(), value.begin()));
 }
 
 } // namespace field_tests
