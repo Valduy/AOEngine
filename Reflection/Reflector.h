@@ -10,12 +10,12 @@ namespace aoe {
 class Reflector {
 public:
 	template<typename T>
-	static const Type& Register(Type* type) {
+	static Type& Register(Type* type) {
 		return reflector_.Register<T>(type);
 	}
 
 	template<typename T>
-	static const Type& GetType() {
+	static Type& GetType() {
 		auto id = Identifier::GetTypeId<T>();
 		return reflector_.GetType(id);
 	}
@@ -32,7 +32,7 @@ private:
 		}
 
 		template<typename T>
-		const Type& Register(Type* type) {
+		Type& Register(Type* type) {
 			TypeId type_id = type->GetTypeId();
 			auto it = id_to_type_.find(type_id);
 			assert(it == id_to_type_.end() && "Type already registered");
@@ -41,7 +41,7 @@ private:
 			return *type;
 		}
 
-		const Type& GetType(TypeId type_id) {
+		Type& GetType(TypeId type_id) {
 			auto it = id_to_type_.find(type_id);
 			assert(it != id_to_type_.end() && "Type is not registered.");
 			return *it->second;

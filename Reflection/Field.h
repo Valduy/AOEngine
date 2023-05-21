@@ -20,6 +20,10 @@ public:
 		, setter_(setter)
 	{}
 
+	const std::string& GetName() const {
+		return name_;
+	}
+
 	void* GetValue(void* object) const {
 		return getter_(object);
 	}

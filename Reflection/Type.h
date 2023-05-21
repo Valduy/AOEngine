@@ -8,9 +8,18 @@
 namespace aoe {
 
 class Type {
-	friend class TypeSettings;
-	
 public:
+	Type(
+		TypeId type_id,
+		std::string name,
+		std::vector<const Field*> fields,
+		std::vector<const Type*> base_classes)
+		: type_id_(type_id)
+		, name_(std::move(name))
+		, fields_(std::move(fields))
+		, base_classes_(std::move(base_classes))
+	{}
+
 	Type(const Type&) = delete;
 	Type(Type&&) = delete;
 
@@ -35,17 +44,6 @@ private:
 	std::string name_;
 	std::vector<const Field*> fields_;
 	std::vector<const Type*> base_classes_;
-
-	Type(
-		TypeId type_id,
-		std::string name,
-		std::vector<const Field*> fields,
-		std::vector<const Type*> base_classes)
-		: type_id_(type_id)
-		, name_(std::move(name))
-		, fields_(std::move(fields))
-		, base_classes_(std::move(base_classes))
-	{}
 };
 
 } // namespace aoe

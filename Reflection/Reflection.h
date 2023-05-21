@@ -11,7 +11,7 @@
 	aoe::Reflector::GetType<decltype(SelfType::field)>()\
 
 #define AOE_FIELD_GETTER(type, field)\
-	[](void* object) { return &(static_cast<type*>(object))->field; }
+	[](void* object) { return &(static_cast<type*>(object))->field; }\
 
 #define AOE_FIELD_SETTER(type, field)\
 	[](void* object, void* value) { \
@@ -25,7 +25,6 @@
 		class Meta {\
 		private:\
 			using SelfType = type;\
-		private:\
 			static const aoe::Type& GetType() {\
 				aoe::TypeSettings type_settings;\
 
