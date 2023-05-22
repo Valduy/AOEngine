@@ -11,6 +11,7 @@ class TypeSettings {
 public:
 	std::vector<const Field*> fields;
 	std::vector<const Type*> base_classes;
+	std::function<void* ()> constructor_;
 
 	TypeSettings& AddField(const  Field* field) {
 		fields.push_back(field);
@@ -22,10 +23,16 @@ public:
 		return *this;
 	}
 
+	TypeSettings& SetConstructor(std::function<void* ()> constructor) {
+		constructor_ = constructor;
+		return *this;
+	}
+
 	template<typename T>
 	const Type& Register() {
 		std::string name(TypeName<T>());
-		auto* type = new Type(Identifier::GetTypeId<T>(), name, fields, base_classes);
+		auto type_id = Identifier::GetTypeId<T>();
+		auto* type = new Type(type_id, name, fields, base_classes, constructor_);
 		return Reflector::Register<T>(type);
 	}
 };

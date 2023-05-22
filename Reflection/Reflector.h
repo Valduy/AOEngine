@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <cassert>
 
 #include "Type.h"
@@ -15,8 +15,12 @@ public:
 	}
 
 	template<typename T>
-	static Type& GetType() {
+	static const Type& GetType() {
 		auto id = Identifier::GetTypeId<T>();
+		return GetType(id);
+	}
+
+	static const Type& GetType(TypeId id) {
 		return reflector_.GetType(id);
 	}
 
@@ -48,7 +52,7 @@ private:
 		}
 
 	private:
-		std::map<TypeId, Type*> id_to_type_;
+		std::unordered_map<TypeId, Type*> id_to_type_;
 	};
 
 	static inline ReflectorInternal reflector_;

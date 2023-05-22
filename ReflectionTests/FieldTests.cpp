@@ -4,9 +4,6 @@
 
 #include "Preregistration.h"
 
-// For trivial data types get and set
-// For complex data types get and set
-
 namespace aoe_tests {
 namespace field_tests {
 

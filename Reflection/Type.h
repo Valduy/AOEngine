@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <functional>
 
 #include "Identifier.h"
 #include "Field.h"
@@ -14,11 +15,13 @@ public:
 		TypeId type_id,
 		std::string name,
 		std::vector<const Field*> fields,
-		std::vector<const Type*> base_classes)
+		std::vector<const Type*> base_classes,
+		std::function<void* ()> constructor)
 		: type_id_(type_id)
 		, name_(std::move(name))
 		, fields_(std::move(fields))
 		, base_classes_(std::move(base_classes))
+		, constructor_(constructor)
 	{}
 
 	Type(const Type&) = delete;
@@ -40,7 +43,7 @@ public:
 		return fields_;
 	}
 
-	const Field* GetFieldByName(const std::string& name) {
+	const Field* GetFieldByName(const std::string& name) const {
 		auto it = std::find_if(fields_.begin(), fields_.end(), [&name](const auto* field) {
 			return field->GetName() == name;
 		});
@@ -48,11 +51,21 @@ public:
 		return *it;
 	}
 
+	void* Instantiate() const {
+		return constructor_();
+	}
+
+	template<typename T>
+	T* Instantiate() const {
+		return reinterpret_cast<T*>(Instantiate());
+	}
+
 private:
 	TypeId type_id_;
 	std::string name_;
 	std::vector<const Field*> fields_;
 	std::vector<const Type*> base_classes_;
+	std::function<void* ()> constructor_;
 };
 
 } // namespace aoe

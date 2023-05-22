@@ -20,6 +20,9 @@
 		concrete_object->field = *concrete_value;\
 	}\
 
+#define AOE_TYPE_CONSTRUCTOR(type)\
+	[](){ return new type(); }\
+
 #define AOE_REFLECTION_BEGIN(type)\
 	private:\
 		class Meta {\
@@ -27,6 +30,7 @@
 			using SelfType = type;\
 			static const aoe::Type& GetType() {\
 				aoe::TypeSettings type_settings;\
+				type_settings.SetConstructor(AOE_TYPE_CONSTRUCTOR(SelfType));\
 
 #define AOE_REFLECTION_FIELD(field)\
 				type_settings.AddField(new aoe::Field {\
