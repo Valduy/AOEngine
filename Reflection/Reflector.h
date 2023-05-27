@@ -10,18 +10,22 @@ namespace aoe {
 class Reflector {
 public:
 	template<typename T>
-	static Type& Register(Type* type) {
+	static const Type* Register(Type* type) {
 		return reflector_.Register<T>(type);
 	}
 
 	template<typename T>
-	static const Type& GetType() {
+	static const Type* GetType() {
 		auto id = Identifier::GetTypeId<T>();
 		return GetType(id);
 	}
 
-	static const Type& GetType(TypeId id) {
+	static const Type* GetType(TypeId id) {
 		return reflector_.GetType(id);
+	}
+
+	static const Type* GetType(const std::string& name) {
+		return reflector_.GetType(name);
 	}
 
 private:
@@ -36,19 +40,29 @@ private:
 		}
 
 		template<typename T>
-		Type& Register(Type* type) {
+		const Type* Register(Type* type) {
 			TypeId type_id = type->GetTypeId();
 			auto it = id_to_type_.find(type_id);
 			assert(it == id_to_type_.end() && "Type already registered");
 
 			id_to_type_[type->GetTypeId()] = type;
-			return *type;
+			return type;
 		}
 
-		Type& GetType(TypeId type_id) {
+		const Type* GetType(TypeId type_id) {
 			auto it = id_to_type_.find(type_id);
 			assert(it != id_to_type_.end() && "Type is not registered.");
-			return *it->second;
+			return it->second;
+		}
+
+		const Type* GetType(const std::string& name) {
+			for (const auto& [key, value] : id_to_type_) {
+				if (value->GetName() == name) {
+					return value;
+				}
+			}
+
+			return nullptr;
 		}
 
 	private:

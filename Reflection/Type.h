@@ -39,6 +39,16 @@ public:
 		return base_classes_;
 	}
 
+	bool IsChildOf(const Type* type) const {
+		for (auto base_type : base_classes_) {
+			if (base_type == type) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	const std::vector<const Field*>& GetFields() const {
 		return fields_;
 	}

@@ -56,19 +56,19 @@ int main() {
 	test.Numbers.push_back(2);
 
 	size_t n = 15;
-	size_t number = type2.GetFields()[0]->GetValue<size_t>(&test);
-	type2.GetFields()[0]->SetValue<size_t>(&test, 6);
+	size_t number = type2->GetFields()[0]->GetValue<size_t>(&test);
+	type2->GetFields()[0]->SetValue<size_t>(&test, 6);
 
-	void* ptr = type2.GetFields()[1]->GetValue<void*>(&test);
+	void* ptr = type2->GetFields()[1]->GetValue<void*>(&test);
 	void* other_ptr = test.Ptr;
-	type2.GetFields()[1]->SetValue(&test, nullptr);
+	type2->GetFields()[1]->SetValue(&test, nullptr);
 
-	std::vector<int> numbers = type2.GetFields()[2]->GetValue<std::vector<int>>(&test);
+	std::vector<int> numbers = type2->GetFields()[2]->GetValue<std::vector<int>>(&test);
 	numbers.push_back(3);
-	type2.GetFields()[2]->SetValue<std::vector<int>>(&test, numbers);
+	type2->GetFields()[2]->SetValue<std::vector<int>>(&test, numbers);
 
 	auto other = *static_cast<size_t*>(test.test(&test));
 
-	auto& testest = type2.GetBaseClasses();
+	auto& testest = type2->GetBaseClasses();
 	return 0;
 }

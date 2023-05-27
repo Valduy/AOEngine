@@ -28,7 +28,7 @@
 		class Meta {\
 		private:\
 			using SelfType = type;\
-			static const aoe::Type& GetType() {\
+			static const aoe::Type* GetType() {\
 				aoe::TypeSettings type_settings;\
 				type_settings.SetConstructor(AOE_TYPE_CONSTRUCTOR(SelfType));\
 
@@ -39,12 +39,12 @@
 
 #define AOE_REFLECTION_BASE(type)\
 				static_assert(std::is_convertible<SelfType*, type*>::value, "Derived must inherit Base as public");\
-				type_settings.AddBaseClass(&aoe::Reflector::GetType<type>());\
+				type_settings.AddBaseClass(aoe::Reflector::GetType<type>());\
 
 #define AOE_REFLECTION_END()\
 				return type_settings.Register<SelfType>();\
 			}\
-			static const inline aoe::Type& type_ = GetType();\
+			static const inline aoe::Type* type_ = GetType();\
 		};\
 
 #define AOE_REFLECTION_OUTER_BEGIN(type)\

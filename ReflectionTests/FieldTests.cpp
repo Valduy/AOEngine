@@ -29,8 +29,8 @@ TEST(FieldTests, GetValue_SetObjectFieldValue_ReflectionFieldValueEqualToObjectF
 	TestClass1 test;
 	test.Number = 1;
 
-	auto& type = aoe::Reflector::GetType<TestClass1>();
-	auto number_field = type.GetFieldByName("Number");
+	const aoe::Type* type = aoe::Reflector::GetType<TestClass1>();
+	const aoe::Field* number_field = type->GetFieldByName("Number");
 	size_t number = number_field->GetValue<size_t>(&test);
 
 	ASSERT_EQ(test.Number, number);
@@ -40,8 +40,8 @@ TEST(FieldTests, SetValue_SetValueViaReflectionField_ObjectFieldValueIsEuivalent
 	TestClass2 test;
 	std::vector<size_t> value = { 1, 2, 3, 4 };
 
-	auto& type = aoe::Reflector::GetType<TestClass2>();
-	auto numbers_field = type.GetFieldByName("Numbers");
+	const aoe::Type* type = aoe::Reflector::GetType<TestClass2>();
+	const aoe::Field* numbers_field = type->GetFieldByName("Numbers");
 	numbers_field->SetValue(&test, value);
 	
 	ASSERT_NE(value.data(), test.Numbers.data());

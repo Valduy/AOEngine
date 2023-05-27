@@ -29,7 +29,7 @@ public:
 	}
 
 	template<typename T>
-	const Type& Register() {
+	const Type* Register() {
 		std::string name(TypeName<T>());
 		auto type_id = Identifier::GetTypeId<T>();
 		auto* type = new Type(type_id, name, fields, base_classes, constructor_);

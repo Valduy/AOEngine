@@ -11,7 +11,7 @@ class Field {
 public:
 	Field(
 		std::string name,
-		const Type& type,
+		const Type* type,
 		std::function<void* (void*)> getter,
 		std::function<void(void*, void*)> setter)
 		: name_(std::move(name))
@@ -46,7 +46,7 @@ public:
 
 private:
 	std::string name_;
-	const Type& type_;
+	const Type* type_;
 	std::function<void* (void*)> getter_;
 	std::function<void(void*, void*)> setter_;
 };
