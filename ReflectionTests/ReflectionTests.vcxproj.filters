@@ -5,9 +5,6 @@
     <ClCompile Include="ReflectorTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="TypeTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
