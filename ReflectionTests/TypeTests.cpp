@@ -4,12 +4,6 @@
 
 #include "Preregistration.h"
 
-// try to implement get type on object with templates and SFINAE
-
-// Problem: on serialization I want to know what actual type of object is.
-// This is problem, because in runtime I whant to wark with base classes.
-// But when I have pointer on base class, how can I get actual type of object?
-
 namespace aoe_tests {
 namespace type_tests {
 
