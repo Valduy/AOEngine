@@ -1,6 +1,7 @@
 #include "Preregistrator.h"
 #include "Test1.h"
 #include "Test2.h"
+#include "../ECS/Component.h"
 
 //AOE_REFLECTION_OUTER_BEGIN(size_t)
 //AOE_REFLECTION_OUTER_END()
@@ -40,6 +41,11 @@ private:
 	size_t Other = 1;
 };
 
+class TestComponent : public aoe::Component<TestComponent> {
+AOE_REFLECTION_BEGIN(TestComponent)
+AOE_REFLECTION_END()
+};
+
 int main() {
 	Test1 t1;
 	Test2 t2;
@@ -70,5 +76,9 @@ int main() {
 	auto other = *static_cast<size_t*>(test.test(&test));
 
 	auto& testest = type2->GetBaseClasses();
+
+	TestComponent tc;
+	auto type = tc.GetType();
+
 	return 0;
 }

@@ -30,6 +30,7 @@ class TestClassChildren : public TestClassParentA, public TestClassParentB {
 AOE_REFLECTION_BEGIN(TestClassChildren)
 AOE_REFLECTION_BASE(TestClassParentA)
 AOE_REFLECTION_BASE(TestClassParentB)
+AOE_REFLECTION_CONSTRUCTOR()
 AOE_REFLECTION_FIELD(ChildrenNumber1)
 AOE_REFLECTION_FIELD(ChildrenNumber2)
 AOE_REFLECTION_END()

@@ -13,6 +13,13 @@ public:
 	std::vector<const Type*> base_classes;
 	std::function<void* ()> constructor_;
 
+	TypeSettings() {
+		constructor_ = []() {
+			assert(false && "There is no registered constructor for this type.");
+			return nullptr;
+		};
+	}
+
 	TypeSettings& AddField(const  Field* field) {
 		fields.push_back(field);
 		return *this;

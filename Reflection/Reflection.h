@@ -30,6 +30,8 @@
 			using SelfType = type;\
 			static const aoe::Type* GetType() {\
 				aoe::TypeSettings type_settings;\
+
+#define AOE_REFLECTION_CONSTRUCTOR()\
 				type_settings.SetConstructor(AOE_TYPE_CONSTRUCTOR(SelfType));\
 
 #define AOE_REFLECTION_FIELD(field)\
