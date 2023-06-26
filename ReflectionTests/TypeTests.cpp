@@ -86,13 +86,18 @@ TEST(TypeTests, IsChildOf_NotBaseClass_False) {
 	ASSERT_FALSE(type->IsChildOf(other_type));
 }
 
-TEST(TypeTests, Instantiate_InstantiateClassByType_NoFailures) {
+TEST(TypeTests, Instantiate_InstantiateClassWithRegisteredByType_NoFailures) {
 	const aoe::Type* type = aoe::Reflector::GetType<TestClassChildren>();
 	TestClassChildren* instance = type->Instantiate<TestClassChildren>();
 	
 	ASSERT_NO_FATAL_FAILURE(instance->Foo());
 
 	delete instance;
+}
+
+TEST(TypeTests, Instantiate_InstantiateClassWithoutRegisteredByType_Failure) {
+	const aoe::Type* type = aoe::Reflector::GetType<TestClassParentA>();
+	ASSERT_DEATH(type->Instantiate<TestClassParentA>(), "");
 }
 
 bool IsFieldsMatchWithNames(std::vector<const aoe::Field*> fields, std::vector<std::string> names) {

@@ -12,13 +12,13 @@ AOE_REFLECTION_END()
 
 class MyTest2 {};
 
-TEST(ReflectorTests, GetType_TypeIsRegistered_WillNotFailure) {
+TEST(ReflectorTests, GetType_TypeIsRegistered_NoFailures) {
 	const aoe::Type* type = aoe::Reflector::GetType<MyTest1>();
 
 	ASSERT_TRUE(true);
 }
 
-TEST(ReflectorTests, GetType_TypeIsNotRegistered_WillFailure) {
+TEST(ReflectorTests, GetType_TypeIsNotRegistered_Failure) {
 	ASSERT_DEATH(aoe::Reflector::GetType<MyTest2>(), "");
 }
 
@@ -34,7 +34,7 @@ TEST(ReflectorTests, GetType_GetNotRegisteredTypeByName_Nullptr) {
 	ASSERT_TRUE(type == nullptr);
 }
 
-TEST(ReflectorTests, Register_TypeIsAlreadyRegistered_WillFailure) {
+TEST(ReflectorTests, Register_TypeIsAlreadyRegistered_Failure) {
 	aoe::TypeSettings type_settings;
 
 	ASSERT_DEATH(type_settings.Register<MyTest1>(), "");

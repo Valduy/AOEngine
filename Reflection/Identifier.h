@@ -6,6 +6,8 @@ using TypeId = size_t;
 
 class Identifier {
 public:
+	static const TypeId kInvalid = 0;
+
 	template<typename T>
 	static TypeId GetTypeId() {
 		static TypeId id = ++current_id_;
@@ -13,7 +15,7 @@ public:
 	}
 
 private:
-	static inline TypeId current_id_ = 0;
+	static inline TypeId current_id_ = 1;
 };
 
 } //  namespace aoe
