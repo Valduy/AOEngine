@@ -5,24 +5,69 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include <cassert>
 
 #include "IReflectable.h"
 
 namespace aoe {
 
-// maybe trivial identifier is better solution
-
 class Entity {
+private:
+	using LookupIndex = int32_t;
+
 public:
+	template<typename TComponent>
+	class ComponentHandler {
+		friend class Entity;
+
+	public:
+		bool IsValid() const {
+			if (lookup_index_ == kInvalidIndex || source_->table_.GetSize() <= lookup_index_) {
+				return false;
+			}
+
+			Lookup lookup = source_->table_[lookup_index_];
+
+			if (lookup.type_id_ != type_id_) {
+				return false;
+			}
+
+			return true;
+		}
+
+		TComponent* operator->() const {
+			if (!IsValid()) {
+				assert(false && "Handler is invalid.");
+				return nullptr;
+			}
+
+			Lookup lookup = source_->table_[lookup_index_];
+			NodeHandler node(source_, lookup.offset_);
+			return reinterpret_cast<TComponent*>(GetComponent(node));
+		}
+
+	private:
+		Entity* source_;
+		const TypeId type_id_;
+		const LookupIndex lookup_index_;
+
+		ComponentHandler(
+			Entity* source,
+			TypeId type_id,
+			LookupIndex lookup_index)
+			: source_(source)
+			, type_id_(type_id)
+			, lookup_index_(lookup_index)
+		{}
+	};
 
 	Entity()
-		: root_offset_(kInvalidOffset)
+		: root_(this, kInvalidOffset)
 		, buffer_(nullptr)
 		, size_(0)
 		, capacity_(0)
-	{
-
-	}
+		, table_()
+	{}
 
 	~Entity() {
 		// TODO: go throw all components and call destructor manually;
@@ -30,62 +75,201 @@ public:
 	}
 
 	template<typename TComponent>
-	TComponent* Add() {
+	ComponentHandler<TComponent> Add() {
 		TypeId key = Identifier::GetTypeId<TComponent>();
-		Node* node = GetNode(key, sizeof(TComponent));
+		NodeHandler node = GetNode(key, sizeof(TComponent));
 		IReflectable* component = SetComponent<TComponent>(node);
-		// TODO: return handler
-		return static_cast<TComponent*>(component);
+		return { this, key, node.GetLookupIndex() };
+	}
+
+	template<typename TComponent>
+	ComponentHandler<TComponent> Get() {
+		TypeId key = Identifier::GetTypeId<TComponent>();
+		NodeHandler temp = root_;
+
+		while (temp.IsValid()) {
+			auto test = temp.GetKey();
+
+			if (temp.GetKey() > key) {
+				temp = temp.GetLeft();
+				continue;
+			}
+			
+			if (temp.GetKey() < key) {
+				temp = temp.GetRight();
+				continue;
+			}
+
+			return { this, key, temp.GetLookupIndex() };
+		}
+
+		return { this, Identifier::kInvalid, kInvalidIndex };
 	}
 
 	template<typename TComponent>
 	void Remove() {
-
+		// TODO:
 	}
 
 	void DebugPrint() {
-		if (root_offset_ != kInvalidOffset) {
-			PrintTree(GetNode(root_offset_), "", true);
-		}		
+		if (root_.IsValid()) {
+			PrintTree(root_, "", true);
+		}	
 	}
 
 private:
 	using Offset = int32_t;
-	
+	using Height = char8_t;
+
 	struct Node {
 		TypeId key;
 		size_t size;
-		unsigned char height;
+		Height height;
+		LookupIndex lookup_index;
 
 		Offset parent_offset;
 		Offset left_offset;
 		Offset right_offset;
 
 		Node()
-			: Node(Identifier::kInvalid, 0)
+			: Node(Identifier::kInvalid, 0, kInvalidIndex)
 		{}
 
-		Node(TypeId key, Offset size)
+		Node(TypeId key, Offset size, LookupIndex lookup_index)
 			: key(key)
 			, size(size)
 			, height(0)
+			, lookup_index(lookup_index)
 			, parent_offset(kInvalidOffset)
 			, left_offset(kInvalidOffset)
 			, right_offset(kInvalidOffset)
 		{}
 	};
 	
-	static const Offset kInvalidOffset = -1;
-	static const Offset kZeroOffset = 0;
+	class NodeHandler {
+	public:
+		bool IsValid() const {
+			return offset_ != kInvalidOffset;
+		}
 
-	Offset root_offset_;
+		Offset GetOffset() const {
+			return offset_;
+		}
+
+		void* GetAddress() const {
+			return reinterpret_cast<char*>(owner_->buffer_) + offset_;
+		}
+
+		TypeId GetKey() const {
+			return (*this)->key;
+		}
+
+		LookupIndex GetLookupIndex() const {
+			return (*this)->lookup_index;
+		}
+
+		NodeHandler GetParent() const {
+			return { owner_, (*this)->parent_offset };
+		}
+
+		void SetParent(NodeHandler node) {
+			(*this)->parent_offset = node.GetOffset();
+		}
+
+		NodeHandler GetLeft() const {
+			return { owner_, (*this)->left_offset };
+		}
+
+		void SetLeft(NodeHandler node) {
+			(*this)->left_offset = node.GetOffset();
+		}
+
+		NodeHandler GetRight() const {
+			return { owner_, (*this)->right_offset };
+		}
+
+		void SetRight(NodeHandler node) {
+			(*this)->right_offset = node.GetOffset();
+		}
+
+		NodeHandler(Entity* owner, Offset offset)
+			: owner_(owner)
+			, offset_(offset)
+		{}
+
+		Node* operator->() const {
+			return reinterpret_cast<Node*>(GetAddress());
+		}
+		
+	private:
+		Entity* owner_;
+		Offset offset_;
+	};
+
+	struct Lookup {
+		TypeId type_id_{ Identifier::kInvalid };
+		Offset offset_{ kInvalidOffset};
+	};
+
+	class LookupTable {
+	public:
+		size_t GetSize() {
+			return table_.size();
+		}
+		
+		LookupTable()
+			: table_()
+			, head_(kInvalidIndex)
+		{}
+
+		LookupIndex CreateLookup(TypeId type_id, Offset offset) {
+			if (head_ == kInvalidIndex) {
+				Lookup& lookup = table_.emplace_back(type_id, offset);
+				return table_.size() - 1;
+			} else {
+				int lookup_index = head_;
+				Lookup& lookup = table_[lookup_index];
+				head_ = lookup.offset_;
+				lookup.type_id_ = type_id;
+				lookup.offset_ = offset;
+				return lookup_index;
+			}			
+		}
+
+		void DeleteLookup(LookupIndex lookup_index) {
+			assert(lookup_index >= 0 && lookup_index < table_.size() && "Invalid lookup index.");
+			Lookup& lookup = table_[lookup_index];
+			lookup.type_id_ = Identifier::kInvalid;
+			lookup.offset_ = head_;
+			head_ = lookup_index;
+		}
+
+		Lookup& operator[](LookupIndex index) {
+			return table_[index];
+		}
+
+	private:
+		std::vector<Lookup> table_;
+		LookupIndex head_;
+	};
+
+	friend bool operator==(const NodeHandler& lhs, const NodeHandler& rhs) {
+		return lhs.GetOffset() == rhs.GetOffset();
+	}
+
+	static const Offset kInvalidOffset = -1;
+	static const LookupIndex kInvalidIndex = -1;
+
+	NodeHandler root_;
 
 	void* buffer_;
 	size_t size_;
 	size_t capacity_;
 
-	static IReflectable* GetComponent(Node* node) {
-		char* temp = reinterpret_cast<char*>(node);
+	LookupTable table_;
+
+	static IReflectable* GetComponent(NodeHandler node) {
+		char* temp = reinterpret_cast<char*>(node.GetAddress());
 		temp += sizeof(Node);
 		return reinterpret_cast<IReflectable*>(temp);
 	}
@@ -96,76 +280,59 @@ private:
 	}
 
 	template<typename TComponent>
-	static IReflectable* SetComponent(Node* node) {
-		char* temp = reinterpret_cast<char*>(node);
+	static IReflectable* SetComponent(NodeHandler node) {
+		char* temp = reinterpret_cast<char*>(node.GetAddress());
 		temp += sizeof(Node);
 		IReflectable* component = new (temp) TComponent;
 		return component;
 	}
 
-	void PrintTree(Node* tree, std::string indent, bool last)
+	void PrintTree(NodeHandler tree, std::string indent, bool last)
 	{
 		std::cout << indent << "+- " << tree->key << "\n";
 		indent += last ? "   " : "|  ";
 
-		if (tree->left_offset != kInvalidOffset) 
+		if (tree.GetLeft().IsValid())
 		{
-			PrintTree(GetNode(tree->left_offset), indent, false);
+			PrintTree(tree.GetLeft(), indent, false);
 		}
-		if (tree->right_offset != kInvalidOffset)
+		if (tree.GetRight().IsValid())
 		{
-			PrintTree(GetNode(tree->right_offset), indent, true);
+			PrintTree(tree.GetRight(), indent, true);
 		}
 	}
 
-	Node* GetNode(Offset offset) {
-		if (offset == kInvalidOffset) {
-			return nullptr;
+	NodeHandler GetNode(TypeId key, size_t component_size) {
+		if (!root_.IsValid()) {
+			root_ = CreateNewNode(key, component_size);
+			return root_;
 		}
 
-		char* temp = reinterpret_cast<char*>(buffer_) + offset;
-		return reinterpret_cast<Node*>(temp);
-	}
-
-	Node* GetNode(TypeId key, size_t component_size) {
-		if (root_offset_ == kInvalidOffset) {
-			Offset root_offset = CreateNewNode(key, component_size);
-			root_offset_ = root_offset;
-			return GetNode(root_offset);
-		}
-
-		Offset offset = root_offset_;
-		Node* node = GetNode(offset);
+		NodeHandler node = root_;
 
 		while (true) {
 			if (key < node->key) {
-				if (node->left_offset == kInvalidOffset) {
-					Offset left_offset = CreateNewNode(key, component_size);
-					Node* new_node = GetNode(left_offset);
-					node = GetNode(offset); // Update current node on buffer reallocation
-					new_node->parent_offset = offset;
-					node->left_offset = left_offset;
-					Balance(left_offset);
+				if (!node.GetLeft().IsValid()) {
+					NodeHandler new_node = CreateNewNode(key, component_size);
+					new_node.SetParent(node);
+					node.SetLeft(new_node);
+					Balance(new_node);
 					return new_node;
 				}
 
-				offset = node->left_offset;
-				node = GetNode(offset);
+				node = node.GetLeft();
 				continue;
 			}
 			if (key > node->key) {
-				if (node->right_offset == kInvalidOffset) {
-					Offset right_offset = CreateNewNode(key, component_size);
-					Node* new_node = GetNode(right_offset);
-					node = GetNode(offset); // Update current node on buffer reallocation
-					new_node->parent_offset = offset;
-					node->right_offset = right_offset;
-					Balance(right_offset);
+				if (!node.GetRight().IsValid()) {
+					NodeHandler new_node = CreateNewNode(key, component_size);
+					new_node.SetParent(node);
+					node.SetRight(new_node);
+					Balance(new_node);
 					return new_node;
 				}
 
-				offset = node->right_offset;
-				node = GetNode(offset);
+				node = node.GetRight();
 				continue;
 			}
 
@@ -176,7 +343,7 @@ private:
 		}
 	}
 
-	Offset CreateNewNode(TypeId key, size_t component_size) {
+	NodeHandler CreateNewNode(TypeId key, size_t component_size) {
 		size_t available = capacity_ - size_;
 		size_t desired = sizeof(Node) + component_size;
 
@@ -190,101 +357,103 @@ private:
 		
 		Offset offset = size_;
 		void* address = reinterpret_cast<char*>(buffer_) + offset;
-		new (address) Node(key, component_size);
+		LookupIndex lookup_index = table_.CreateLookup(key, offset);
+		new (address) Node(key, component_size, lookup_index);
 		size_ += desired;
-		return offset;
+		return { this, offset };
 	}
 
-	void Balance(Offset offset) {
-		while (offset != kInvalidOffset) {
-			Node* temp = GetNode(offset);
-			Node* parent = GetNode(temp->parent_offset);
+	void Balance(NodeHandler temp) {
+		while (temp.IsValid()) {
+			NodeHandler parent = temp.GetParent();
 			FixHeight(temp);
 			int balance_factor = BalanceFactor(temp);
 
 			if (balance_factor == 2) {
-				if (BalanceFactor(GetNode(temp->right_offset)) < 0) {
-					temp->right_offset = RotateRight(temp->right_offset);
-				}
+				NodeHandler right = temp.GetRight();
 
-				if (parent == nullptr) {
-					root_offset_ = RotateLeft(offset);
-				} else if (parent->left_offset == offset){
-					parent->left_offset = RotateLeft(offset);
+				if (BalanceFactor(right) < 0) {
+					temp.SetRight(RotateRight(right));
+				}
+				
+				if (!parent.IsValid()) {
+					root_ = RotateLeft(temp);
+				} else if (parent.GetLeft() == temp) {
+					parent.SetLeft(RotateLeft(temp));
 				} else {
-					parent->right_offset = RotateLeft(offset);
+					parent.SetRight(RotateLeft(temp));
 				}
 			} else if (balance_factor == -2) {
-				if (BalanceFactor(GetNode(temp->left_offset)) > 0) {
-					temp->left_offset = RotateLeft(temp->left_offset);
+				NodeHandler left = temp.GetLeft();
+
+				if (BalanceFactor(left) > 0) {
+					temp.SetLeft(RotateLeft(left));
 				}
 
-				if (parent == nullptr) {
-					root_offset_ = RotateRight(offset);
-				} else if (parent->left_offset == offset) {
-					parent->left_offset = RotateRight(offset);
+				if (!parent.IsValid()) {
+					root_ = RotateRight(temp);
+				} else if (parent.GetLeft() == temp) {
+					parent.SetLeft(RotateRight(temp));
 				} else {
-					parent->right_offset = RotateRight(offset);
+					parent.SetRight(RotateRight(temp));
 				}
 			}
 
-			offset = temp->parent_offset;
+			temp = temp.GetParent();
 		}
 	}
 
-	int BalanceFactor(Node* node) {
-		return Height(GetNode(node->right_offset)) - Height(GetNode(node->left_offset));
+	int BalanceFactor(NodeHandler node) {
+		return GetHeight(node.GetRight()) - GetHeight(node.GetLeft());
 	}
 
-	unsigned char Height(Node* node) {
-		return node != nullptr ? node->height : 0;
+	Height GetHeight(NodeHandler node) {
+		return node.IsValid() ? node->height : 0;
 	}
 
-	Offset RotateRight(Offset offset) {
-		Node* node = GetNode(offset);
-		Node* left = GetNode(node->left_offset);
-		Node* left_right = GetNode(left->right_offset);
+	NodeHandler RotateRight(NodeHandler node) {
+		NodeHandler left = node.GetLeft();
+		NodeHandler left_right = left.GetRight();
 
-		Offset temp = node->left_offset;
-		left->parent_offset = node->parent_offset;
-		node->left_offset = left->right_offset;
+		NodeHandler temp = node.GetLeft();
+		left.SetParent(node.GetParent());
+		node.SetLeft(left.GetRight());
 
-		if (left_right != nullptr) {
-			left_right->parent_offset = offset;
+		if (left_right.IsValid()) {
+			left_right.SetParent(node);
 		}
 		
-		left->right_offset = offset;
-		node->parent_offset = temp;
+		left.SetRight(node);
+		node.SetParent(temp);
 
 		FixHeight(node);
 		FixHeight(left);
 		return temp;
 	}
 
-	Offset RotateLeft(Offset offset) {
-		Node* node = GetNode(offset);
-		Node* right = GetNode(node->right_offset);
-		Node* right_left = GetNode(right->left_offset);
+	NodeHandler RotateLeft(NodeHandler node) {
+		NodeHandler right = node.GetRight();
+		NodeHandler right_left = right.GetLeft();
 
-		Offset temp = node->right_offset;
-		right->parent_offset = node->parent_offset;
-		node->right_offset = right->left_offset;
+		NodeHandler temp = node.GetRight();
+		right.SetParent(node.GetParent());
+		node.SetRight(right.GetLeft());
 
-		if (right_left != nullptr) {
-			right_left->parent_offset = offset;
+		if (right_left.IsValid()) {
+			right_left.SetParent(node);
 		}
 		
-		right->left_offset = offset;
-		node->parent_offset = temp;
+		right.SetLeft(node);
+		node.SetParent(temp);
 
 		FixHeight(node);
 		FixHeight(right);
 		return temp;
 	}
 
-	void FixHeight(Node* node) {
-		unsigned char left_height = Height(GetNode(node->left_offset));
-		unsigned char right_height = Height(GetNode(node->right_offset));
+	void FixHeight(NodeHandler node) {
+		Height left_height = GetHeight(node.GetLeft());
+		Height right_height = GetHeight(node.GetRight());
 		node->height = left_height > right_height ? left_height : right_height;
 		node->height += 1;
 	}

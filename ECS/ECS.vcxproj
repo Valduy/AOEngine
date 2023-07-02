@@ -143,6 +143,7 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Header.h" />
     <ClInclude Include="IReflectable.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Identifier.h" />

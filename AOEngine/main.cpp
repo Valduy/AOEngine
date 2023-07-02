@@ -101,5 +101,10 @@ int main() {
 	entity.DebugPrint();
 	std::cout << std::endl;
 
+	auto component_a = entity.Get<TestComponentA>();
+	component_a->Number = 15;
+
+	std::cout << "From component: " << component_a->Number << std::endl;
+
 	return 0;
 }
