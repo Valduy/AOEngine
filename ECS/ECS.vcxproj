@@ -144,7 +144,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Header.h" />
-    <ClInclude Include="IReflectable.h" />
+    <ClInclude Include="IComponent.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Identifier.h" />
     <ClInclude Include="World.h" />
@@ -162,6 +162,9 @@
     <ProjectReference Include="..\Reflection\Reflection.vcxproj">
       <Project>{cd3a8fce-606c-4a9b-aae8-bddd5fdceb03}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ECS.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

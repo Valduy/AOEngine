@@ -4,13 +4,13 @@
 
 namespace aoe {
 
-class IReflectable {
-AOE_REFLECTION_BEGIN(IReflectable)
+class IComponent {
+AOE_REFLECTION_BEGIN(IComponent)
 AOE_REFLECTION_END()
 
 public:
 	virtual const Type* GetType() = 0;
-	virtual ~IReflectable() {}
+	virtual ~IComponent() {}
 };
 
 } // namespace aoe

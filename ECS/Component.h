@@ -1,11 +1,11 @@
 #pragma once
 
-#include "IReflectable.h"
+#include "IComponent.h"
 
 namespace aoe {
 
 template<typename TComponent>
-class Component : public IReflectable {
+class Component : public IComponent {
 AOE_REFLECTION_BEGIN(Component<TComponent>)
 AOE_REFLECTION_END()
 

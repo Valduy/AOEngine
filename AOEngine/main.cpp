@@ -30,6 +30,13 @@ public:
 	char Token;
 };
 
+class Position : public aoe::Component<Position>
+{
+public:
+	float x;
+	float y;
+};
+
 class TestComponentD : public aoe::Component<TestComponentD> {
 AOE_REFLECTION_BEGIN(TestComponentD)
 AOE_REFLECTION_END()
@@ -101,10 +108,51 @@ int main() {
 	entity.DebugPrint();
 	std::cout << std::endl;
 
+	entity.Remove<TestComponentE>();
+	std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentE>() << std::endl;
+	entity.DebugPrint();
+	std::cout << std::endl;
+
+	entity.Remove<TestComponentC>();
+	std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentC>() << std::endl;
+	entity.DebugPrint();
+	std::cout << std::endl;
+
+	entity.Remove<TestComponentD>();
+	std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentD>() << std::endl;
+	entity.DebugPrint();
+	std::cout << std::endl;
+
+	entity.Remove<TestComponentD>();
+
 	auto component_a = entity.Get<TestComponentA>();
 	component_a->Number = 15;
-
 	std::cout << "From component: " << component_a->Number << std::endl;
+
+	entity.Remove<TestComponentF>();
+	std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentF>() << std::endl;
+	entity.DebugPrint();
+	std::cout << std::endl;
+
+	entity.Remove<TestComponentB>();
+	std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentB>() << std::endl;
+	entity.DebugPrint();
+	std::cout << std::endl;
+
+	entity.Remove<TestComponentG>();
+	std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentG>() << std::endl;
+	entity.DebugPrint();
+	std::cout << std::endl;
+
+	entity.Remove<TestComponentH>();
+	std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentH>() << std::endl;
+	entity.DebugPrint();
+	std::cout << std::endl;
+
+	entity.Remove<TestComponentA>();
+	std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentA>() << std::endl;
+	entity.DebugPrint();
+	std::cout << std::endl;
 
 	return 0;
 }
