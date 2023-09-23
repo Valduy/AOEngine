@@ -6,7 +6,7 @@ using TypeId = size_t;
 
 class Identifier {
 public:
-	static const TypeId kInvalid = 0;
+	static const TypeId kInvalidId = 0;
 
 	template<typename T>
 	static TypeId GetTypeId() {

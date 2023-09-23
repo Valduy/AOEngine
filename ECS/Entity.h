@@ -70,6 +70,10 @@ public:
 	{}
 
 	~Entity() {
+		if (buffer_ == nullptr) {
+			return;
+		}
+
 		for (NodeHandler temp = GetFirstNode(); !IsEnd(temp); temp = GetNextNode(temp)) {
 			temp.FreeComponent();
 		}
@@ -94,7 +98,7 @@ public:
 			return { this, handler.GetKey(), handler.GetLookupIndex() };
 		}
 
-		return { this, Identifier::kInvalid, kInvalidIndex };
+		return { this, Identifier::kInvalidId, kInvalidIndex };
 	}
 
 	template<typename TComponent>
@@ -133,7 +137,7 @@ private:
 		Offset right_offset;
 
 		Node()
-			: Node(Identifier::kInvalid, 0, kInvalidIndex)
+			: Node(Identifier::kInvalidId, 0, kInvalidIndex)
 		{}
 
 		Node(TypeId key, Offset size, LookupIndex lookup_index)
@@ -162,6 +166,7 @@ private:
 		}
 
 		void* GetAddress() const {
+			assert(IsValid() && offset_ < owner_->size_ && "Memory corruption.");
 			return reinterpret_cast<char*>(owner_->buffer_) + offset_;
 		}
 
@@ -270,11 +275,11 @@ private:
 	};
 
 	struct Lookup {
-		TypeId type_id_{ Identifier::kInvalid };
+		TypeId type_id_{ Identifier::kInvalidId };
 		Offset offset_{ kInvalidOffset};
 
 		bool IsValid() const {
-			return offset_ != kInvalidIndex;
+			return type_id_ != Identifier::kInvalidId;
 		}
 	};
 
@@ -306,7 +311,7 @@ private:
 		void DeleteLookup(LookupIndex lookup_index) {
 			assert(lookup_index >= 0 && lookup_index < table_.size() && "Invalid lookup index.");
 			Lookup& lookup = table_[lookup_index];
-			lookup.type_id_ = Identifier::kInvalid;
+			lookup.type_id_ = Identifier::kInvalidId;
 			lookup.offset_ = head_;
 			head_ = lookup_index;
 		}
@@ -389,7 +394,10 @@ private:
 			capacity_ = size_ + desired; // TODO: amortization
 			buffer_ = malloc(capacity_);
 			memmove(buffer_, temp, size_);
-			free(temp);			
+
+			if (temp != nullptr) {
+				free(temp);
+			}		
 		}
 		
 		Offset offset = size_;
@@ -530,7 +538,8 @@ private:
 		size_t removed_size = GetBlockSize(removed);
 		size_t move_size = size_ - removed.GetOffset() - removed_size;
 		memmove(removed.GetAddress(), next.GetAddress(), move_size);
-		
+		size_ -= removed_size;
+
 		if (root_.IsValid()) {
 			for (NodeHandler temp = GetFirstNode(); !IsEnd(temp); temp = GetNextNode(temp)) {
 				Node* node = temp.GetNode();
@@ -553,7 +562,6 @@ private:
 			}
 		}
 
-		size_ -= removed_size;
 		FixTable(removed_offset, removed_size);
 	}
 
