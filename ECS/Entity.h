@@ -166,7 +166,7 @@ private:
 		}
 
 		void* GetAddress() const {
-			assert(IsValid() && offset_ < owner_->size_ && "Memory corruption.");
+			assert(IsValid() && offset_ <= owner_->size_ && "Memory corruption.");
 			return reinterpret_cast<char*>(owner_->buffer_) + offset_;
 		}
 

@@ -51,8 +51,8 @@ public:
 };
 
 class TestComponentE : public aoe::Component<TestComponentE> {
-//AOE_REFLECTION_BEGIN(TestComponentE)
-//AOE_REFLECTION_END()
+AOE_REFLECTION_BEGIN(TestComponentE)
+AOE_REFLECTION_END()
 };
 
 class TestComponentF : public aoe::Component<TestComponentF> {
@@ -69,6 +69,10 @@ class TestComponentH : public aoe::Component<TestComponentH> {
 AOE_REFLECTION_BEGIN(TestComponentH)
 AOE_REFLECTION_END()
 };
+
+// Archetype
+// Family
+// World
 
 int main() {
 	for (size_t ttt = 0; ttt < 1; ++ttt) {
@@ -205,27 +209,27 @@ int main() {
 			[&]() {entity.Get<TestComponentH>(); },
 		};
 
-		std::map<size_t, TestComponentB*> map_entity;
-		map_entity[0] = new TestComponentB();
+		std::map<size_t, aoe::IComponent*> map_entity;
+		map_entity[0] = new TestComponentA();
 		map_entity[1] = new TestComponentB();
-		map_entity[2] = new TestComponentB();
-		map_entity[3] = new TestComponentB();
-		map_entity[4] = new TestComponentB();
-		map_entity[5] = new TestComponentB();
-		map_entity[6] = new TestComponentB();
-		map_entity[7] = new TestComponentB();
+		map_entity[2] = new TestComponentC();
+		map_entity[3] = new TestComponentD();
+		map_entity[4] = new TestComponentE();
+		map_entity[5] = new TestComponentF();
+		map_entity[6] = new TestComponentG();
+		map_entity[7] = new TestComponentH();
 
-		std::map<size_t, TestComponentB*> umap_entity;
-		umap_entity[0] = new TestComponentB();
+		std::map<size_t, aoe::IComponent*> umap_entity;
+		umap_entity[0] = new TestComponentA();
 		umap_entity[1] = new TestComponentB();
-		umap_entity[2] = new TestComponentB();
-		umap_entity[3] = new TestComponentB();
-		umap_entity[4] = new TestComponentB();
-		umap_entity[5] = new TestComponentB();
-		umap_entity[6] = new TestComponentB();
-		umap_entity[7] = new TestComponentB();
+		umap_entity[2] = new TestComponentC();
+		umap_entity[3] = new TestComponentD();
+		umap_entity[4] = new TestComponentE();
+		umap_entity[5] = new TestComponentF();
+		umap_entity[6] = new TestComponentG();
+		umap_entity[7] = new TestComponentH();
 
-		size_t iterations = 100000;
+		size_t iterations = 2;
 		size_t octet = 8;
 
 		uint8_t signature = 0;
@@ -288,7 +292,7 @@ int main() {
 
 			for (size_t j = 0; j < octet; ++j) {
 				if (signature & mask) {
-					auto component = *map_entity[j];
+					map_entity[j]->GetType();
 				}
 
 				mask <<= 1;
@@ -311,7 +315,7 @@ int main() {
 
 			for (size_t j = 0; j < octet; ++j) {
 				if (signature & mask) {
-					auto component = *umap_entity[j];
+					umap_entity[j]->GetType();
 				}
 
 				mask <<= 1;
