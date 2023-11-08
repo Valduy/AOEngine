@@ -13,100 +13,97 @@ namespace aoe {
 
 class World {
 public:
-	Version GetVersion(EntityId entity_id) {
-		assert(entity_id >= 0 && "Invalid entity.");
-
-		if (entity_id < sparse_.size()) {
-			return sparse_[entity_id].version;
+	bool IsValid(Entity entity) {
+		assert(entity.GetId() >= 0 && "Invalid entity.");
+		
+		if (entity.GetId() >= sparse_.size()) {
+			return false;
 		}
 
-		return kNullVersion;
+		Lookup lookup = sparse_[entity.GetId()];
+
+		if (lookup >= bound_) {
+			return false;
+		}
+
+		return dense_[lookup].GetVersion() == entity.GetVersion();
 	}
 
-	bool IsValid(EntityId entity_id) {
-		assert(entity_id >= 0 && "Invalid entity.");
-		EntityDescriptor& descriptor = sparse_[entity_id];
-		return descriptor.lookup < bound_;
-	}
-
-	EntityId Create() {
+	Entity Create() {
 		if (bound_ < dense_.size()) {
-			EntityId entity_id = dense_[bound_];
+			Entity entity = dense_[bound_];
 			bound_ += 1;
-			return entity_id;
+			return entity;
 		}
 
 		assert(bound_ == dense_.size() && "Invalid bound.");
-		sparse_.emplace_back(kInitialVersion, bound_);
-		dense_.push_back(dense_.size());
-		EntityId entity_id = bound_;
+		sparse_.push_back(bound_);
 		bound_ += 1;
-		return entity_id;
+		return dense_.emplace_back(dense_.size());
 	}
 
-	void Destroy(EntityId entity_id) {
-		if (IsValid(entity_id)) {
-			to_destroy_.push_back(entity_id);
+	void Destroy(Entity entity) {
+		if (IsValid(entity)) {
+			to_destroy_.push_back(entity);
 		}
 	}
 
 	template<typename TComponent>
-	bool Has(EntityId entity_id) {
-		assert(IsValid(entity_id) && "Invalid entity.");
+	bool Has(Entity entity) {
+		assert(IsValid(entity) && "Invalid entity.");
 		Pool<TComponent>* pool = GetPool<TComponent>();
 
 		if (pool == nullptr) {
 			return false;
 		}
 
-		return pool->Has(entity_id);
+		return pool->Has(entity.GetId());
 	}
 
 	template<typename TComponent, typename ...TArgs>
-	void Add(EntityId entity_id, TArgs&&... args) {
-		assert(IsValid(entity_id) && "Invalid entity.");
+	void Add(Entity entity, TArgs&&... args) {
+		assert(IsValid(entity) && "Invalid entity.");
 		Pool<TComponent>* pool = GetPool<TComponent>();
 
 		if (pool == nullptr) {
 			pool = CreatePool<TComponent>();
 		}
 
-		pool->Add(entity_id, std::forward<TArgs>(args)...);
+		pool->Add(entity.GetId(), std::forward<TArgs>(args)...);
 	}
 
 	template<typename TComponent>
-	ComponentHandler<TComponent> Get(EntityId entity_id) {
-		assert(IsValid(entity_id) && "Invalid entity.");
+	ComponentHandler<TComponent> Get(Entity entity) {
+		assert(IsValid(entity) && "Invalid entity.");
 		Pool<TComponent>* pool = GetPool<TComponent>();
-		return { pool, entity_id };
+		return { pool, entity.GetId() };
 	}
 
 	template<typename TComponent>
-	void Remove(EntityId entity_id) {
-		assert(IsValid(entity_id) && "Invalid entity.");
+	void Remove(Entity entity) {
+		assert(IsValid(entity) && "Invalid entity.");
 		Pool<TComponent>* pool = GetPool<TComponent>();
 
 		if (pool != nullptr) {
-			pool->Remove(entity_id);
+			pool->Remove(entity.GetId());
 		}
 	}
 
 	void Validate() {
-		for (EntityId entity_id : to_destroy_) {
-			if (!IsValid(entity_id)) {
+		for (Entity entity : to_destroy_) {
+			if (!IsValid(entity)) {
 				continue;
 			}
 
 			bound_ -= 1;
-			EntityDescriptor& descriptor = sparse_[entity_id];
-			EntityId moved = dense_[bound_];
-			std::swap(dense_[descriptor.lookup], dense_[bound_]);
-			sparse_[moved].lookup = descriptor.lookup;
-			descriptor.lookup = bound_;
-			descriptor.version += 1;
+			Entity moved = dense_[bound_];
 
+			std::swap(sparse_[entity.GetId()], sparse_[moved.GetId()]);
+			dense_[sparse_[moved.GetId()]] = moved;
+			dense_[sparse_[entity.GetId()]] = {entity.GetVersion() + 1, entity.GetId()};
+			
 			for (auto& it : pools_) {
-				it.second->Remove(entity_id);
+				it.second->Remove(entity.GetId());
 			}
 		}
 	}
@@ -120,35 +117,23 @@ public:
 		}
 
 		for (size_t i = 0; i < bound_; ++i) {
-			EntityId entity_id = dense_[i];
+			Entity entity = dense_[i];
 
-			if ((!std::get<Pool<TComponents>*>(pools)->Has(entity_id) || ...)) {
+			if ((!std::get<Pool<TComponents>*>(pools)->Has(entity.GetId()) || ...)) {
 				continue;
 			}
 
-			function(entity_id, ComponentHandler<TComponents>(std::get<Pool<TComponents>*>(pools), entity_id)...);
+			function(entity, ComponentHandler<TComponents>(std::get<Pool<TComponents>*>(pools), entity.GetId())...);
 		}
 	}
 
 private:
-	using Lookup = EntityId;
-
-	static const Version kInitialVersion = 0;
-
-	struct EntityDescriptor {
-		Version version;
-		Lookup lookup;
-
-		EntityDescriptor(Version version, Lookup lookup)
-			: version(version)
-			, lookup(lookup)
-		{}
-	};
+	using Lookup = size_t;
 
 	std::unordered_map<TypeId, IPool*> pools_;
-	std::vector<EntityDescriptor> sparse_;
-	std::vector<EntityId> dense_;
-	std::vector<EntityId> to_destroy_;
+	std::vector<Lookup> sparse_;
+	std::vector<Entity> dense_;
+	std::vector<Entity> to_destroy_;
 
 	Lookup bound_ = 0;
 

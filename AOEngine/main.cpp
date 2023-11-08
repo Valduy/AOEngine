@@ -149,10 +149,10 @@ void TestPool() {
 
 void TestWorld() {
 	aoe::World world;
-	aoe::EntityId e0 = world.Create();
-	aoe::EntityId e1 = world.Create();
-	aoe::EntityId e2 = world.Create();
-	aoe::EntityId e3 = world.Create();
+	aoe::Entity e0 = world.Create();
+	aoe::Entity e1 = world.Create();
+	aoe::Entity e2 = world.Create();
+	aoe::Entity e3 = world.Create();
 
 	world.Destroy(e1);
 	world.Validate();
@@ -162,7 +162,7 @@ void TestWorld() {
 
 	world.ForEach<TestComponentA>([&](auto ent, auto ca) {
 		auto t = 0;
-		auto v = world.GetVersion(ent);
+		//auto v = ent.version;
 	});
 }
 
