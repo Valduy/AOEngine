@@ -5,19 +5,22 @@
 #include "Preregistrator.h"
 #include "Test1.h"
 #include "Test2.h"
-#include "../ECS/Component.h"
-#include "../ECS/Entity.h"
+#include "../ECS/World.h"
 #include "entt.hpp"
 
-class TestComponentA : public aoe::Component<TestComponentA> {
+class TestComponentA {
 AOE_REFLECTION_BEGIN(TestComponentA)
 AOE_REFLECTION_END()
 
 public:
+	TestComponentA(size_t number)
+		: Number(number)
+	{}
+
 	size_t Number;
 };
 
-class TestComponentB : public aoe::Component<TestComponentB> {
+class TestComponentB {
 AOE_REFLECTION_BEGIN(TestComponentB)
 AOE_REFLECTION_END()
 
@@ -27,7 +30,7 @@ public:
 	float Z;
 };
 
-class TestComponentC : public aoe::Component<TestComponentC> {
+class TestComponentC {
 AOE_REFLECTION_BEGIN(TestComponentC)
 AOE_REFLECTION_END()
 
@@ -35,14 +38,14 @@ public:
 	char Token;
 };
 
-class Position : public aoe::Component<Position>
+class Position
 {
 public:
 	float x;
 	float y;
 };
 
-class TestComponentD : public aoe::Component<TestComponentD> {
+class TestComponentD {
 AOE_REFLECTION_BEGIN(TestComponentD)
 AOE_REFLECTION_END()
 
@@ -50,22 +53,22 @@ public:
 	float Epsilon;
 };
 
-class TestComponentE : public aoe::Component<TestComponentE> {
+class TestComponentE {
 AOE_REFLECTION_BEGIN(TestComponentE)
 AOE_REFLECTION_END()
 };
 
-class TestComponentF : public aoe::Component<TestComponentF> {
+class TestComponentF {
 AOE_REFLECTION_BEGIN(TestComponentF)
 AOE_REFLECTION_END()
 };
 
-class TestComponentG : public aoe::Component<TestComponentG> {
+class TestComponentG {
 AOE_REFLECTION_BEGIN(TestComponentG)
 AOE_REFLECTION_END()
 };
 
-class TestComponentH : public aoe::Component<TestComponentH> {
+class TestComponentH {
 AOE_REFLECTION_BEGIN(TestComponentH)
 AOE_REFLECTION_END()
 };
@@ -74,268 +77,107 @@ AOE_REFLECTION_END()
 // Family
 // World
 
-int main() {
-	for (size_t ttt = 0; ttt < 1; ++ttt) {
-		aoe::Entity entity;
+void PoolManualTest() {
+	aoe::Pool<TestComponentA> pool;
+	aoe::EntityId entity0 = 0;
+	aoe::EntityId entity1 = 1;
+	aoe::EntityId entity2 = 2;
+	aoe::EntityId entity3 = 3;
 
-		entity.Add<TestComponentH>();
-		std::cout << "\nFrom main" << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
+	pool.Add(entity0, static_cast<size_t>(0));
+	pool.Add(entity1, static_cast<size_t>(1));
+	pool.Add(entity2, static_cast<size_t>(2));
+	pool.Add(entity3, static_cast<size_t>(3));
 
-		entity.Add<TestComponentG>();
-		std::cout << "\nFrom main" << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
+	auto hd0 = pool.Get(entity0);
+	auto hd1 = pool.Get(entity1);
+	auto hd2 = pool.Get(entity2);
+	auto hd3 = pool.Get(entity3);
 
-		entity.Add<TestComponentF>();
-		std::cout << "\nFrom main" << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
+	pool.Remove(entity0);
+	pool.Remove(entity2);
 
-		entity.Add<TestComponentE>();
-		std::cout << "\nFrom main" << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
+	hd0 = pool.Get(entity0);
+	hd1 = pool.Get(entity1);
+	hd2 = pool.Get(entity2);
+	hd3 = pool.Get(entity3);
+}
 
-		entity.Add<TestComponentD>();
-		std::cout << "\nFrom main" << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
+void PoolCombinationsTest() {
+	aoe::Pool<TestComponentA> pool;
+	size_t octet = 8;
 
-		entity.Add<TestComponentC>();
-		std::cout << "\nFrom main" << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
+	for (uint8_t signature = 1; signature < std::numeric_limits<uint8_t>::max(); ++signature) {
+		uint8_t reference = 1;
 
-		entity.Add<TestComponentB>();
-		std::cout << "\nFrom main" << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
-
-		entity.Add<TestComponentA>();
-		std::cout << "\nFrom main" << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
-
-		// My remove logic somehow corrupt heap( (Compress??)
-
-		entity.Remove<TestComponentE>();
-		std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentE>() << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
-
-		entity.Remove<TestComponentC>();
-		std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentC>() << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
-
-		entity.Remove<TestComponentD>();
-		std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentD>() << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
-
-		entity.Remove<TestComponentD>();
-
-		auto component_a = entity.Get<TestComponentA>();
-		component_a->Number = 15;
-		std::cout << "From component: " << component_a->Number << std::endl;
-
-		entity.Remove<TestComponentF>();
-		std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentF>() << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
-
-		entity.Remove<TestComponentB>();
-		std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentB>() << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
-
-		entity.Remove<TestComponentG>();
-		std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentG>() << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
-
-		entity.Remove<TestComponentH>();
-		std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentH>() << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
-
-		entity.Remove<TestComponentA>();
-		std::cout << "\nFrom main after remove component: " << aoe::Identifier::GetTypeId<TestComponentA>() << std::endl;
-		entity.DebugPrint();
-		std::cout << std::endl;
-
-		// pseudotest
-		entt::registry registry;
-		const auto entt = registry.create();
-		registry.emplace<TestComponentA>(entt);
-		registry.emplace<TestComponentB>(entt);
-		registry.emplace<TestComponentC>(entt);
-		registry.emplace<TestComponentD>(entt);
-		registry.emplace<TestComponentE>(entt);
-		registry.emplace<TestComponentF>(entt);
-		registry.emplace<TestComponentG>(entt);
-		registry.emplace<TestComponentH>(entt);
-
-		std::vector<std::function<void()>> enttccessors{
-			[&]() {registry.get<TestComponentA>(entt); },
-			[&]() {registry.get<TestComponentB>(entt); },
-			[&]() {registry.get<TestComponentC>(entt); },
-			[&]() {registry.get<TestComponentD>(entt); },
-			[&]() {registry.get<TestComponentE>(entt); },
-			[&]() {registry.get<TestComponentF>(entt); },
-			[&]() {registry.get<TestComponentG>(entt); },
-			[&]() {registry.get<TestComponentH>(entt); },
-		};
-
-		entity.Add<TestComponentA>();
-		entity.Add<TestComponentB>();
-		entity.Add<TestComponentC>();
-		entity.Add<TestComponentD>();
-		entity.Add<TestComponentE>();
-		entity.Add<TestComponentF>();
-		entity.Add<TestComponentG>();
-		entity.Add<TestComponentH>();
-
-		std::vector<std::function<void()>> accessors{
-			[&]() {entity.Get<TestComponentA>(); },
-			[&]() {entity.Get<TestComponentB>(); },
-			[&]() {entity.Get<TestComponentC>(); },
-			[&]() {entity.Get<TestComponentD>(); },
-			[&]() {entity.Get<TestComponentE>(); },
-			[&]() {entity.Get<TestComponentF>(); },
-			[&]() {entity.Get<TestComponentG>(); },
-			[&]() {entity.Get<TestComponentH>(); },
-		};
-
-		std::map<size_t, aoe::IComponent*> map_entity;
-		map_entity[0] = new TestComponentA();
-		map_entity[1] = new TestComponentB();
-		map_entity[2] = new TestComponentC();
-		map_entity[3] = new TestComponentD();
-		map_entity[4] = new TestComponentE();
-		map_entity[5] = new TestComponentF();
-		map_entity[6] = new TestComponentG();
-		map_entity[7] = new TestComponentH();
-
-		std::map<size_t, aoe::IComponent*> umap_entity;
-		umap_entity[0] = new TestComponentA();
-		umap_entity[1] = new TestComponentB();
-		umap_entity[2] = new TestComponentC();
-		umap_entity[3] = new TestComponentD();
-		umap_entity[4] = new TestComponentE();
-		umap_entity[5] = new TestComponentF();
-		umap_entity[6] = new TestComponentG();
-		umap_entity[7] = new TestComponentH();
-
-		size_t iterations = 2;
-		size_t octet = 8;
-
-		uint8_t signature = 0;
-		auto start = std::chrono::high_resolution_clock::now();
-		auto stop = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-
-		signature = 0;
-		start = std::chrono::high_resolution_clock::now();
-
-		for (size_t i = 0; i < iterations; ++i) {
-			uint8_t temp = signature;
-			uint8_t mask = 1;
-
-			for (size_t j = 0; j < octet; ++j) {
-				if (signature & mask) {
-					auto enttccessor = enttccessors[j];
-					enttccessor();
-				}
-
-				mask <<= 1;
+		for (size_t pos = 0; pos < octet; ++pos) {
+			if (signature & reference) {
+				aoe::EntityId entity = pos;
+				pool.Add(entity, pos);
 			}
 
-			signature += 1;
+			reference <<= 1;
 		}
 
-		stop = std::chrono::high_resolution_clock::now();
-		duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-		std::cout << "Entt: " << duration.count() << std::endl;
+		reference = 1;
 
-		signature = 0;
-		start = std::chrono::high_resolution_clock::now();
+		for (size_t pos = 0; pos < octet; ++pos) {
+			aoe::EntityId entity = pos;
 
-		for (size_t i = 0; i < iterations; ++i) {
-			uint8_t temp = signature;
-			uint8_t mask = 1;
-
-			for (size_t j = 0; j < octet; ++j) {
-				if (signature & mask) {
-					auto accessor = accessors[j];
-					accessor();
-				}
-
-				mask <<= 1;
+			if (signature & reference) {
+				assert(pool.Has(entity));
+				assert(pool.Get(entity)->Number == pos);
+			} else {
+				assert(!pool.Has(entity));
+				assert(pool.Get(entity) == nullptr);
 			}
 
-			signature += 1;
+			reference <<= 1;
 		}
 
-		stop = std::chrono::high_resolution_clock::now();
-		duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-		std::cout << "Entity: " << duration.count() << std::endl;
-
-		signature = 0;
-		start = std::chrono::high_resolution_clock::now();
-
-		for (size_t i = 0; i < iterations; ++i) {
-			uint8_t temp = signature;
-			uint8_t mask = 1;
-
-			for (size_t j = 0; j < octet; ++j) {
-				if (signature & mask) {
-					map_entity[j]->GetType();
-				}
-
-				mask <<= 1;
-			}
-
-			signature += 1;
-		}
-
-		stop = std::chrono::high_resolution_clock::now();
-		duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-		std::cout << "Map: " << duration.count() << std::endl;
-
-		signature = 0;
-
-		start = std::chrono::high_resolution_clock::now();
-
-		for (size_t i = 0; i < iterations; ++i) {
-			uint8_t temp = signature;
-			uint8_t mask = 1;
-
-			for (size_t j = 0; j < octet; ++j) {
-				if (signature & mask) {
-					umap_entity[j]->GetType();
-				}
-
-				mask <<= 1;
-			}
-
-			signature += 1;
-		}
-
-		stop = std::chrono::high_resolution_clock::now();
-		duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-		std::cout << "Umap: " << duration.count() << std::endl;
-
-		for (auto it : map_entity) {
-			delete it.second;
-		}
-
-		for (auto it : umap_entity) {
-			delete it.second;
+		for (size_t pos = 0; pos < octet; ++pos) {
+			aoe::EntityId entity = pos;
+			pool.Remove(entity);
 		}
 	}
+}
+
+void TestPool() {
+	PoolManualTest();
+	PoolCombinationsTest();
+}
+
+void TestWorld() {
+	aoe::World world;
+	aoe::EntityId e0 = world.Create();
+	aoe::EntityId e1 = world.Create();
+	aoe::EntityId e2 = world.Create();
+	aoe::EntityId e3 = world.Create();
+
+	world.Destroy(e1);
+	world.Validate();
+
+	world.Add<TestComponentA>(e0, 0);
+	world.Add<TestComponentA>(e2, 0);
+
+	world.ForEach<TestComponentA>([&](auto ent, auto ca) {
+		auto t = 0;
+		auto v = world.GetVersion(ent);
+	});
+}
+
+int main() {
+	TestPool();
+	TestWorld();
+
+	entt::registry registry;
+	auto entity_0 = registry.create();
+	auto version_0 = registry.current(entity_0);
+	registry.destroy(entity_0);
+	version_0 = registry.current(entity_0);
+	auto entity_1 = registry.create();
+	auto version_1 = registry.current(entity_1);
+	registry.destroy(entity_1);
 
 	return 0;
 }

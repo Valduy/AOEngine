@@ -40,7 +40,8 @@ public:
 		std::string name(TypeName<T>());
 		auto type_id = Identifier::GetTypeId<T>();
 		auto* type = new Type(type_id, name, fields, base_classes, constructor_);
-		return Reflector::Register<T>(type);
+		Reflector::Register<T>(type);
+		return type;
 	}
 };
 
