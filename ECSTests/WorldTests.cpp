@@ -4,8 +4,6 @@
 
 #include "../ECS/World.h"
 
-// foreach
-
 namespace aoe_tests{
 namespace ecs_tests {
 
