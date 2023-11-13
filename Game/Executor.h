@@ -10,49 +10,12 @@ class Executor {
 public:
 	static constexpr float kFrameSec = 1.0f / 60;
 
-	Executor(IGame& game)
-		: game_(game)
-		, timestamp_()
-		, lag_(0.0f)
-	{}
+	Executor(IGame& game);
 
-	void Initialize() {
-		game_.Initialize();
-	}
-
-	void Terminate() {
-		game_.Terminate();
-	}
-
-	void ResetDeltaTime() {
-		timestamp_ = clock::now();
-	}
-
-	void Tick() {
-		using namespace std::chrono;
-		
-		time_point time = clock::now();
-		nanoseconds duration_ns = time - timestamp_;
-		float dt = duration_cast<duration<float>>(duration_ns).count();
-		size_t compinsations = 0;
-
-		timestamp_ = time;
-		lag_ += dt;
-
-		while (lag_ >= kFrameSec) {
-			lag_ -= kFrameSec;
-			game_.PerFrameUpdate(kFrameSec);
-			compinsations += 1;
-
-			if (compinsations >= kLagCompinsationLimitation) {
-				dt = kFrameSec * kLagCompinsationLimitation;
-				lag_ = 0;
-				break;
-			}
-		}
-
-		game_.PerTickUpdate(dt);
-	}
+	void Initialize();
+	void Terminate();
+	void ResetDeltaTime();
+	void Tick();
 
 private:
 	using clock = std::chrono::high_resolution_clock;

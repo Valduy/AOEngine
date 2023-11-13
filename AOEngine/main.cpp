@@ -2,6 +2,8 @@
 
 #include "../ECS/World.h"
 #include "../Game/Executor.h"
+#include "../Application/Application.h"
+#include "../Core/Logger.h"
 
 class TestGame : public aoe::IGame {
 public:
@@ -11,17 +13,15 @@ public:
 	
 	void PerTickUpdate(float dt) override {
 		perTickSum += dt;
-		//std::cout << "dt: " << dt << std::endl;
 	}
 
 	void PerFrameUpdate(float dt) override {
 		perFrameSum += dt;
-		//std::cout << "fixed delta time: " << dt << std::endl;
 
 		if (perFrameSum >= 1.0f) {
-			std::cout << "Another one second" << std::endl;
-			std::cout << "PerTickSum: " << perTickSum << std::endl;
-			std::cout << "PerFrameSum: " << perFrameSum << std::endl;
+			AOE_LOG_INFO("Another one seccon");
+			AOE_LOG_INFO("PerTickSum: {}", perTickSum);
+			AOE_LOG_INFO("PerFrameSum: {}", perFrameSum);
 
 			perTickSum = 0;
 			perFrameSum = 0;
@@ -34,13 +34,12 @@ private:
 };
 
 int main() {
+	aoe::Application application(L"Game", 800, 600);
+
 	TestGame game;
 	aoe::Executor executor(game);
-	executor.ResetDeltaTime();
-
-	while (true) {
-		executor.Tick();
-	}
+	application.SetExecutor(&executor);
+	application.Start();
 
 	return 0;
 }

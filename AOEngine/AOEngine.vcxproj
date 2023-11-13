@@ -135,6 +135,9 @@
     <ProjectReference Include="..\ECS\ECS.vcxproj">
       <Project>{7fce3e9e-4877-4cac-90c5-65e4ab601ddc}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Game\Game.vcxproj">
+      <Project>{bedde727-ec47-4820-9a2e-5e6d223f215b}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Reflection\Reflection.vcxproj">
       <Project>{cd3a8fce-606c-4a9b-aae8-bddd5fdceb03}</Project>
     </ProjectReference>
