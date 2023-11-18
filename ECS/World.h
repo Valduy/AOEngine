@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cassert>
 #include <vector>
 #include <unordered_map>
 
+#include "../Core/Debug.h"
 #include "../Core/Identifier.h"
 
 #include "Pool.h"
@@ -14,8 +14,8 @@ namespace aoe {
 class World {
 public:
 	bool IsValid(Entity entity) {
-		assert(entity.GetId() >= 0 && "Invalid entity.");
-		
+		AOE_ASSERT_MSG(entity.GetId() >= 0, "Invalid entity.");
+
 		if (entity.GetId() >= sparse_.size()) {
 			return false;
 		}
@@ -36,7 +36,7 @@ public:
 			return entity;
 		}
 
-		assert(bound_ == dense_.size() && "Invalid bound.");
+		AOE_ASSERT_MSG(bound_ == dense_.size(), "Invalid bound.");
 		sparse_.push_back(bound_);
 		bound_ += 1;
 		return dense_.emplace_back(dense_.size());
@@ -50,7 +50,7 @@ public:
 
 	template<typename TComponent>
 	bool Has(Entity entity) {
-		assert(IsValid(entity) && "Invalid entity.");
+		AssertEntityIsValid(entity);
 		Pool<TComponent>* pool = GetPool<TComponent>();
 
 		if (pool == nullptr) {
@@ -62,7 +62,7 @@ public:
 
 	template<typename TComponent, typename ...TArgs>
 	void Add(Entity entity, TArgs&&... args) {
-		assert(IsValid(entity) && "Invalid entity.");
+		AssertEntityIsValid(entity);
 		Pool<TComponent>* pool = GetPool<TComponent>();
 
 		if (pool == nullptr) {
@@ -74,14 +74,14 @@ public:
 
 	template<typename TComponent>
 	ComponentHandler<TComponent> Get(Entity entity) {
-		assert(IsValid(entity) && "Invalid entity.");
+		AssertEntityIsValid(entity);
 		Pool<TComponent>* pool = GetPool<TComponent>();
 		return { pool, entity.GetId() };
 	}
 
 	template<typename TComponent>
 	void Remove(Entity entity) {
-		assert(IsValid(entity) && "Invalid entity.");
+		AssertEntityIsValid(entity);
 		Pool<TComponent>* pool = GetPool<TComponent>();
 
 		if (pool != nullptr) {
@@ -136,6 +136,10 @@ private:
 	std::vector<Entity> to_destroy_;
 
 	Lookup bound_ = 0;
+
+	void AssertEntityIsValid(Entity entity) {
+		AOE_ASSERT_MSG(IsValid(entity), "Invalid entity.");
+	}
 
 	template<typename TComponent>
 	Pool<TComponent>* GetPool() {

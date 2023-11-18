@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cassert>
-
+#include "../Core/Debug.h"
 #include "../Game/Executor.h"
 
 #include "Window.h"
@@ -25,7 +24,7 @@ public:
 	{}
 
 	void Start() {
-		assert(executor_ != nullptr, "Executor is not setuped.");
+		AOE_ASSERT_MSG(executor_ != nullptr, "Executor is not setuped.");
 
 		MSG msg = {};
 		bool is_exit_requested = false;
@@ -51,8 +50,8 @@ public:
 	}
 
 	void Stop() {
-		// TODO: implementation
-		throw "Not implemented.";
+		// TODO: implement
+		AOE_ASSERT_MSG(false, "Not implemented.");
 	}
 
 private:

@@ -4,6 +4,7 @@
 #include "../Game/Executor.h"
 #include "../Application/Application.h"
 #include "../Core/Logger.h"
+#include "../Core/Debug.h"
 
 class TestGame : public aoe::IGame {
 public:
@@ -19,7 +20,7 @@ public:
 		perFrameSum += dt;
 
 		if (perFrameSum >= 1.0f) {
-			AOE_LOG_INFO("Another one seccon");
+			AOE_LOG_INFO("Another one second");
 			AOE_LOG_INFO("PerTickSum: {}", perTickSum);
 			AOE_LOG_INFO("PerFrameSum: {}", perFrameSum);
 

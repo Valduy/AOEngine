@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cassert>
+#include "../Core/Debug.h"
 
 #include "ECS.h"
 
@@ -31,9 +31,9 @@ public:
 	}
 
 	TComponent* Get() const {
-		assert(pool_ != nullptr && "Handler is invalid.");
+		AOE_ASSERT_MSG(pool_ != nullptr, "Handler is invalid.");
 		TComponent* component = pool_->Get(entity_id_);
-		assert(component != nullptr && "Handler is invalid.");
+		AOE_ASSERT_MSG(component != nullptr, "Handler is invalid.");
 		return component;
 	}
 

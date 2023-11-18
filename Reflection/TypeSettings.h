@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "../Core/Debug.h"
+
 #include "Field.h"
 #include "TypeName.h"
 
@@ -15,7 +17,7 @@ public:
 
 	TypeSettings() {
 		constructor_ = []() {
-			assert(false && "There is no registered constructor for this type.");
+			AOE_ASSERT_MSG(false, "There is no registered constructor for this type.");
 			return nullptr;
 		};
 	}

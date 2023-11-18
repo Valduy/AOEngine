@@ -1,7 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <cassert>
+
+#include "../Core/Debug.h"
 
 #include "IPool.h"
 #include "ComponentHandler.h"
@@ -22,7 +23,7 @@ public:
 	{}
 
 	bool Has(EntityId entity_id) override {
-		assert(entity_id >= 0 && "Invalid entity.");
+		AssertEntityIsValid(entity_id);
 
 		if (entity_id >= sparse_.size()) {
 			return false;
@@ -33,7 +34,7 @@ public:
 	}
 
 	TComponent* Get(EntityId entity_id) {
-		assert(entity_id >= 0 && "Invalid entity.");
+		AssertEntityIsValid(entity_id);
 
 		if (entity_id >= sparse_.size()) {
 			return nullptr;
@@ -51,7 +52,7 @@ public:
 
 	template<typename ...TArgs>
 	void Add(EntityId entity_id, TArgs&&... args) {
-		assert(entity_id >= 0 && "Invalid entity.");
+		AssertEntityIsValid(entity_id);
 
 		if (entity_id >= sparse_.size()) {
 			sparse_.resize(entity_id + 1, kInvalid);
@@ -70,7 +71,7 @@ public:
 	}
 
 	void Remove(EntityId entity_id) override {
-		assert(entity_id >= 0 && "Invalid entity.");
+		AssertEntityIsValid(entity_id);
 
 		if (entity_id >= sparse_.size() || sparse_[entity_id] == kInvalid) {
 			return;
@@ -99,9 +100,13 @@ private:
 	// ELSE: dense_[lookup] is a dead component
 	Lookup bound_;
 
+	static void AssertEntityIsValid(EntityId entity_id) {
+		AOE_ASSERT_MSG(entity_id >= 0, "Invalid entity.")
+	}
+
 	template<typename ...TArgs>
 	Lookup CreateComponent(EntityId entity_id, TArgs&&... args) {
-		assert(bound_ <= dense_.size() && "Invalid bound.");
+		AOE_ASSERT_MSG(bound_ <= dense_.size(), "Invalid bound.");
 		TComponent component(std::forward<TArgs>(args)...);
 		Lookup lookup = bound_;
 
