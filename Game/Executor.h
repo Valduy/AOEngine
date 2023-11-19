@@ -8,7 +8,8 @@ namespace aoe {
 
 class Executor {
 public:
-	static constexpr float kFrameSec = 1.0f / 60;
+	static constexpr int32_t kFps = 60;
+	static constexpr float kFrameSec = 1.0f / kFps;
 
 	Executor(IGame& game);
 

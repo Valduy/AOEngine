@@ -12,7 +12,23 @@ namespace aoe {
 
 class Window {
 public:
-	Window(HINSTANCE hinstance, LPCWSTR window_name, LONG width, LONG height) 
+	HWND GetHandler() const {
+		return handler_;
+	}
+
+	int32_t GetWidth() const {
+		RECT rect;
+		GetWindowRect(handler_, &rect);
+		return static_cast<int32_t>(rect.right - rect.left);
+	}
+
+	int32_t GetHeight() const {
+		RECT rect;
+		GetWindowRect(handler_, &rect);
+		return static_cast<int32_t>(rect.bottom - rect.top);
+	}
+
+	Window(HINSTANCE hinstance, const std::wstring& window_name, int32_t width, int32_t height)
 		: handler_(0)
 	{
 		if (!RegisterWindowClass(hinstance, window_name)) {
@@ -44,8 +60,6 @@ public:
 	}
 
 private:
-	size_t width_;
-	size_t height_;
 	HWND handler_;
 
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -67,7 +81,7 @@ private:
 		}
 	}
 
-	bool RegisterWindowClass(HINSTANCE hinstance, LPCWSTR window_name) {
+	bool RegisterWindowClass(HINSTANCE hinstance, const std::wstring& window_name) {
 		WNDCLASSEX window_class;
 		window_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 		window_class.lpfnWndProc = WndProc;
@@ -79,13 +93,13 @@ private:
 		window_class.hCursor = LoadCursor(nullptr, IDC_ARROW);
 		window_class.hbrBackground = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
 		window_class.lpszMenuName = nullptr;
-		window_class.lpszClassName = window_name;
+		window_class.lpszClassName = window_name.data();
 		window_class.cbSize = sizeof(WNDCLASSEX);
 
 		return RegisterClassEx(&window_class);
 	}
 
-	HWND CreateWindowInstance(HINSTANCE hinstance, LPCWSTR window_name, LONG width, LONG height) {
+	HWND CreateWindowInstance(HINSTANCE hinstance, const std::wstring& window_name, int32_t width, int32_t height) {
 		RECT window_rect = { 0, 0, width, height };
 		AdjustWindowRect(&window_rect, WS_OVERLAPPEDWINDOW, FALSE);
 
@@ -98,8 +112,8 @@ private:
 
 		return CreateWindowEx(
 			WS_EX_APPWINDOW,
-			window_name,
-			window_name,
+			window_name.data(),
+			window_name.data(),
 			WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_THICKFRAME,
 			window_position_x,
 			window_position_y,

@@ -9,6 +9,10 @@ namespace aoe {
 
 class Application {
 public:
+	const Window& GetWindow() const {
+		return window_;
+	}
+
 	Executor* GetExecutor() const {
 		return executor_;
 	}
@@ -17,7 +21,7 @@ public:
 		executor_ = executor;
 	}
 
-	Application(LPCWSTR window_name, LONG width, LONG height)
+	Application(const std::wstring& window_name, int32_t width, int32_t height)
 		: hinstance_(GetModuleHandle(nullptr))
 		, window_(hinstance_, window_name, width, height)
 		, executor_(nullptr)

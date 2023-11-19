@@ -5,6 +5,8 @@
 #include "../Application/Application.h"
 #include "../Core/Logger.h"
 #include "../Core/Debug.h"
+#include "../Graphics/GPUDevice.h"
+#include "../Graphics/GPUSwapChain.h"
 
 class TestGame : public aoe::IGame {
 public:
@@ -36,6 +38,17 @@ private:
 
 int main() {
 	aoe::Application application(L"Game", 800, 600);
+
+	aoe::GPUDevice device;
+	AOE_ASSERT(device.Initialize());
+	
+	aoe::GPUContext context = device.CreateContext();
+
+	aoe::GPUSwapChain swap_chain(device, application.GetWindow());
+	AOE_ASSERT(swap_chain.Initialize());
+	swap_chain.Terminate();
+
+	device.Terminate();
 
 	TestGame game;
 	aoe::Executor executor(game);

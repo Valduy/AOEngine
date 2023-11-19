@@ -40,6 +40,7 @@ public:
     }
 
 private:
+    Logger() = default;
 
     static std::string GetTimestamp() {
         auto now = std::chrono::system_clock::now();
