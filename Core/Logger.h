@@ -25,6 +25,8 @@ enum class LogType {
 
 class Logger {
 public:
+    Logger() = delete;
+
     template<typename... TArgs>
     static void Log(LogType type, const char* format, TArgs&&... args) {
         Log(type, std::vformat(format, std::make_format_args(args...)));
@@ -40,8 +42,6 @@ public:
     }
 
 private:
-    Logger() = default;
-
     static std::string GetTimestamp() {
         auto now = std::chrono::system_clock::now();
         return std::format("{0:%T}", now);

@@ -6,74 +6,31 @@
 #include "../Game/Executor.h"
 
 #include "GPUDevice.h"
+#include "GPUTexture2D.h"
 
 namespace aoe {
 
-class GPUSwapChain {
+class GPUSwapChain : public IGPUResource {
 public:
-	GPUSwapChain(const GPUDevice& device, const Window& window) 
-		: dxgi_factory_(nullptr)
-		, swap_chain_(nullptr)
-		, device_(device)
-		, window_(window)
-		, width_(0)
-		, height_(0)
-	{}
+	AOE_NON_COPYABLE_CLASS(GPUSwapChain)
 
-	bool Initialize() {
-		DXGI_SWAP_CHAIN_DESC swap_chain_desc = {};
-		swap_chain_desc.BufferDesc.Width = window_.GetWidth();
-		swap_chain_desc.BufferDesc.Height = window_.GetHeight();
-		swap_chain_desc.BufferDesc.RefreshRate.Numerator = Executor::kFps;
-		swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
-		swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		swap_chain_desc.SampleDesc.Count = 1;
-		swap_chain_desc.SampleDesc.Quality = 0;
-		swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swap_chain_desc.BufferCount = 2;
-		swap_chain_desc.OutputWindow = window_.GetHandler();
-		swap_chain_desc.Windowed = true;
-		swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	IDXGISwapChain* GetNative() const;
+	GPURenderTargetView GetRenderTargetView() const;
 
-		if (FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&dxgi_factory_)))) {
-			return false;
-		}
+	GPUSwapChain(const GPUDevice& device, const Window& window);
 
-		HRESULT hr = dxgi_factory_->CreateSwapChain(
-			device_.GetNative(),
-			&swap_chain_desc,
-			&swap_chain_);
+	bool Initialize();
+	void Terminate() override;
 
-		return SUCCEEDED(hr);
-	}
-
-	void Terminate() {
-		AOE_ASSERT(dxgi_factory_ != nullptr);
-		AOE_ASSERT(swap_chain_ != nullptr);
-
-		dxgi_factory_->Release();
-		dxgi_factory_ = nullptr;
-
-		swap_chain_->Release();
-		swap_chain_ = nullptr;
-	}
-
-	bool Resize(size_t width, size_t height) {
-		AOE_ASSERT(swap_chain_ != nullptr);
-
-		if (width_ == width && height_ == height) {
-			return false;
-		}
-
-		// TODO:
-	}
+	bool Resize(size_t width, size_t height);
+	void Present();
 
 private:
-	IDXGIFactory1* dxgi_factory_;
+	IDXGIFactory* dxgi_factory_;
 	IDXGISwapChain* swap_chain_;
+	ID3D11Texture2D* back_buffer_;
+	ID3D11RenderTargetView* render_target_view_;
+
 	const GPUDevice& device_;
 	const Window& window_;
 

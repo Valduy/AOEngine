@@ -22,6 +22,8 @@ namespace aoe {
 
 class Debug {
 public:
+    Debug() = delete;
+
     static void Assert(
         const char* file,
         unsigned int line,

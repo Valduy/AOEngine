@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{a32e493c-d1c3-4981-a8b1-d2e3dd0cba2c}</ProjectGuid>
-    <RootNamespace>AOEngine</RootNamespace>
+    <ProjectGuid>{24be9c06-742b-46ef-b433-326fe176727e}</ProjectGuid>
+    <RootNamespace>DXMinimal</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -119,7 +119,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,52 +131,20 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.vcxproj">
-      <Project>{5c846270-14fb-4ed6-86ba-e9b9c2ab0c44}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\ECS\ECS.vcxproj">
-      <Project>{7fce3e9e-4877-4cac-90c5-65e4ab601ddc}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Game\Game.vcxproj">
-      <Project>{bedde727-ec47-4820-9a2e-5e6d223f215b}</Project>
+    <ClInclude Include="xdata.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.vcxproj">
+      <Project>{2028b554-285a-476c-a959-d9b928c94832}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Graphics\Graphics.vcxproj">
       <Project>{92f2c751-e610-422d-85ea-37060a158884}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Reflection\Reflection.vcxproj">
-      <Project>{cd3a8fce-606c-4a9b-aae8-bddd5fdceb03}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Preregistrator.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="Test1.h" />
-    <ClInclude Include="Test2.h" />
-    <FxCompile Include="PSSimple.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-    </FxCompile>
-    <FxCompile Include="VSSimple.hlsl">
-      <DeploymentContent>true</DeploymentContent>
-      <FileType>Document</FileType>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="AOEngine.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="ShaderStructs.hlsli">
-      <FileType>Document</FileType>
-      <DeploymentContent>true</DeploymentContent>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

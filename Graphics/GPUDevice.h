@@ -1,64 +1,25 @@
 #pragma once
 
-#include "../Core/Debug.h"
+#include "../Core/ClassHelper.h"
 
-#include "DXHeaders.h"
-#include "GPUContext.h"
+#include "DXHelper.h"
+#include "IGPUResource.h"
 
 namespace aoe {
 
-class GPUDevice {
+class GPUContext;
+
+class GPUDevice : public IGPUResource {
 public:
-	ID3D11Device* GetNative() const {
-		return device_;
-	}
+	AOE_NON_COPYABLE_CLASS(GPUDevice)
+	
+	ID3D11Device* GetNative() const;
+	GPUContext GetContext() const;
 
-	GPUDevice()
-		: device_(nullptr)
-		, context_(nullptr)
-	{}
+	GPUDevice();
 
-	bool Initialize() {
-		UINT device_flags = 
-			D3D11_CREATE_DEVICE_SINGLETHREADED | 
-			D3D11_CREATE_DEVICE_BGRA_SUPPORT | 
-			D3D11_CREATE_DEVICE_DEBUG; // TODO: wrap with ifndef preprocessor.
-
-		const size_t feature_levels_count = 1;
-		D3D_FEATURE_LEVEL feature_levels[feature_levels_count] = { 
-			D3D_FEATURE_LEVEL_11_1,
-		};
-
-		HRESULT hr = D3D11CreateDevice(
-			nullptr,
-			D3D_DRIVER_TYPE_HARDWARE, 
-			nullptr,
-			device_flags,
-			feature_levels,
-			feature_levels_count,
-			D3D11_SDK_VERSION,
-			&device_,
-			nullptr,
-			&context_);
-		
-		return SUCCEEDED(hr);
-	}
-
-	void Terminate() {
-		AOE_ASSERT(device_ != nullptr);
-		AOE_ASSERT(context_ != nullptr)
-
-		device_->Release();
-		device_ = nullptr;
-
-		context_->Release();
-		context_ = nullptr;
-	}
-
-	GPUContext CreateContext() const {
-		AOE_ASSERT(context_ != nullptr);
-		return { context_ };
-	}
+	bool Initialize();
+	void Terminate() override;
 
 private:
 	ID3D11Device* device_;

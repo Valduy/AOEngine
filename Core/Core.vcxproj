@@ -140,7 +140,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ClassHelper.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="EnumHelper.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Identifier.h" />
     <ClInclude Include="Logger.h" />

@@ -112,6 +112,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -139,14 +140,37 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DXByteCode.h" />
     <ClInclude Include="DXHeaders.h" />
+    <ClInclude Include="DXHelper.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GPUContext.h" />
+    <ClInclude Include="GPUDepthState.h" />
     <ClInclude Include="GPUDevice.h" />
+    <ClInclude Include="GPULayoutDescriptor.h" />
+    <ClInclude Include="GPURasterizerState.h" />
+    <ClInclude Include="GPUResourceWrapper.h" />
+    <ClInclude Include="GPUSampler.h" />
+    <ClInclude Include="GPUShader.h" />
+    <ClInclude Include="GPUShadersCompiler.h" />
     <ClInclude Include="GPUSwapChain.h" />
+    <ClInclude Include="GPUTexture2D.h" />
+    <ClInclude Include="GPUEnums.h" />
+    <ClInclude Include="GPUBuffers.h" />
+    <ClInclude Include="GPUTextureData.h" />
+    <ClInclude Include="IGPUResource.h" />
+    <ClInclude Include="IGPUTextureData.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="GPUPixelFormat.h" />
+    <ClInclude Include="Viewport.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GPUContext.cpp" />
+    <ClCompile Include="GPUDepthState.cpp" />
+    <ClCompile Include="GPUDevice.cpp" />
+    <ClCompile Include="GPURasterizerState.cpp" />
+    <ClCompile Include="GPUSwapChain.cpp" />
+    <ClCompile Include="GPUTexture2D.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -157,6 +181,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.vcxproj">
       <Project>{2028b554-285a-476c-a959-d9b928c94832}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Core.vcxproj">
+      <Project>{5c846270-14fb-4ed6-86ba-e9b9c2ab0c44}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Game\Game.vcxproj">
       <Project>{bedde727-ec47-4820-9a2e-5e6d223f215b}</Project>

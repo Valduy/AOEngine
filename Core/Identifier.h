@@ -8,6 +8,8 @@ class Identifier {
 public:
 	static const TypeId kInvalidId = 0;
 
+	Identifier() = delete;
+
 	template<typename T>
 	static TypeId GetTypeId() {
 		static TypeId id = ++current_id_;
