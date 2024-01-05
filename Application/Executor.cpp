@@ -5,7 +5,7 @@ namespace aoe {
 
 Executor::Executor(IGame& game)
 	: game_(game)
-	, timestamp_()
+	, timestamp_(clock::now())
 	, lag_(0.0f)
 {}
 

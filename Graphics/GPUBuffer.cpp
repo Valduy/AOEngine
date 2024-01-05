@@ -3,7 +3,7 @@
 
 namespace aoe {
 
-ID3D11Buffer* aoe::GPUBuffer::GetNative() const {
+ID3D11Buffer* GPUBuffer::GetNative() const {
 	return buffer_;
 }
 

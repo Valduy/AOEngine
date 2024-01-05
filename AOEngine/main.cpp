@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "../ECS/World.h"
-#include "../Game/Executor.h"
 #include "../Application/Application.h"
 #include "../Core/Logger.h"
 #include "../Core/Debug.h"
@@ -169,10 +168,7 @@ int main() {
 	aoe::Application application(L"Game", 800, 600);
 
 	TestGame game(application.GetWindow());
-
-	aoe::Executor executor(game);
-	application.SetExecutor(&executor);
-	application.Start();
+	application.Start(game);
 
 	return 0;
 }
