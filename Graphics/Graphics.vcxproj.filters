@@ -57,7 +57,7 @@
     <ClInclude Include="GPURasterizerState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GPUBuffers.h">
+    <ClInclude Include="GPUBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GPUShader.h">
@@ -73,12 +73,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GPUResourceWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GPUTextureData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IGPUTextureData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GPUSampler.h">
@@ -111,6 +105,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GPUSampler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GPUBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -34,25 +34,6 @@ public:
 	static DXGI_FORMAT ToDxgiFormat(const GPUPixelFormat value) {
 		return static_cast<DXGI_FORMAT>(value);
 	}
-
-	static uint32_t ToBindFlag(GPUTextureFlags value) {
-		uint32_t result = 0;
-
-		if ((value & GPUTextureFlags::kShaderResource) != GPUTextureFlags::kNone) {
-			result |= D3D11_BIND_SHADER_RESOURCE;
-		}
-		if ((value & GPUTextureFlags::kRenderTarget) != GPUTextureFlags::kNone) {
-			result |= D3D11_BIND_RENDER_TARGET;
-		}
-		if ((value & GPUTextureFlags::kDepthStencil) != GPUTextureFlags::kNone) {
-			result |= D3D11_BIND_DEPTH_STENCIL;
-		}
-		if ((value & GPUTextureFlags::kUnorderedAccess) != GPUTextureFlags::kNone) {
-			result |= D3D11_BIND_UNORDERED_ACCESS;
-		}
-
-		return result;
-	}
 };
 
 } // namespace aoe

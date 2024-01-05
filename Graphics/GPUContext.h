@@ -5,7 +5,7 @@
 #include "GPURasterizerState.h"
 #include "GPUDepthState.h"
 #include "GPUTexture2D.h"
-#include "GPUBuffers.h"
+#include "GPUBuffer.h"
 #include "GPUShader.h"
 #include "GPUSampler.h"
 

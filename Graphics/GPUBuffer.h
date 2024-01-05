@@ -15,6 +15,10 @@ struct GPUBufferDescription {
 	size_t stride;
 	GPUResourceUsage usage;
 
+	size_t GetElementsCount() const {
+		return stride > 0 ? size / stride : 0;
+	}
+
 	bool IsVertexBuffer() const {
 		return buffer_type == GPUBufferType::kVertexBuffer;
 	}
@@ -25,10 +29,6 @@ struct GPUBufferDescription {
 
 	bool IsConstantBuffer() const {
 		return buffer_type == GPUBufferType::kConstantBuffer;
-	}
-
-	size_t GetElementsCount() const {
-		return stride > 0 ? size / stride : 0;
 	}
 
 	bool IsDynamic() const {
@@ -103,74 +103,30 @@ class GPUBuffer : public IGPUResource {
 public:
 	AOE_NON_COPYABLE_CLASS(GPUBuffer)
 
-	ID3D11Buffer* GetNative() const {
-		return buffer_;
-	}
+	ID3D11Buffer* GetNative() const;
+	const GPUBufferDescription& GetDescription() const;
 
-	const GPUBufferDescription& GetDescription() const {
-		return description_;
-	}
+	size_t GetElementsCount() const;
+	size_t GetSize() const;
+	size_t GetStride() const;
 
-	GPUBuffer(const GPUDevice& device)
-		: device_(device)
-		, description_()
-		, buffer_(nullptr)
-	{}
+	bool IsVertexBuffer() const;
+	bool IsIndexBuffer() const;
+	bool IsConstantBuffer() const;
+	bool IsDynamic() const;
 
-	bool Initialize(const GPUBufferDescription& description) {
-		AOE_ASSERT(buffer_ == nullptr);
-		description_ = description;
+	GPUBuffer(const GPUDevice& device);
 
-		D3D11_BUFFER_DESC buffer_desc = {};
-		buffer_desc.Usage = ToDXUsage(description_.usage);
-		buffer_desc.BindFlags = ToDXBufferType(description_.buffer_type);
-		buffer_desc.CPUAccessFlags = description_.IsDynamic() ? D3D11_CPU_ACCESS_WRITE : 0;
-		buffer_desc.MiscFlags = 0;
-		buffer_desc.StructureByteStride = 0;
-		buffer_desc.ByteWidth = description_.size;
-			
-		HRESULT hr = S_OK;
-
-		if (description_.data != nullptr) {
-			D3D11_SUBRESOURCE_DATA buffer_data = {};
-			buffer_data.pSysMem = description_.data;
-			buffer_data.SysMemPitch = 0;
-			buffer_data.SysMemSlicePitch = 0;
-
-			hr = device_.GetNative()->CreateBuffer(&buffer_desc, &buffer_data, &buffer_);
-		} else {
-			hr = device_.GetNative()->CreateBuffer(&buffer_desc, nullptr, &buffer_);
-		}
-
-		return SUCCEEDED(hr);
-	}
-
-	void Terminate() override {
-		AOE_DX_SAFE_RELEASE(buffer_);
-	}
+	bool Initialize(const GPUBufferDescription& description);
+	void Terminate() override;
 
 private:
 	const GPUDevice& device_;
 	GPUBufferDescription description_;
 	ID3D11Buffer* buffer_;
 
-	static D3D11_USAGE ToDXUsage(const GPUResourceUsage value) {
-		return static_cast<D3D11_USAGE>(value);
-	}
-
-	static D3D11_BIND_FLAG ToDXBufferType(const GPUBufferType buffer_type) {
-		switch (buffer_type) {
-		case GPUBufferType::kVertexBuffer:
-			return D3D11_BIND_VERTEX_BUFFER;
-		case GPUBufferType::kIndexBuffer:
-			return D3D11_BIND_INDEX_BUFFER;
-		case GPUBufferType::kConstantBuffer:
-			return D3D11_BIND_CONSTANT_BUFFER;
-		default:
-			AOE_ASSERT_MSG(false, "Unexpected buffer type.");
-			return D3D11_BIND_VERTEX_BUFFER;
-		}
-	}
+	static D3D11_USAGE ToDXUsage(const GPUResourceUsage value);
+	static D3D11_BIND_FLAG ToDXBufferType(const GPUBufferType buffer_type);
 };
 
 } // namespace aoe

@@ -149,10 +149,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Preregistrator.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Test1.h" />
-    <ClInclude Include="Test2.h" />
     <FxCompile Include="PSSimple.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

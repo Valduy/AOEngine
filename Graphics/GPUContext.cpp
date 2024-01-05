@@ -47,31 +47,25 @@ void GPUContext::SetDepthState(const GPUDepthState& depth_stencil_state) {
 }
 
 void GPUContext::SetVertexBuffer(const GPUBuffer& buffer) {
-	const GPUBufferDescription& description = buffer.GetDescription();
+	AOE_ASSERT_MSG(buffer.IsVertexBuffer(), "Buffer is not vertex buffer.");
 	ID3D11Buffer* native = buffer.GetNative();
 
-	AOE_ASSERT_MSG(description.IsVertexBuffer(), "Buffer is not vertex buffer.");
-
-	const UINT strides[] = { description.stride };
+	const UINT strides[] = { buffer.GetStride()};
 	const UINT offsets[] = { 0 };
 
 	context_->IASetVertexBuffers(0, 1, &native, strides, offsets);
 }
 
 void GPUContext::SetIndexBuffer(const GPUBuffer& buffer) {
-	const GPUBufferDescription& description = buffer.GetDescription();
+	AOE_ASSERT_MSG(buffer.IsIndexBuffer(), "Buffer is not index buffer.");
 	ID3D11Buffer* native = buffer.GetNative();
-
-	AOE_ASSERT_MSG(description.IsIndexBuffer(), "Buffer is not index buffer.");
 
 	context_->IASetIndexBuffer(native, DXGI_FORMAT_R32_UINT, 0);
 }
 
 void GPUContext::SetConstantBuffer(const GPUShaderType shader_type, const GPUBuffer& buffer, uint32_t slot) {
-	const GPUBufferDescription& description = buffer.GetDescription();
+	AOE_ASSERT_MSG(buffer.IsConstantBuffer(), "Buffer is not constant buffer.");
 	ID3D11Buffer* native = buffer.GetNative();
-
-	AOE_ASSERT_MSG(description.IsConstantBuffer(), "Buffer is not constant buffer.");
 
 	switch (shader_type) {
 	case GPUShaderType::kVertex:
@@ -84,13 +78,11 @@ void GPUContext::SetConstantBuffer(const GPUShaderType shader_type, const GPUBuf
 }
 
 void GPUContext::UpdateBuffer(const GPUBuffer& buffer, const void* data, size_t size) {
-	const GPUBufferDescription& description = buffer.GetDescription();
+	AOE_ASSERT_MSG(data != nullptr, "Can't update buffer with null data.");
+	AOE_ASSERT_MSG(buffer.GetSize() >= size, "Buffer size less than data size.");
 	ID3D11Buffer* native = buffer.GetNative();
 
-	AOE_ASSERT_MSG(data != nullptr, "Can't update buffer with null data.");
-	AOE_ASSERT_MSG(description.size >= size, "Buffer size less than data size.");
-
-	if (description.IsDynamic()) {
+	if (buffer.IsDynamic()) {
 		D3D11_MAPPED_SUBRESOURCE mapped_subresource;
 		const HRESULT hr = context_->Map(native, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_subresource);
 		AOE_DX_TRY_LOG_ERROR_AND_RETURN(hr);

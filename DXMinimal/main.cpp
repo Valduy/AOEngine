@@ -7,7 +7,6 @@
 #include "../Graphics/GPUContext.h"
 #include "../Graphics/GPUSwapChain.h"
 #include "../Graphics/GPUShadersCompiler.h"
-#include "../Graphics/GPUTextureData.h"
 #include "../Graphics/GPUSampler.h"
 
 #include "xdata.h"
@@ -39,7 +38,6 @@ public:
         , vertex_shader_(device_)
         , pixel_shader_(device_)
         , sampler_(device_)
-        , texture_data_(ToVector<uint32_t>(kTextureData, ARRAYSIZE(kTextureData)))
         , texture_(device_)
     {}
 
@@ -47,11 +45,12 @@ public:
         device_.Initialize();
         swap_chain_.Initialize();
 
-        depth_stencil_buffer_.Initialize(
-            window_.GetWidth(),
-            window_.GetHeight(),
-            aoe::GPUPixelFormat::kD24_Unorm_S8_Uint,
-            aoe::GPUTextureFlags::kDepthStencil);
+        aoe::GPUTexture2DDescription depth_stencil_desc;
+        depth_stencil_desc.width = window_.GetWidth();
+        depth_stencil_desc.height = window_.GetHeight();
+        depth_stencil_desc.pixel_format = aoe::GPUPixelFormat::kD24_Unorm_S8_Uint;
+        depth_stencil_desc.texture_flags = aoe::GPUTextureFlags::kDepthStencil;
+        depth_stencil_buffer_.Initialize(depth_stencil_desc);
 
         aoe::GPUDepthStateDescription depth_state_desc;
         depth_state_desc.is_depth_enabled = true;
@@ -89,12 +88,14 @@ public:
         aoe::GPUSamplerDescription sampler_desc;
         sampler_.Initialize(sampler_desc);
 
-        texture_.Initialize(
+        auto texture_desc = aoe::GPUTexture2DDescription::Create<uint32_t>(
             TEXTURE_WIDTH,
             TEXTURE_HEIGHT,
             aoe::GPUPixelFormat::kR8G8B8A8_Unorm,
             aoe::GPUTextureFlags::kShaderResource,
-            &texture_data_);
+            kTextureData
+        );
+        texture_.Initialize(texture_desc);
     };
 
     void Terminate() override {};
@@ -155,7 +156,7 @@ public:
         context.SetRenderTarget(swap_chain_.GetRenderTargetView(), depth_stencil_buffer_.GetDepthStencilView());
         context.SetDepthState(depth_state_);
 
-        context.DrawIndexed(index_buffer_.GetDescription().GetElementsCount());
+        context.DrawIndexed(index_buffer_.GetElementsCount());
 
         swap_chain_.Present();
     };
@@ -180,19 +181,11 @@ private:
 
     aoe::GPUSampler sampler_;
 
-    aoe::GPUTextureData<uint32_t> texture_data_;
     aoe::GPUTexture2D texture_;
 
     Vector model_rotation_ = { 0.0f, 0.0f, 0.0f };
     Vector model_scale_ = { 1.0f, 1.0f, 1.0f };
     Vector model_translation_ = { 0.0f, 0.0f, 4.0f };
-    
-    template<typename TVector, typename TArray>
-    static std::vector<TVector> ToVector(TArray* array, size_t size) {
-        std::vector<TVector> result;
-        result.assign(array, array + size);
-        return result;
-    }
 };
 
 int main() {

@@ -3,7 +3,7 @@
 #define TEXTURE_WIDTH  2
 #define TEXTURE_HEIGHT 2
 
-const UINT kTextureData[] =
+const uint32_t kTextureData[] =
 {
     0xffffffff, 0xff7f7f7f,
     0xff7f7f7f, 0xffffffff,

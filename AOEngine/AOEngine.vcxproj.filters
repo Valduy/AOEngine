@@ -23,15 +23,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Test1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Test2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Preregistrator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>

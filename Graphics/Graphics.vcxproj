@@ -156,15 +156,14 @@
     <ClInclude Include="GPUSwapChain.h" />
     <ClInclude Include="GPUTexture2D.h" />
     <ClInclude Include="GPUEnums.h" />
-    <ClInclude Include="GPUBuffers.h" />
-    <ClInclude Include="GPUTextureData.h" />
+    <ClInclude Include="GPUBuffer.h" />
     <ClInclude Include="IGPUResource.h" />
-    <ClInclude Include="IGPUTextureData.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="GPUPixelFormat.h" />
     <ClInclude Include="Viewport.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GPUBuffer.cpp" />
     <ClCompile Include="GPUContext.cpp" />
     <ClCompile Include="GPUDepthState.cpp" />
     <ClCompile Include="GPUDevice.cpp" />

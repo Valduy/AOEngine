@@ -10,7 +10,7 @@
 #include "../Graphics/GPUContext.h"
 #include "../Graphics/GPUSwapChain.h"
 #include "../Graphics/GPUEnums.h"
-#include "../Graphics/GPUBuffers.h"
+#include "../Graphics/GPUBuffer.h"
 #include "../Graphics/GPUShadersCompiler.h"
 #include "../Graphics/GPUShader.h"
 
@@ -43,11 +43,12 @@ public:
 		result = swap_chain_.Initialize();
 		AOE_ASSERT(result);
 
-		result = depth_stencil_buffer_.Initialize(
-			window_.GetWidth(),
-			window_.GetHeight(),
-			aoe::GPUPixelFormat::kD24_Unorm_S8_Uint, 
-			aoe::GPUTextureFlags::kDepthStencil);
+		aoe::GPUTexture2DDescription depth_stencil_desc;
+		depth_stencil_desc.width = window_.GetWidth();
+		depth_stencil_desc.height = window_.GetHeight();
+		depth_stencil_desc.pixel_format = aoe::GPUPixelFormat::kD24_Unorm_S8_Uint;
+		depth_stencil_desc.texture_flags = aoe::GPUTextureFlags::kDepthStencil;
+		result = depth_stencil_buffer_.Initialize(depth_stencil_desc);
 		AOE_ASSERT(result);
 
 		aoe::GPUDepthStateDescription depth_state_desc;
@@ -127,7 +128,7 @@ public:
 		context.SetVertexShader(vertex_shader_);
 		context.SetPixelShader(pixel_shader_);
 		context.SetVertexBuffer(vertex_buffer_);
-		context.Draw(vertex_buffer_.GetDescription().GetElementsCount());
+		context.Draw(vertex_buffer_.GetElementsCount());
 
 		swap_chain_.Present();
 	}
