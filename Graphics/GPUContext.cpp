@@ -46,19 +46,79 @@ void GPUContext::SetDepthState(const GPUDepthState& depth_stencil_state) {
 	context_->OMSetDepthStencilState(native, 0);
 }
 
-void GPUContext::SetIndexBuffer(const GPUIndexBuffer& buffer) {
+void GPUContext::SetVertexBuffer(const GPUBuffer& buffer) {
+	const GPUBufferDescription& description = buffer.GetDescription();
 	ID3D11Buffer* native = buffer.GetNative();
+
+	AOE_ASSERT_MSG(description.IsVertexBuffer(), "Buffer is not vertex buffer.");
+
+	const UINT strides[] = { description.stride };
+	const UINT offsets[] = { 0 };
+
+	context_->IASetVertexBuffers(0, 1, &native, strides, offsets);
+}
+
+void GPUContext::SetIndexBuffer(const GPUBuffer& buffer) {
+	const GPUBufferDescription& description = buffer.GetDescription();
+	ID3D11Buffer* native = buffer.GetNative();
+
+	AOE_ASSERT_MSG(description.IsIndexBuffer(), "Buffer is not index buffer.");
+
 	context_->IASetIndexBuffer(native, DXGI_FORMAT_R32_UINT, 0);
 }
 
-void GPUContext::PSSetShaderResource(const GPUTexture2D& texture, uint32_t slot) {
-	GPUShaderResourceView shader_resource_view = texture.GetShaderResourceView();
-	PSSetShaderResource(shader_resource_view, slot);
+void GPUContext::SetConstantBuffer(const GPUShaderType shader_type, const GPUBuffer& buffer, uint32_t slot) {
+	const GPUBufferDescription& description = buffer.GetDescription();
+	ID3D11Buffer* native = buffer.GetNative();
+
+	AOE_ASSERT_MSG(description.IsConstantBuffer(), "Buffer is not constant buffer.");
+
+	switch (shader_type) {
+	case GPUShaderType::kVertex:
+		context_->VSSetConstantBuffers(slot, 1, &native);
+		return;
+	case GPUShaderType::kPixel:
+		context_->PSSetConstantBuffers(slot, 1, &native);
+		return;
+	}
 }
 
-void GPUContext::PSSetShaderResource(const GPUShaderResourceView& shader_resource_view, uint32_t slot) {
+void GPUContext::UpdateBuffer(const GPUBuffer& buffer, const void* data, size_t size) {
+	const GPUBufferDescription& description = buffer.GetDescription();
+	ID3D11Buffer* native = buffer.GetNative();
+
+	AOE_ASSERT_MSG(data != nullptr, "Can't update buffer with null data.");
+	AOE_ASSERT_MSG(description.size >= size, "Buffer size less than data size.");
+
+	if (description.IsDynamic()) {
+		D3D11_MAPPED_SUBRESOURCE mapped_subresource;
+		const HRESULT hr = context_->Map(native, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_subresource);
+		AOE_DX_TRY_LOG_ERROR_AND_RETURN(hr);
+
+		memcpy(mapped_subresource.pData, data, size);
+		context_->Unmap(native, 0);
+	}
+	else {
+		context_->UpdateSubresource(native, 0, nullptr, data, size, 0);
+	}
+}
+
+void GPUContext::SetShaderResource(const GPUShaderType shader_type, const GPUTexture2D& texture, uint32_t slot) {
+	GPUShaderResourceView shader_resource_view = texture.GetShaderResourceView();
+	SetShaderResource(shader_type, shader_resource_view, slot);
+}
+
+void GPUContext::SetShaderResource(const GPUShaderType shader_type, const GPUShaderResourceView& shader_resource_view, uint32_t slot) {
 	ID3D11ShaderResourceView* native = shader_resource_view.GetNative();
-	context_->PSSetShaderResources(slot, 1, &native);
+
+	switch (shader_type) {
+	case GPUShaderType::kVertex:
+		context_->VSSetShaderResources(slot, 1, &native);
+		return;
+	case GPUShaderType::kPixel:
+		context_->PSSetShaderResources(slot, 1, &native);
+		return;
+	}
 }
 
 void GPUContext::SetSampler(const GPUShaderType shader_type, const GPUSampler& sampler, uint32_t slot) {

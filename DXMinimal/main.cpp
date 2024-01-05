@@ -64,19 +64,13 @@ public:
         rasterizer_state_desc.fill_mode = aoe::GPUFillMode::kSolid;
         rasterized_state_.Initialize(rasterizer_state_desc);
 
-        aoe::GPUBufferDescription<Vertex> vertex_buffer_desc;
-        vertex_buffer_desc.data = kVertexData;
-        vertex_buffer_desc.size = ARRAYSIZE(kVertexData);
+        auto vertex_buffer_desc = aoe::GPUBufferDescription::CreateVertex<Vertex>(kVertexData, ARRAYSIZE(kVertexData));
         vertex_buffer_.Initialize(vertex_buffer_desc);
 
-        aoe::GPUBufferDescription<int32_t> index_buffer_desc;
-        index_buffer_desc.data = kIndexData;
-        index_buffer_desc.size = ARRAYSIZE(kIndexData);
+        auto index_buffer_desc = aoe::GPUBufferDescription::CreateIndex<int32_t>(kIndexData, ARRAYSIZE(kIndexData));
         index_buffer_.Initialize(index_buffer_desc);
 
-        aoe::GPUBufferDescription<Constants> constant_buffer_desc;
-        constant_buffer_desc.usage = aoe::GPUResourceUsage::kDynamic;
-        constant_buffer_desc.size = 1;
+        auto constant_buffer_desc = aoe::GPUBufferDescription::CreateConstant<Constants>(aoe::GPUResourceUsage::kDynamic);
         constant_buffer_.Initialize(constant_buffer_desc);
 
         aoe::GPUShadersCompiler shader_compiler(device_);
@@ -155,13 +149,13 @@ public:
         context.SetRasterizerState(rasterized_state_);
 
         context.SetPixelShader(pixel_shader_);
-        context.PSSetShaderResource(texture_, 0);
+        context.SetShaderResource(aoe::GPUShaderType::kPixel, texture_, 0);
         context.SetSampler(aoe::GPUShaderType::kPixel, sampler_);
 
         context.SetRenderTarget(swap_chain_.GetRenderTargetView(), depth_stencil_buffer_.GetDepthStencilView());
         context.SetDepthState(depth_state_);
 
-        context.DrawIndexed(index_buffer_.GetSize());
+        context.DrawIndexed(index_buffer_.GetDescription().GetElementsCount());
 
         swap_chain_.Present();
     };
@@ -177,9 +171,9 @@ private:
     aoe::GPUDepthState depth_state_;
     aoe::GPURasterizerState rasterized_state_;
 
-    aoe::GPUVertexBuffer<Vertex> vertex_buffer_;
-    aoe::GPUIndexBuffer index_buffer_;
-    aoe::GPUConstantBuffer<Constants> constant_buffer_;
+    aoe::GPUBuffer vertex_buffer_;
+    aoe::GPUBuffer index_buffer_;
+    aoe::GPUBuffer constant_buffer_;
 
     aoe::GPUVertexShader vertex_shader_;
     aoe::GPUPixelShader pixel_shader_;

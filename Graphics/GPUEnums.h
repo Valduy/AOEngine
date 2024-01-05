@@ -12,6 +12,12 @@ enum class GPUTextureFlags {
     kUnorderedAccess = 0x0008,
 };
 
+enum class GPUBufferType {
+    kVertexBuffer,
+    kIndexBuffer,
+    kConstantBuffer,
+};
+
 enum class GPUDepthWriteMask {
     kWriteNone = 0,
     kWriteAll = 1,

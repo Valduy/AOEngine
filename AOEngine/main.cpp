@@ -68,10 +68,8 @@ public:
 			{{-1.0f,  1.0f, 0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
 			{{ 1.0f,  1.0f, 0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}},
 		};
-		aoe::GPUBufferDescription<Vertex> vertex_buffer_desc;
-		vertex_buffer_desc.data = vertices.data();
-		vertex_buffer_desc.size = vertices.size();
-		result = vertex_buffer_.Initialize(vertex_buffer_desc);
+		auto vertex_buffer_desc = aoe::GPUBufferDescription::CreateVertex<Vertex>(vertices.data(), vertices.size());
+		vertex_buffer_.Initialize(vertex_buffer_desc);
 		AOE_ASSERT(result);
 
 		aoe::GPUShadersCompiler shader_compiler(device_);
@@ -129,7 +127,7 @@ public:
 		context.SetVertexShader(vertex_shader_);
 		context.SetPixelShader(pixel_shader_);
 		context.SetVertexBuffer(vertex_buffer_);
-		context.Draw(vertex_buffer_.GetSize());
+		context.Draw(vertex_buffer_.GetDescription().GetElementsCount());
 
 		swap_chain_.Present();
 	}
@@ -157,7 +155,7 @@ private:
 	aoe::GPURasterizerState rasterized_state_;
 	aoe::GPUShadersCompiler shader_compiler_;
 
-	aoe::GPUVertexBuffer<Vertex> vertex_buffer_;
+	aoe::GPUBuffer vertex_buffer_;
 
 	aoe::GPUVertexShader vertex_shader_;
 	aoe::GPUPixelShader pixel_shader_;
