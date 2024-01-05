@@ -13,7 +13,7 @@ GPUContext::GPUContext(ID3D11DeviceContext* context)
 {}
 
 void GPUContext::SetViewport(const Viewport& viewport) {
-	D3D11_VIEWPORT mapped = DXHelper::ToDXViewport(viewport);
+	D3D11_VIEWPORT mapped = ToDXViewport(viewport);
 	context_->RSSetViewports(1, &mapped);
 }
 
@@ -46,44 +46,9 @@ void GPUContext::SetDepthState(const GPUDepthState& depth_stencil_state) {
 	context_->OMSetDepthStencilState(native, 0);
 }
 
-void GPUContext::SetVertexBuffer(const GPUBuffer& buffer) {
-	ID3D11Buffer* native = buffer.GetNative();
-	const UINT strides[] = { buffer.GetByteWidth() };
-	const UINT offsets[] = { 0 };
-	context_->IASetVertexBuffers(0, 1, &native, strides, offsets);
-}
-
-void GPUContext::SetIndexBuffer(const GPUBuffer& buffer) {
+void GPUContext::SetIndexBuffer(const GPUIndexBuffer& buffer) {
 	ID3D11Buffer* native = buffer.GetNative();
 	context_->IASetIndexBuffer(native, DXGI_FORMAT_R32_UINT, 0);
-}
-
-void GPUContext::SetConstantBuffer(const GPUShaderType shader_type, const GPUBuffer& buffer, uint32_t slot) {
-	ID3D11Buffer* native = buffer.GetNative();
-
-	switch (shader_type) {
-	case GPUShaderType::kVertex:
-		context_->VSSetConstantBuffers(slot, 1, &native);
-		return;
-	case GPUShaderType::kPixel:
-		context_->PSSetConstantBuffers(slot, 1, &native);
-		return;
-	}
-}
-
-void GPUContext::UpdateBuffer(const GPUBuffer& buffer, const void* data, size_t size) {
-	ID3D11Buffer* native = buffer.GetNative();
-
-	if (buffer.IsDynamic()) {
-		D3D11_MAPPED_SUBRESOURCE mapped_subresource;
-		const HRESULT hr = context_->Map(native, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_subresource);
-		AOE_DX_TRY_LOG_ERROR_AND_RETURN(hr);
-
-		memcpy(mapped_subresource.pData, data, size);
-		context_->Unmap(native, 0);
-	} else {
-		context_->UpdateSubresource(native, 0, nullptr, data, size, 0);
-	}
 }
 
 void GPUContext::PSSetShaderResource(const GPUTexture2D& texture, uint32_t slot) {
@@ -134,7 +99,7 @@ void GPUContext::ClearDepth(const GPUDepthStencilView& depth_stencil_view, float
 }
 
 void GPUContext::SetPrimitiveTopology(const GPUPrimitiveTopology topology) {
-	context_->IASetPrimitiveTopology(DXHelper::ToPrimitiveTopology(topology));
+	context_->IASetPrimitiveTopology(ToDXPrimitiveTopology(topology));
 }
 
 void GPUContext::SetVertexShader(const GPUVertexShader& vertex_shader) {
@@ -153,6 +118,21 @@ void GPUContext::Draw(uint32_t vertex_count) {
 
 void GPUContext::DrawIndexed(uint32_t index_count) {
 	context_->DrawIndexed(index_count, 0, 0);
+}
+
+D3D11_VIEWPORT GPUContext::ToDXViewport(const Viewport& viewport) {
+	return {
+		viewport.x,
+		viewport.y,
+		viewport.width,
+		viewport.height,
+		viewport.min_depth,
+		viewport.max_depth,
+	};
+}
+
+inline D3D_PRIMITIVE_TOPOLOGY GPUContext::ToDXPrimitiveTopology(const GPUPrimitiveTopology value) {
+	return static_cast<D3D_PRIMITIVE_TOPOLOGY>(value);
 }
 
 } // namespace aoe

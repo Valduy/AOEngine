@@ -48,25 +48,30 @@ public:
 			window_.GetHeight(),
 			aoe::GPUPixelFormat::kD24_Unorm_S8_Uint, 
 			aoe::GPUTextureFlags::kDepthStencil);
-
 		AOE_ASSERT(result);
 
-		result = depth_state_.Initialize(
-			true, 
-			aoe::GPUDepthWriteMask::kWriteAll, 
-			aoe::GPUComparsionFunc::kLess);
-		
+		aoe::GPUDepthStateDescription depth_state_desc;
+		depth_state_desc.is_depth_enabled = true;
+		depth_state_desc.write_mask = aoe::GPUDepthWriteMask::kWriteAll;
+		depth_state_desc.comparsion_function = aoe::GPUComparsionFunction::kLess;
+		result = depth_state_.Initialize(depth_state_desc);
 		AOE_ASSERT(result);
 
-		result = rasterized_state_.Initialize(aoe::GPUCullMode::kBack, aoe::GPUFillMode::kSolid);
+		aoe::GPURasteriserStateDescription rasterizer_state_desc;
+		rasterizer_state_desc.cull_mode = aoe::GPUCullMode::kBack;
+		rasterizer_state_desc.fill_mode = aoe::GPUFillMode::kSolid;
+		result = rasterized_state_.Initialize(rasterizer_state_desc);
 		AOE_ASSERT(result);
 
-		result = vertex_buffer_.Initialize({
+		std::vector<Vertex> vertices = {
 			{{ 0.0f, -1.0f, 0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
 			{{-1.0f,  1.0f, 0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
 			{{ 1.0f,  1.0f, 0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}},
-		});
-
+		};
+		aoe::GPUBufferDescription<Vertex> vertex_buffer_desc;
+		vertex_buffer_desc.data = vertices.data();
+		vertex_buffer_desc.size = vertices.size();
+		result = vertex_buffer_.Initialize(vertex_buffer_desc);
 		AOE_ASSERT(result);
 
 		aoe::GPUShadersCompiler shader_compiler(device_);
@@ -76,15 +81,11 @@ public:
 			{aoe::LayoutElementSemantics::kPosition, aoe::GPUPixelFormat::kR32G32B32A32_Float }, 
 			{aoe::LayoutElementSemantics::kColor, aoe::GPUPixelFormat::kR32G32B32A32_Float },
 		});
-		
 		AOE_ASSERT(result);
 
 		aoe::DXByteCode pixel_byte_code = shader_compiler.CompilePixelShader(L"PSSimple.hlsl");
 		result = pixel_shader_.Initialize(pixel_byte_code);
 		AOE_ASSERT(result);
-
-		//aoe::GPUIndexBuffer index_buffer(device_);
-		//index_buffer.Initialize({ 0, 1, 2 });
 	}
 	
 	void Terminate() override {

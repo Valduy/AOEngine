@@ -1,15 +1,5 @@
-#pragma comment(lib, "user32")
-#pragma comment(lib, "d3d11")
-#pragma comment(lib, "d3dcompiler")
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include <windows.h>
-#include <d3d11_1.h>
-#include <d3dcompiler.h>
-
-#include <math.h>  // sin, cos
-#include "xdata.h" // 3d model
+#include <math.h>
 
 #include "../Game/Executor.h"
 #include "../Application/Application.h"
@@ -20,15 +10,17 @@
 #include "../Graphics/GPUTextureData.h"
 #include "../Graphics/GPUSampler.h"
 
-struct float3 { float x, y, z; };
-struct matrix { float m[4][4]; };
+#include "xdata.h"
 
-matrix operator*(const matrix& m1, const matrix& m2);
+struct Vector { float x, y, z; };
+struct Matrix { float m[4][4]; };
+
+Matrix operator*(const Matrix& m1, const Matrix& m2);
 
 struct Constants {
-    matrix Transform;
-    matrix Projection;
-    float3 LightVector;
+    Matrix transform;
+    Matrix projection;
+    Vector light_vector;
     float dummy;
 };
 
@@ -47,7 +39,7 @@ public:
         , vertex_shader_(device_)
         , pixel_shader_(device_)
         , sampler_(device_)
-        , texture_data_(ToVector<uint32_t>(TextureData, ARRAYSIZE(TextureData)))
+        , texture_data_(ToVector<uint32_t>(kTextureData, ARRAYSIZE(kTextureData)))
         , texture_(device_)
     {}
 
@@ -61,18 +53,31 @@ public:
             aoe::GPUPixelFormat::kD24_Unorm_S8_Uint,
             aoe::GPUTextureFlags::kDepthStencil);
 
-        depth_state_.Initialize(
-            true,
-            aoe::GPUDepthWriteMask::kWriteAll,
-            aoe::GPUComparsionFunc::kLess);
+        aoe::GPUDepthStateDescription depth_state_desc;
+        depth_state_desc.is_depth_enabled = true;
+        depth_state_desc.write_mask = aoe::GPUDepthWriteMask::kWriteAll;
+        depth_state_desc.comparsion_function = aoe::GPUComparsionFunction::kLess;
+        depth_state_.Initialize(depth_state_desc);
 
-        rasterized_state_.Initialize(aoe::GPUCullMode::kBack, aoe::GPUFillMode::kSolid);
+        aoe::GPURasteriserStateDescription rasterizer_state_desc;
+        rasterizer_state_desc.cull_mode = aoe::GPUCullMode::kBack;
+        rasterizer_state_desc.fill_mode = aoe::GPUFillMode::kSolid;
+        rasterized_state_.Initialize(rasterizer_state_desc);
 
-        vertex_buffer_.Initialize(ToVector<Vertex>(VertexData, ARRAYSIZE(VertexData)));
-        index_buffer_.Initialize(ToVector<int32_t>(IndexData, ARRAYSIZE(IndexData)));
-        constant_buffer_.Initialize(aoe::GPUResourceUsage::kDynamic);
+        aoe::GPUBufferDescription<Vertex> vertex_buffer_desc;
+        vertex_buffer_desc.data = kVertexData;
+        vertex_buffer_desc.size = ARRAYSIZE(kVertexData);
+        vertex_buffer_.Initialize(vertex_buffer_desc);
 
-        auto device = device_.GetNative();
+        aoe::GPUBufferDescription<int32_t> index_buffer_desc;
+        index_buffer_desc.data = kIndexData;
+        index_buffer_desc.size = ARRAYSIZE(kIndexData);
+        index_buffer_.Initialize(index_buffer_desc);
+
+        aoe::GPUBufferDescription<Constants> constant_buffer_desc;
+        constant_buffer_desc.usage = aoe::GPUResourceUsage::kDynamic;
+        constant_buffer_desc.size = 1;
+        constant_buffer_.Initialize(constant_buffer_desc);
 
         aoe::GPUShadersCompiler shader_compiler(device_);
 
@@ -101,11 +106,8 @@ public:
     void Terminate() override {};
 
     void PerTickUpdate(float dt) override {
-        FLOAT backgroundColor[4] = { 1.01f, 0.01f, 0.01f, 1.0f };
-
-        UINT stride = 11 * sizeof(float); // vertex size (11 floats: float3 position, float3 normal, float2 texcoord, float3 color)
-        UINT offset = 0;
-
+        float background_color[4] = { 1.01f, 0.01f, 0.01f, 1.0f };
+        
         aoe::Viewport viewport = {
             0.0f,
             0.0f,
@@ -120,28 +122,26 @@ public:
         float n = 1.0f;                             // near
         float f = 9.0f;                             // far
 
-        matrix rotateX = { 1, 0, 0, 0, 0, static_cast<float>(cos(modelRotation.x)), -static_cast<float>(sin(modelRotation.x)), 0, 0, static_cast<float>(sin(modelRotation.x)), static_cast<float>(cos(modelRotation.x)), 0, 0, 0, 0, 1 };
-        matrix rotateY = { static_cast<float>(cos(modelRotation.y)), 0, static_cast<float>(sin(modelRotation.y)), 0, 0, 1, 0, 0, -static_cast<float>(sin(modelRotation.y)), 0, static_cast<float>(cos(modelRotation.y)), 0, 0, 0, 0, 1 };
-        matrix rotateZ = { static_cast<float>(cos(modelRotation.z)), -static_cast<float>(sin(modelRotation.z)), 0, 0, static_cast<float>(sin(modelRotation.z)), static_cast<float>(cos(modelRotation.z)), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
-        matrix scale = { modelScale.x, 0, 0, 0, 0, modelScale.y, 0, 0, 0, 0, modelScale.z, 0, 0, 0, 0, 1 };
-        matrix translate = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, modelTranslation.x, modelTranslation.y, modelTranslation.z, 1 };
+        Matrix rotate_x = { 1, 0, 0, 0, 0, static_cast<float>(cos(model_rotation_.x)), -static_cast<float>(sin(model_rotation_.x)), 0, 0, static_cast<float>(sin(model_rotation_.x)), static_cast<float>(cos(model_rotation_.x)), 0, 0, 0, 0, 1 };
+        Matrix rotate_y = { static_cast<float>(cos(model_rotation_.y)), 0, static_cast<float>(sin(model_rotation_.y)), 0, 0, 1, 0, 0, -static_cast<float>(sin(model_rotation_.y)), 0, static_cast<float>(cos(model_rotation_.y)), 0, 0, 0, 0, 1 };
+        Matrix rotate_z = { static_cast<float>(cos(model_rotation_.z)), -static_cast<float>(sin(model_rotation_.z)), 0, 0, static_cast<float>(sin(model_rotation_.z)), static_cast<float>(cos(model_rotation_.z)), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+        Matrix scale = { model_scale_.x, 0, 0, 0, 0, model_scale_.y, 0, 0, 0, 0, model_scale_.z, 0, 0, 0, 0, 1 };
+        Matrix translate = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, model_translation_.x, model_translation_.y, model_translation_.z, 1 };
 
-        modelRotation.x += 0.005f;
-        modelRotation.y += 0.009f;
-        modelRotation.z += 0.001f;
+        model_rotation_.x += 0.005f;
+        model_rotation_.y += 0.009f;
+        model_rotation_.z += 0.001f;
 
         auto context = device_.GetContext();
-        auto deviceContext = device_.GetContext().GetNative();
-
         context.ClearState();
 
         Constants constants{};
-        constants.Transform = rotateX * rotateY * rotateZ * scale * translate;
-        constants.Projection = { 2 * n / w, 0, 0, 0, 0, 2 * n / h, 0, 0, 0, 0, f / (f - n), 1, 0, 0, n * f / (n - f), 0 };
-        constants.LightVector = { 1.0f, -1.0f, 1.0f };
-        context.UpdateBuffer<Constants>(constant_buffer_, constants);
+        constants.transform = rotate_x * rotate_y * rotate_z * scale * translate;
+        constants.projection = { 2 * n / w, 0, 0, 0, 0, 2 * n / h, 0, 0, 0, 0, f / (f - n), 1, 0, 0, n * f / (n - f), 0 };
+        constants.light_vector = { 1.0f, -1.0f, 1.0f };
+        context.UpdateBuffer<Constants>(constant_buffer_, &constants, 1);
 
-        context.ClearRenderTarget(swap_chain_.GetRenderTargetView(), backgroundColor);
+        context.ClearRenderTarget(swap_chain_.GetRenderTargetView(), background_color);
         context.ClearDepth(depth_stencil_buffer_.GetDepthStencilView(), 1.0f);
 
         context.SetVertexBuffer(vertex_buffer_);
@@ -189,9 +189,9 @@ private:
     aoe::GPUTextureData<uint32_t> texture_data_;
     aoe::GPUTexture2D texture_;
 
-    float3 modelRotation = { 0.0f, 0.0f, 0.0f };
-    float3 modelScale = { 1.0f, 1.0f, 1.0f };
-    float3 modelTranslation = { 0.0f, 0.0f, 4.0f };
+    Vector model_rotation_ = { 0.0f, 0.0f, 0.0f };
+    Vector model_scale_ = { 1.0f, 1.0f, 1.0f };
+    Vector model_translation_ = { 0.0f, 0.0f, 4.0f };
     
     template<typename TVector, typename TArray>
     static std::vector<TVector> ToVector(TArray* array, size_t size) {
@@ -214,7 +214,7 @@ int main() {
     return 0;
 }
 
-matrix operator*(const matrix& m1, const matrix& m2)
+Matrix operator*(const Matrix& m1, const Matrix& m2)
 {
     return
     {

@@ -12,6 +12,16 @@ using GPUDepthStencilView = GPUResourceWrapper<ID3D11DepthStencilView>;
 using GPURenderTargetView = GPUResourceWrapper<ID3D11RenderTargetView>;
 using GPUUnorderedAccessView = GPUResourceWrapper<ID3D11UnorderedAccessView>;
 
+struct GPUTexture2DDescription {
+	uint32_t width;
+	uint32_t height;
+	GPUPixelFormat pixel_format;
+	GPUTextureFlags texture_flags;
+	const void* data;
+	size_t size;
+	size_t byte_width;
+};
+
 class GPUTexture2D : public IGPUResource {
 public:
 	AOE_NON_COPYABLE_CLASS(GPUTexture2D)

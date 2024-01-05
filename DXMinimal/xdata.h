@@ -3,7 +3,7 @@
 #define TEXTURE_WIDTH  2
 #define TEXTURE_HEIGHT 2
 
-UINT TextureData[] =
+const UINT kTextureData[] =
 {
     0xffffffff, 0xff7f7f7f,
     0xff7f7f7f, 0xffffffff,
@@ -16,7 +16,7 @@ struct Vertex {
     float color[3];
 };
 
-Vertex VertexData[] = // pos.x, pos.y, pos.z, nor.x, nor.y, nor.z, tex.u, tex.v, col.r, col.g, col.b, ...
+const Vertex kVertexData[] =
 {
     { { -1.0f,  1.0f, -1.0f, }, { 0.0f,  0.0f, -1.0f, }, {  0.0f,  0.0f, }, {  0.973f,  0.480f,  0.002f, } },
     { { -0.6f,  1.0f, -1.0f, }, { 0.0f,  0.0f, -1.0f, }, {  2.0f,  0.0f, }, {  0.973f,  0.480f,  0.002f, } },
@@ -188,7 +188,7 @@ Vertex VertexData[] = // pos.x, pos.y, pos.z, nor.x, nor.y, nor.z, tex.u, tex.v,
     { {  0.6f, -1.0f,  0.6f, }, { 0.0f,  0.0f, -1.0f, }, {  0.0f,  0.0f, }, {  0.001f,  0.447f,  0.067f, } },
 };
 
-UINT IndexData[] =
+const int32_t kIndexData[] =
 {
       0,   1,   9,   9,   8,   0,   1,   2,   5,   5,   4,   1,   6,   7,  10,  10,   9,   6,   2,   3,  11,  11,  10,   2,
      12,  13,  21,  21,  20,  12,  13,  14,  17,  17,  16,  13,  18,  19,  22,  22,  21,  18,  14,  15,  23,  23,  22,  14,

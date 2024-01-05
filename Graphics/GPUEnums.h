@@ -17,7 +17,7 @@ enum class GPUDepthWriteMask {
     kWriteAll = 1,
 };
 
-enum class GPUComparsionFunc
+enum class GPUComparsionFunction
 {
     kNever = 1,
     kLess = 2,

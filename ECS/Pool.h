@@ -101,7 +101,7 @@ private:
 	Lookup bound_;
 
 	static void AssertEntityIsValid(EntityId entity_id) {
-		AOE_ASSERT_MSG(entity_id >= 0, "Invalid entity.")
+		AOE_ASSERT_MSG(entity_id >= 0, "Invalid entity.");
 	}
 
 	template<typename ...TArgs>

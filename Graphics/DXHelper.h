@@ -31,17 +31,6 @@ class DXHelper {
 public:
 	DXHelper() = delete;
 
-	static D3D11_VIEWPORT ToDXViewport(const Viewport& viewport) {
-		return {
-			viewport.x,
-			viewport.y,
-			viewport.width,
-			viewport.height,
-			viewport.min_depth,
-			viewport.max_depth,
-		};
-	}
-
 	static DXGI_FORMAT ToDxgiFormat(const GPUPixelFormat value) {
 		return static_cast<DXGI_FORMAT>(value);
 	}
@@ -63,59 +52,6 @@ public:
 		}
 
 		return result;
-	}
-
-	static D3D11_DEPTH_WRITE_MASK ToDepthWirteMask(const GPUDepthWriteMask value) {
-		return static_cast<D3D11_DEPTH_WRITE_MASK>(value);
-	}
-
-	static D3D11_COMPARISON_FUNC ToComparsionFunc(const GPUComparsionFunc value) {
-		return static_cast<D3D11_COMPARISON_FUNC>(value);
-	}
-
-	static D3D11_CULL_MODE ToCullMode(const GPUCullMode value) {
-		return static_cast<D3D11_CULL_MODE>(value);
-	}
-
-	static D3D11_FILL_MODE ToFillMode(const GPUFillMode value) {
-		return static_cast<D3D11_FILL_MODE>(value);
-	}
-
-	static D3D11_USAGE ToUsage(const GPUResourceUsage value) {
-		return static_cast<D3D11_USAGE>(value);
-	}
-
-	static D3D_PRIMITIVE_TOPOLOGY ToPrimitiveTopology(const GPUPrimitiveTopology value) {
-		return static_cast<D3D_PRIMITIVE_TOPOLOGY>(value);
-	}
-
-	static const char* ToSemanticName(LayoutElementSemantics value) {
-		switch (value)
-		{
-		case aoe::LayoutElementSemantics::kBinormal:
-			return "BINORMAL";
-		case aoe::LayoutElementSemantics::kBlendIndices:
-			return "BLENDINDICES";
-		case aoe::LayoutElementSemantics::kBlendWeight:
-			return "BLENDWEIGHT";
-		case aoe::LayoutElementSemantics::kColor:
-			return "COLOR";
-		case aoe::LayoutElementSemantics::kNormal:
-			return "NORMAL";
-		case aoe::LayoutElementSemantics::kPosition:
-			return "POSITION";
-		case aoe::LayoutElementSemantics::kPositionT:
-			return "POSITIONT";
-		case aoe::LayoutElementSemantics::kPSize:
-			return "PSIZE";
-		case aoe::LayoutElementSemantics::kTangent:
-			return "TANGENT";
-		case aoe::LayoutElementSemantics::kTexcoord:
-			return "TEXCOORD";
-		default:
-			AOE_ASSERT_MSG(false, "Unknown sematics {}.", static_cast<int>(value));
-			return "";
-		}
 	}
 };
 

@@ -12,153 +12,132 @@ template<typename TByte>
 struct GPUBufferDescription {
 	using Byte = TByte;
 
-	TByte* data;
+	static const size_t kByteWidth = sizeof(TByte);
+
+	const TByte* data;
 	size_t size;
 	GPUResourceUsage usage;
 
+	size_t GetMemorySize() const {
+		return kByteWidth * size;
+	}
+
+	bool IsDynamic() const {
+		return usage == GPUResourceUsage::kDynamic;
+	}
+
 	GPUBufferDescription()
-		: data(nullptr)
-		, size(0)
-		, usage(GPUResourceUsage::kDefault)
+		: GPUBufferDescription(nullptr, 0, GPUResourceUsage::kDefault)
+	{}
+
+	GPUBufferDescription(TByte* data, size_t size, GPUResourceUsage usage)
+		: data(data)
+		, size(size)
+		, usage(usage)
 	{}
 };
 
+template<typename TByte>
 class GPUBuffer : public IGPUResource {
 public:
-	AOE_NON_COPYABLE_CLASS(GPUBuffer)
+	using Description = GPUBufferDescription<TByte>;
+
+	AOE_NON_COPYABLE_CLASS(GPUBuffer<TByte>)
 
 	ID3D11Buffer* GetNative() const {
 		return buffer_;
 	}
 
-	bool IsDynamic() const {
-		return is_dynamic_;
+	const Description& GetDescription() const {
+		return description_;
 	}
 
-	virtual uint32_t GetByteWidth() const = 0;
-	virtual uint32_t GetSize() const = 0;
+	const size_t GetSize() const {
+		return description_.size;
+	}
 
 	GPUBuffer(const GPUDevice& device)
-		: buffer_(nullptr)
-		, device_(device)
-		, is_dynamic_(false)
+		: device_(device)
+		, description_()
+		, buffer_(nullptr)
 	{}
+
+	bool Initialize(const Description& description) {
+		AOE_ASSERT(buffer_ == nullptr);
+		description_ = description;
+
+		D3D11_BUFFER_DESC buffer_desc = {};
+		buffer_desc.Usage = ToDXUsage(description_.usage);
+		buffer_desc.BindFlags = GetBufferType();
+		buffer_desc.CPUAccessFlags = description_.IsDynamic() ? D3D11_CPU_ACCESS_WRITE : 0;
+		buffer_desc.MiscFlags = 0;
+		buffer_desc.StructureByteStride = 0;
+		buffer_desc.ByteWidth = description_.GetMemorySize();
+
+		D3D11_SUBRESOURCE_DATA buffer_data = {};
+		buffer_data.pSysMem = description_.data;
+		buffer_data.SysMemPitch = 0;
+		buffer_data.SysMemSlicePitch = 0;
+
+		HRESULT hr = device_.GetNative()->CreateBuffer(
+			&buffer_desc, 
+			description_.data == nullptr ? nullptr : &buffer_data, 
+			&buffer_);
+		return SUCCEEDED(hr);
+	}
 
 	void Terminate() override {
 		AOE_DX_SAFE_RELEASE(buffer_);
 	}
 
 protected:
+	virtual D3D11_BIND_FLAG GetBufferType() = 0;
+
+private:
+	const GPUDevice& device_;
+	Description description_;
 	ID3D11Buffer* buffer_;
 
-	const GPUDevice& device_;
-
-	bool Initialize(
-		D3D11_BIND_FLAG buffer_type, 
-		uint32_t byte_width, 
-		D3D11_SUBRESOURCE_DATA* data, 
-		GPUResourceUsage usage = GPUResourceUsage::kDefault) 
-	{
-		AOE_ASSERT(buffer_ == nullptr);
-
-		is_dynamic_ = usage == GPUResourceUsage::kDynamic;
-
-		D3D11_BUFFER_DESC buffer_desc = {};
-		buffer_desc.Usage = DXHelper::ToUsage(usage);
-		buffer_desc.BindFlags = buffer_type;
-		buffer_desc.CPUAccessFlags = is_dynamic_ ? D3D11_CPU_ACCESS_WRITE : 0;
-		buffer_desc.MiscFlags = 0;
-		buffer_desc.StructureByteStride = 0;
-		buffer_desc.ByteWidth = byte_width;
-
-		HRESULT hr = device_.GetNative()->CreateBuffer(&buffer_desc, data, &buffer_);
-		return SUCCEEDED(hr);
+	static D3D11_USAGE ToDXUsage(const GPUResourceUsage value) {
+		return static_cast<D3D11_USAGE>(value);
 	}
-
-private:
-	bool is_dynamic_;
 };
 
 template<typename TByte>
-class GPUVertexBuffer : public GPUBuffer {
+class GPUVertexBuffer : public GPUBuffer<TByte> {
 public:
-	uint32_t GetByteWidth() const override {
-		return sizeof(TByte);
-	}
-
-	uint32_t GetSize() const override {
-		return vertices_.size();
-	}
-
 	GPUVertexBuffer(const GPUDevice& device)
-		: GPUBuffer(device)
+		: GPUBuffer<TByte>(device)
 	{}
 
-	bool Initialize(std::vector<TByte> vertices, GPUResourceUsage usage = GPUResourceUsage::kDefault) {
-		vertices_ = std::move(vertices);
-
-		D3D11_SUBRESOURCE_DATA vertex_data = {};
-		vertex_data.pSysMem = vertices_.data();
-		vertex_data.SysMemPitch = 0;
-		vertex_data.SysMemSlicePitch = 0;
-
-		uint32_t sizemem = GetByteWidth() * GetSize();
-		return GPUBuffer::Initialize(D3D11_BIND_VERTEX_BUFFER, sizemem, &vertex_data, usage);
+protected:
+	D3D11_BIND_FLAG GetBufferType() override {
+		return D3D11_BIND_VERTEX_BUFFER;
 	}
-
-private:
-	std::vector<TByte> vertices_;
 };
 
-class GPUIndexBuffer : public GPUBuffer {
+class GPUIndexBuffer : public GPUBuffer<int32_t> {
 public:
-	using Index = int32_t;
-
-	uint32_t GetByteWidth() const override {
-		return sizeof(Index);
-	}
-
-	uint32_t GetSize() const override {
-		return indices_.size();
-	}
-
 	GPUIndexBuffer(const GPUDevice& device)
-		: GPUBuffer(device)
+		: GPUBuffer<int32_t>(device)
 	{}
 
-	bool Initialize(std::vector<Index> indices, GPUResourceUsage usage = GPUResourceUsage::kDefault) {
-		indices_ = std::move(indices);
-
-		D3D11_SUBRESOURCE_DATA index_data = {};
-		index_data.pSysMem = indices_.data();
-		index_data.SysMemPitch = 0;
-		index_data.SysMemSlicePitch = 0;
-
-		uint32_t sizemem = GetByteWidth() * GetSize();
-		return GPUBuffer::Initialize(D3D11_BIND_INDEX_BUFFER, sizemem, &index_data, usage);
+protected:
+	D3D11_BIND_FLAG GetBufferType() override {
+		return D3D11_BIND_INDEX_BUFFER;
 	}
-
-private:
-	std::vector<Index> indices_;
 };
 
 template<typename TByte>
-class GPUConstantBuffer : public GPUBuffer {
+class GPUConstantBuffer : public GPUBuffer<TByte> {
 public:
-	uint32_t GetByteWidth() const override {
-		return sizeof(TByte);
-	}
-
-	uint32_t GetSize() const override {
-		return 1;
-	}
-
 	GPUConstantBuffer(const GPUDevice& device)
-		: GPUBuffer(device)
+		: GPUBuffer<TByte>(device)
 	{}
 
-	bool Initialize(GPUResourceUsage usage = GPUResourceUsage::kDefault) {
-		return GPUBuffer::Initialize(D3D11_BIND_CONSTANT_BUFFER, sizeof(TByte), nullptr, usage);
+public:
+	D3D11_BIND_FLAG GetBufferType() override {
+		return D3D11_BIND_CONSTANT_BUFFER;
 	}
 };
 

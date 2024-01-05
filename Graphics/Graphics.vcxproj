@@ -168,7 +168,9 @@
     <ClCompile Include="GPUContext.cpp" />
     <ClCompile Include="GPUDepthState.cpp" />
     <ClCompile Include="GPUDevice.cpp" />
+    <ClCompile Include="GPULayoutDescriptor.cpp" />
     <ClCompile Include="GPURasterizerState.cpp" />
+    <ClCompile Include="GPUSampler.cpp" />
     <ClCompile Include="GPUSwapChain.cpp" />
     <ClCompile Include="GPUTexture2D.cpp" />
     <ClCompile Include="pch.cpp">

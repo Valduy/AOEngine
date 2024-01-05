@@ -16,12 +16,12 @@ GPURenderTargetView GPUSwapChain::GetRenderTargetView() const {
 }
 
 GPUSwapChain::GPUSwapChain(const GPUDevice& device, const Window& window)
-	: dxgi_factory_(nullptr)
+	: device_(device)
+	, window_(window)
+	, dxgi_factory_(nullptr)
 	, swap_chain_(nullptr)
 	, back_buffer_(nullptr)
 	, render_target_view_(nullptr)
-	, device_(device)
-	, window_(window)
 	, width_(0)
 	, height_(0)
 {}
@@ -35,8 +35,6 @@ bool GPUSwapChain::Initialize() {
 	DXGI_SWAP_CHAIN_DESC swap_chain_desc = {};
 	swap_chain_desc.BufferDesc.Width = window_.GetWidth();
 	swap_chain_desc.BufferDesc.Height = window_.GetHeight();
-	//swap_chain_desc.BufferDesc.RefreshRate.Numerator = Executor::kFps;
-	//swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
 	swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;

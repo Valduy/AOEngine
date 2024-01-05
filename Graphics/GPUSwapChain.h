@@ -3,7 +3,6 @@
 #include <cstdint>
 
 #include "../Application/Window.h"
-#include "../Game/Executor.h"
 
 #include "GPUDevice.h"
 #include "GPUTexture2D.h"
@@ -26,13 +25,13 @@ public:
 	void Present();
 
 private:
+	const GPUDevice& device_;
+	const Window& window_;
+
 	IDXGIFactory* dxgi_factory_;
 	IDXGISwapChain* swap_chain_;
 	ID3D11Texture2D* back_buffer_;
 	ID3D11RenderTargetView* render_target_view_;
-
-	const GPUDevice& device_;
-	const Window& window_;
 
 	int32_t width_;
 	int32_t height_;

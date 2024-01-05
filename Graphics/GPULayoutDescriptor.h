@@ -14,34 +14,17 @@ struct LayoutElement {
 
 class GPULayoutDescriptor {
 public:
-	const D3D11_INPUT_ELEMENT_DESC* GetBufferPointer() const {
-		return layout_.data();
-	}
+	const D3D11_INPUT_ELEMENT_DESC* GetBufferPointer() const;
+	size_t GetBufferSize() const;
 
-	size_t GetBufferSize() const {
-		return layout_.size();
-	}
+	GPULayoutDescriptor(std::initializer_list<LayoutElement> list);
 
-	GPULayoutDescriptor(std::initializer_list<LayoutElement> list) {
-		for (const LayoutElement& element : list) {
-			Add(element);
-		}
-	}
-
-	void Add(const LayoutElement& element) {
-		layout_.emplace_back(D3D11_INPUT_ELEMENT_DESC{
-			DXHelper::ToSemanticName(element.sematic),
-			0,
-			DXHelper::ToDxgiFormat(element.format),
-			0,
-			D3D11_APPEND_ALIGNED_ELEMENT,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0,
-		});
-	}
+	void Add(const LayoutElement& element);
 
 private:
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layout_;
+
+	static const char* ToSemanticName(LayoutElementSemantics value);
 };
 
 } // namespace aoe
