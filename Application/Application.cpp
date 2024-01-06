@@ -28,7 +28,7 @@ void Application::Start(IGame& game) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
-			if (msg.message == WM_QUIT) {
+			if (msg.message == WM_DESTROY) {
 				is_stoping_ = true;
 			}
 		}

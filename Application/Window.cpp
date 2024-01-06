@@ -64,9 +64,12 @@ LRESULT Window::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	}
 
 	switch (msg) {
-	default: {
+	case WM_DESTROY:
+		// TODO: handle
+	case WM_CLOSE:
+		// TODO: handle
+	default:
 		return DefWindowProc(hwnd, msg, wparam, lparam);
-	}
 	}
 }
 

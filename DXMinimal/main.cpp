@@ -41,6 +41,8 @@ public:
     {}
 
     void Initialize() override {
+        bool result = false;
+
         device_.Initialize();
         swap_chain_.Initialize();
 
@@ -49,43 +51,52 @@ public:
         depth_stencil_desc.height = window_.GetHeight();
         depth_stencil_desc.pixel_format = aoe::GPUPixelFormat::kD24_Unorm_S8_Uint;
         depth_stencil_desc.texture_flags = aoe::GPUTextureFlags::kDepthStencil;
-        depth_stencil_buffer_.Initialize(depth_stencil_desc);
+        result = depth_stencil_buffer_.Initialize(depth_stencil_desc);
+        AOE_ASSERT(result);
 
         aoe::GPUDepthStateDescription depth_state_desc;
         depth_state_desc.is_depth_enabled = true;
         depth_state_desc.write_mask = aoe::GPUDepthWriteMask::kWriteAll;
         depth_state_desc.comparsion_function = aoe::GPUComparsionFunction::kLess;
-        depth_state_.Initialize(depth_state_desc);
+        result = depth_state_.Initialize(depth_state_desc);
+        AOE_ASSERT(result);
 
         aoe::GPURasteriserStateDescription rasterizer_state_desc;
         rasterizer_state_desc.cull_mode = aoe::GPUCullMode::kBack;
         rasterizer_state_desc.fill_mode = aoe::GPUFillMode::kSolid;
-        rasterized_state_.Initialize(rasterizer_state_desc);
+        result = rasterized_state_.Initialize(rasterizer_state_desc);
+        AOE_ASSERT(result);
 
         auto vertex_buffer_desc = aoe::GPUBufferDescription::CreateVertex<Vertex>(kVertexData, ARRAYSIZE(kVertexData));
-        vertex_buffer_.Initialize(vertex_buffer_desc);
+        result = vertex_buffer_.Initialize(vertex_buffer_desc);
+        AOE_ASSERT(result);
 
         auto index_buffer_desc = aoe::GPUBufferDescription::CreateIndex<int32_t>(kIndexData, ARRAYSIZE(kIndexData));
-        index_buffer_.Initialize(index_buffer_desc);
+        result = index_buffer_.Initialize(index_buffer_desc);
+        AOE_ASSERT(result);
 
         auto constant_buffer_desc = aoe::GPUBufferDescription::CreateConstant<Constants>(aoe::GPUResourceUsage::kDynamic);
-        constant_buffer_.Initialize(constant_buffer_desc);
+        result = constant_buffer_.Initialize(constant_buffer_desc);
+        AOE_ASSERT(result);
 
         aoe::GPUShadersCompiler shader_compiler(device_);
 
         aoe::DXByteCode vertex_byte_code = shader_compiler.CompileVertexShader(L"shaders.hlsl", "vs_main");
-        vertex_shader_.Initialize(vertex_byte_code, {
+        result = vertex_shader_.Initialize(vertex_byte_code, {
             {aoe::LayoutElementSemantics::kPosition, aoe::GPUPixelFormat::kR32G32B32_Float},
             {aoe::LayoutElementSemantics::kNormal, aoe::GPUPixelFormat::kR32G32B32_Float},
             {aoe::LayoutElementSemantics::kTexcoord, aoe::GPUPixelFormat::kR32G32_Float},
             {aoe::LayoutElementSemantics::kColor, aoe::GPUPixelFormat::kR32G32B32_Float},
         });
+        AOE_ASSERT(result);
 
         aoe::DXByteCode pixel_byte_code = shader_compiler.CompilePixelShader(L"shaders.hlsl", "ps_main");
-        pixel_shader_.Initialize(pixel_byte_code);
+        result = pixel_shader_.Initialize(pixel_byte_code);
+        AOE_ASSERT(result);
 
         aoe::GPUSamplerDescription sampler_desc;
-        sampler_.Initialize(sampler_desc);
+        result = sampler_.Initialize(sampler_desc);
+        AOE_ASSERT(result);
 
         auto texture_desc = aoe::GPUTexture2DDescription::Create<uint32_t>(
             TEXTURE_WIDTH,
@@ -94,46 +105,30 @@ public:
             aoe::GPUTextureFlags::kShaderResource,
             kTextureData
         );
-        texture_.Initialize(texture_desc);
+        result = texture_.Initialize(texture_desc);
+        AOE_ASSERT(result);
     };
 
-    void Terminate() override {};
+    void Terminate() override {
+        texture_.Terminate();
+        sampler_.Terminate();
+        pixel_shader_.Terminate();
+        vertex_shader_.Terminate();
+        constant_buffer_.Terminate();
+        index_buffer_.Terminate();
+        vertex_buffer_.Terminate();
+        rasterized_state_.Terminate();
+        depth_state_.Terminate();
+        depth_stencil_buffer_.Terminate();
+        swap_chain_.Terminate();
+        device_.Terminate();
+    };
 
     void PerTickUpdate(float dt) override {
         float background_color[4] = { 1.01f, 0.01f, 0.01f, 1.0f };
         
-        aoe::Viewport viewport = {
-            0.0f,
-            0.0f,
-            static_cast<float>(window_.GetWidth()),
-            static_cast<float>(window_.GetHeight()),
-            0.0f,
-            1.0f
-        };
-
-        float w = viewport.width / viewport.height; // width (aspect ratio)
-        float h = 1.0f;                             // height
-        float n = 1.0f;                             // near
-        float f = 9.0f;                             // far
-
-        Matrix rotate_x = { 1, 0, 0, 0, 0, static_cast<float>(cos(model_rotation_.x)), -static_cast<float>(sin(model_rotation_.x)), 0, 0, static_cast<float>(sin(model_rotation_.x)), static_cast<float>(cos(model_rotation_.x)), 0, 0, 0, 0, 1 };
-        Matrix rotate_y = { static_cast<float>(cos(model_rotation_.y)), 0, static_cast<float>(sin(model_rotation_.y)), 0, 0, 1, 0, 0, -static_cast<float>(sin(model_rotation_.y)), 0, static_cast<float>(cos(model_rotation_.y)), 0, 0, 0, 0, 1 };
-        Matrix rotate_z = { static_cast<float>(cos(model_rotation_.z)), -static_cast<float>(sin(model_rotation_.z)), 0, 0, static_cast<float>(sin(model_rotation_.z)), static_cast<float>(cos(model_rotation_.z)), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
-        Matrix scale = { model_scale_.x, 0, 0, 0, 0, model_scale_.y, 0, 0, 0, 0, model_scale_.z, 0, 0, 0, 0, 1 };
-        Matrix translate = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, model_translation_.x, model_translation_.y, model_translation_.z, 1 };
-
-        model_rotation_.x += 0.005f;
-        model_rotation_.y += 0.009f;
-        model_rotation_.z += 0.001f;
-
         auto context = device_.GetContext();
         context.ClearState();
-
-        Constants constants{};
-        constants.transform = rotate_x * rotate_y * rotate_z * scale * translate;
-        constants.projection = { 2 * n / w, 0, 0, 0, 0, 2 * n / h, 0, 0, 0, 0, f / (f - n), 1, 0, 0, n * f / (n - f), 0 };
-        constants.light_vector = { 1.0f, -1.0f, 1.0f };
-        context.UpdateBuffer<Constants>(constant_buffer_, &constants, 1);
 
         context.ClearRenderTarget(swap_chain_.GetRenderTargetView(), background_color);
         context.ClearDepth(depth_stencil_buffer_.GetDepthStencilView(), 1.0f);
@@ -145,7 +140,7 @@ public:
         context.SetVertexShader(vertex_shader_);
         context.SetConstantBuffer(aoe::GPUShaderType::kVertex, constant_buffer_);
 
-        context.SetViewport(viewport);
+        context.SetViewport(viewport_);
         context.SetRasterizerState(rasterized_state_);
 
         context.SetPixelShader(pixel_shader_);
@@ -160,7 +155,29 @@ public:
         swap_chain_.Present();
     };
 
-    void PerFrameUpdate(float dt) override {};
+    void PerFrameUpdate(float dt) override {
+        viewport_ = GetViewport();
+
+        const float aspect = viewport_.width / viewport_.height;
+        auto context = device_.GetContext();
+
+        Matrix rotate_x = RotationX(model_rotation_.x);
+        Matrix rotate_y = RotationY(model_rotation_.y);
+        Matrix rotate_z = RotationZ(model_rotation_.z);
+        Matrix scale = Scale(model_scale_);
+        Matrix translate = Translate(model_translation_);
+        Matrix transform = rotate_x * rotate_y * rotate_z * scale * translate;
+
+        model_rotation_.x += 0.5f * dt;
+        model_rotation_.y += 0.9f * dt;
+        model_rotation_.z += 0.1f * dt;
+
+        Constants constants{};
+        constants.transform = transform;
+        constants.projection = Projection(aspect, 1.0f, 9.0f);
+        constants.light_vector = { 1.0f, -1.0f, 1.0f };
+        context.UpdateBuffer<Constants>(constant_buffer_, &constants, 1);
+    };
 
 private:
     const aoe::Window& window_;
@@ -182,9 +199,180 @@ private:
 
     aoe::GPUTexture2D texture_;
 
+    aoe::Viewport viewport_;
+
     Vector model_rotation_ = { 0.0f, 0.0f, 0.0f };
     Vector model_scale_ = { 1.0f, 1.0f, 1.0f };
     Vector model_translation_ = { 0.0f, 0.0f, 4.0f };
+
+    static Matrix RotationX(float angle) {
+        Matrix result;
+        const float cosa = static_cast<float>(cos(angle));
+        const float sina = static_cast<float>(sin(angle));
+        
+        result.m[0][0] = 1;
+        result.m[0][1] = 0;
+        result.m[0][2] = 0;
+        result.m[0][3] = 0;
+
+        result.m[1][0] = 0;
+        result.m[1][1] = cosa;
+        result.m[1][2] = -sina;
+        result.m[1][3] = 0;
+
+        result.m[2][0] = 0;
+        result.m[2][1] = sina;
+        result.m[2][2] = cosa;
+        result.m[2][3] = 0;
+
+        result.m[3][0] = 0;
+        result.m[3][1] = 0;
+        result.m[3][2] = 0;
+        result.m[3][3] = 1;
+
+        return result;
+    }
+
+    static Matrix RotationY(float angle) {
+        Matrix result;
+        const float cosa = static_cast<float>(cos(angle));
+        const float sina = static_cast<float>(sin(angle));
+
+        result.m[0][0] = cosa;
+        result.m[0][1] = 0;
+        result.m[0][2] = sina;
+        result.m[0][3] = 0;
+
+        result.m[1][0] = 0;
+        result.m[1][1] = 1;
+        result.m[1][2] = 0;
+        result.m[1][3] = 0;
+
+        result.m[2][0] = -sina;
+        result.m[2][1] = 0;
+        result.m[2][2] = cosa;
+        result.m[2][3] = 0;
+
+        result.m[3][0] = 0;
+        result.m[3][1] = 0;
+        result.m[3][2] = 0;
+        result.m[3][3] = 1;
+
+        return result;
+    }
+
+    static Matrix RotationZ(float angle) {
+        Matrix result;
+        const float cosa = static_cast<float>(cos(angle));
+        const float sina = static_cast<float>(sin(angle));
+
+        result.m[0][0] = cosa;
+        result.m[0][1] = -sina;
+        result.m[0][2] = 0;
+        result.m[0][3] = 0;
+
+        result.m[1][0] = sina;
+        result.m[1][1] = cosa;
+        result.m[1][2] = 0;
+        result.m[1][3] = 0;
+
+        result.m[2][0] = 0;
+        result.m[2][1] = 0;
+        result.m[2][2] = 1;
+        result.m[2][3] = 0;
+
+        result.m[3][0] = 0;
+        result.m[3][1] = 0;
+        result.m[3][2] = 0;
+        result.m[3][3] = 1;
+
+        return result;
+    }
+
+    const Matrix Scale(const Vector& scale) {
+        Matrix result;
+
+        result.m[0][0] = scale.x;
+        result.m[0][1] = 0;
+        result.m[0][2] = 0;
+        result.m[0][3] = 0;
+
+        result.m[1][0] = 0;
+        result.m[1][1] = scale.y;
+        result.m[1][2] = 0;
+        result.m[1][3] = 0;
+
+        result.m[2][0] = 0;
+        result.m[2][1] = 0;
+        result.m[2][2] = scale.z;
+        result.m[2][3] = 0;
+
+        result.m[3][0] = 0;
+        result.m[3][1] = 0;
+        result.m[3][2] = 0;
+        result.m[3][3] = 1;
+
+        return result;
+    }
+
+    static Matrix Translate(const Vector& translation) {
+        Matrix result;
+
+        result.m[0][0] = 1;
+        result.m[0][1] = 0;
+        result.m[0][2] = 0;
+        result.m[0][3] = 0;
+
+        result.m[1][0] = 0;
+        result.m[1][1] = 1;
+        result.m[1][2] = 0;
+        result.m[1][3] = 0;
+
+        result.m[2][0] = 0;
+        result.m[2][1] = 0;
+        result.m[2][2] = 1;
+        result.m[2][3] = 0;
+
+        result.m[3][0] = translation.x;
+        result.m[3][1] = translation.y;
+        result.m[3][2] = translation.z;
+        result.m[3][3] = 1;
+
+        return result;
+    }
+
+    static Matrix Projection(float aspect, float near_plain, float far_plain) {
+        Matrix result;
+
+        result.m[0][0] = 2 * near_plain / aspect;
+        result.m[0][1] = 0;
+        result.m[0][2] = 0;
+        result.m[0][3] = 0;
+
+        result.m[1][0] = 0;
+        result.m[1][1] = 2 * near_plain;
+        result.m[1][2] = 0;
+        result.m[1][3] = 0;
+
+        result.m[2][0] = 0;
+        result.m[2][1] = 0;
+        result.m[2][2] = far_plain / (far_plain - near_plain);
+        result.m[2][3] = 1;
+
+        result.m[3][0] = 0;
+        result.m[3][1] = 0;
+        result.m[3][2] = near_plain * far_plain / (near_plain - far_plain);
+        result.m[3][3] = 0;
+
+        return result;
+    }
+
+    aoe::Viewport GetViewport() {
+        const float width = static_cast<float>(window_.GetWidth());
+        const float height = static_cast<float>(window_.GetHeight());
+
+        return { 0.0f, 0.0f, width, height, 0.0f, 1.0f };
+    }
 };
 
 int main() {

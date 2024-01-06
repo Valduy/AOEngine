@@ -36,6 +36,8 @@ bool GPUSampler::Initialize(const GPUSamplerDescription& description) {
 
 	const HRESULT hr = device_.GetNative()->CreateSamplerState(&sampler_desc, &sampler_);
 	AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
+
+	return true;
 }
 
 void GPUSampler::Terminate() {
