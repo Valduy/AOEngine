@@ -85,7 +85,7 @@ void GPUContext::UpdateBuffer(const GPUBuffer& buffer, const void* data, size_t 
 	if (buffer.IsDynamic()) {
 		D3D11_MAPPED_SUBRESOURCE mapped_subresource;
 		const HRESULT hr = context_->Map(native, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_subresource);
-		AOE_DX_TRY_LOG_ERROR_AND_RETURN(hr);
+		AOE_DX_TRY_LOG_ERROR_AND_RETURN(hr, "Failed to map subresource.");
 
 		memcpy(mapped_subresource.pData, data, size);
 		context_->Unmap(native, 0);

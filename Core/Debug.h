@@ -4,11 +4,9 @@
 
 #ifndef NDEBUG
 
-    #define AOE_ASSERT(expr) \
-        aoe::Debug::Assert(__FILE__, __LINE__, expr, #expr)
+    #define AOE_ASSERT(expr) aoe::Debug::Assert(__FILE__, __LINE__, expr, #expr)
 
-    #define AOE_ASSERT_MSG(expr, msg, ...) \
-        aoe::Debug::Assert(__FILE__, __LINE__, expr, #expr, msg, __VA_ARGS__)
+    #define AOE_ASSERT_MSG(expr, msg, ...) aoe::Debug::Assert(__FILE__, __LINE__, expr, #expr, msg, __VA_ARGS__)
 
 #else
 

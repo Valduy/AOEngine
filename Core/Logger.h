@@ -48,8 +48,7 @@ private:
     }
 
     static const char* ToString(LogType type) {
-        switch (type)
-        {
+        switch (type) {
         case aoe::LogType::kInfo:
             return "Info";
         case aoe::LogType::kWarning:
