@@ -14,6 +14,16 @@ struct GPUDepthStateDescription {
 	GPUDepthWriteMask write_mask;
 	GPUComparsionFunction comparsion_function;
 
+	GPUDepthStateDescription(
+		bool is_depth_enabled, 
+		GPUDepthWriteMask write_mask, 
+		GPUComparsionFunction comparsion_function
+	)
+		: is_depth_enabled(is_depth_enabled)
+		, write_mask(write_mask)
+		, comparsion_function(comparsion_function)
+	{}
+
 	GPUDepthStateDescription()
 		: is_depth_enabled(false)
 		, write_mask(GPUDepthWriteMask::kWriteNone)
@@ -21,23 +31,17 @@ struct GPUDepthStateDescription {
 	{}
 };
 
-class GPUDepthState : public IGPUResource {
+class GPUDepthState {
 public:
-	AOE_NON_COPYABLE_CLASS(GPUDepthState)
-
 	ID3D11DepthStencilState* GetNative() const;
-	
 	const GPUDepthStateDescription& GetDescription() const;
 
-	GPUDepthState(const GPUDevice& device);
-
-	bool Initialize(const GPUDepthStateDescription& description);
-	void Terminate() override;
+	GPUDepthState(const GPUDevice& device, GPUDepthStateDescription description);
 
 private:
 	const GPUDevice& device_;
 	GPUDepthStateDescription description_;
-	ID3D11DepthStencilState* depth_stencil_state_;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depth_stencil_state_;
 
 	static D3D11_DEPTH_WRITE_MASK ToDXDepthWirteMask(const GPUDepthWriteMask value);
 	static D3D11_COMPARISON_FUNC ToDXComparsionFunc(const GPUComparsionFunction value);

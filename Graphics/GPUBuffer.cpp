@@ -4,7 +4,7 @@
 namespace aoe {
 
 ID3D11Buffer* GPUBuffer::GetNative() const {
-	return buffer_;
+	return buffer_.Get();
 }
 
 const GPUBufferDescription& GPUBuffer::GetDescription() const {
@@ -39,16 +39,11 @@ bool GPUBuffer::IsDynamic() const {
 	return description_.IsDynamic();
 }
 
-GPUBuffer::GPUBuffer(const GPUDevice& device)
+GPUBuffer::GPUBuffer(const GPUDevice& device, GPUBufferDescription description)
 	: device_(device)
-	, description_()
-	, buffer_(nullptr)
-{}
-
-bool GPUBuffer::Initialize(const GPUBufferDescription & description) {
-	AOE_ASSERT(buffer_ == nullptr);
-	description_ = description;
-
+	, description_(std::move(description))
+	//, buffer_(nullptr)
+{
 	D3D11_BUFFER_DESC buffer_desc = {};
 	buffer_desc.Usage = ToDXUsage(description_.usage);
 	buffer_desc.BindFlags = ToDXBufferType(description_.buffer_type);
@@ -65,17 +60,13 @@ bool GPUBuffer::Initialize(const GPUBufferDescription & description) {
 		buffer_data.SysMemPitch = 0;
 		buffer_data.SysMemSlicePitch = 0;
 
-		hr = device_.GetNative()->CreateBuffer(&buffer_desc, &buffer_data, &buffer_);
+		hr = device_.GetNative()->CreateBuffer(&buffer_desc, &buffer_data, buffer_.GetAddressOf());
 	}
 	else {
-		hr = device_.GetNative()->CreateBuffer(&buffer_desc, nullptr, &buffer_);
+		hr = device_.GetNative()->CreateBuffer(&buffer_desc, nullptr, buffer_.GetAddressOf());
 	}
 
-	return SUCCEEDED(hr);
-}
-
-void GPUBuffer::Terminate() {
-	AOE_DX_SAFE_RELEASE(buffer_);
+	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create buffer.");
 }
 
 D3D11_USAGE GPUBuffer::ToDXUsage(const GPUResourceUsage value) {

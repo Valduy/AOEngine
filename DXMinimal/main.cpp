@@ -22,6 +22,18 @@ struct Constants {
     float dummy;
 };
 
+static const aoe::GPUDepthStateDescription kDepthStateDesc =
+    { true, aoe::GPUDepthWriteMask::kWriteAll, aoe::GPUComparsionFunction::kLess };
+
+static const aoe::GPUBufferDescription kVertexBufferDesc = 
+    aoe::GPUBufferDescription::CreateVertex<Vertex>(kVertexData, ARRAYSIZE(kVertexData));
+
+static const aoe::GPUBufferDescription kIndexBufferDesc =
+    aoe::GPUBufferDescription::CreateIndex<int32_t>(kIndexData, ARRAYSIZE(kIndexData));
+
+static const aoe::GPUBufferDescription kConstBufferDesc =
+    aoe::GPUBufferDescription::CreateConstant<Constants>(aoe::GPUResourceUsage::kDynamic);
+
 class MyGame : public aoe::IGame {
 public:
     MyGame(const aoe::Window& window)
@@ -29,11 +41,11 @@ public:
         , device_()
         , swap_chain_(device_, window)
         , depth_stencil_buffer_(device_)
-        , depth_state_(device_)
+        , depth_state_(device_, kDepthStateDesc)
         , rasterized_state_(device_)
-        , vertex_buffer_(device_)
-        , index_buffer_(device_)
-        , constant_buffer_(device_)
+        , vertex_buffer_(device_, kVertexBufferDesc)
+        , index_buffer_(device_, kIndexBufferDesc)
+        , constant_buffer_(device_, kConstBufferDesc)
         , vertex_shader_(device_)
         , pixel_shader_(device_)
         , sampler_(device_)
@@ -43,9 +55,6 @@ public:
     void Initialize() override {
         bool result = false;
 
-        device_.Initialize();
-        swap_chain_.Initialize();
-
         aoe::GPUTexture2DDescription depth_stencil_desc;
         depth_stencil_desc.width = window_.GetWidth();
         depth_stencil_desc.height = window_.GetHeight();
@@ -54,29 +63,10 @@ public:
         result = depth_stencil_buffer_.Initialize(depth_stencil_desc);
         AOE_ASSERT(result);
 
-        aoe::GPUDepthStateDescription depth_state_desc;
-        depth_state_desc.is_depth_enabled = true;
-        depth_state_desc.write_mask = aoe::GPUDepthWriteMask::kWriteAll;
-        depth_state_desc.comparsion_function = aoe::GPUComparsionFunction::kLess;
-        result = depth_state_.Initialize(depth_state_desc);
-        AOE_ASSERT(result);
-
         aoe::GPURasteriserStateDescription rasterizer_state_desc;
         rasterizer_state_desc.cull_mode = aoe::GPUCullMode::kBack;
         rasterizer_state_desc.fill_mode = aoe::GPUFillMode::kSolid;
         result = rasterized_state_.Initialize(rasterizer_state_desc);
-        AOE_ASSERT(result);
-
-        auto vertex_buffer_desc = aoe::GPUBufferDescription::CreateVertex<Vertex>(kVertexData, ARRAYSIZE(kVertexData));
-        result = vertex_buffer_.Initialize(vertex_buffer_desc);
-        AOE_ASSERT(result);
-
-        auto index_buffer_desc = aoe::GPUBufferDescription::CreateIndex<int32_t>(kIndexData, ARRAYSIZE(kIndexData));
-        result = index_buffer_.Initialize(index_buffer_desc);
-        AOE_ASSERT(result);
-
-        auto constant_buffer_desc = aoe::GPUBufferDescription::CreateConstant<Constants>(aoe::GPUResourceUsage::kDynamic);
-        result = constant_buffer_.Initialize(constant_buffer_desc);
         AOE_ASSERT(result);
 
         aoe::GPUShadersCompiler shader_compiler(device_);
@@ -114,14 +104,8 @@ public:
         sampler_.Terminate();
         pixel_shader_.Terminate();
         vertex_shader_.Terminate();
-        constant_buffer_.Terminate();
-        index_buffer_.Terminate();
-        vertex_buffer_.Terminate();
         rasterized_state_.Terminate();
-        depth_state_.Terminate();
         depth_stencil_buffer_.Terminate();
-        swap_chain_.Terminate();
-        device_.Terminate();
     };
 
     void PerTickUpdate(float dt) override {

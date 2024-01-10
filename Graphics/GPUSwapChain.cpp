@@ -8,11 +8,11 @@
 namespace aoe {
 
 IDXGISwapChain* GPUSwapChain::GetNative() const {
-	return swap_chain_;
+	return swap_chain_.Get();
 }
 
 GPURenderTargetView GPUSwapChain::GetRenderTargetView() const {
-	return { render_target_view_ };
+	return { render_target_view_.Get()};
 }
 
 GPUSwapChain::GPUSwapChain(const GPUDevice& device, const Window& window)
@@ -24,14 +24,7 @@ GPUSwapChain::GPUSwapChain(const GPUDevice& device, const Window& window)
 	, render_target_view_(nullptr)
 	, width_(0)
 	, height_(0)
-{}
-
-bool GPUSwapChain::Initialize() {
-	AOE_ASSERT(dxgi_factory_ == nullptr);
-	AOE_ASSERT(swap_chain_ == nullptr);
-	AOE_ASSERT(back_buffer_ == nullptr);
-	AOE_ASSERT(render_target_view_ == nullptr);
-
+{
 	DXGI_SWAP_CHAIN_DESC swap_chain_desc = {};
 	swap_chain_desc.BufferDesc.Width = window_.GetWidth();
 	swap_chain_desc.BufferDesc.Height = window_.GetHeight();
@@ -48,26 +41,18 @@ bool GPUSwapChain::Initialize() {
 	swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	HRESULT hr = S_OK;
-	hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgi_factory_));
-	AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
 
-	hr = dxgi_factory_->CreateSwapChain(device_.GetNative(), &swap_chain_desc, &swap_chain_);
-	AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
+	hr = CreateDXGIFactory(IID_PPV_ARGS(dxgi_factory_.GetAddressOf()));
+	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create DXGI factory.");
 
-	hr = swap_chain_->GetBuffer(0, IID_ID3D11Texture2D, reinterpret_cast<void**>(&back_buffer_));
-	AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
+	hr = dxgi_factory_->CreateSwapChain(device_.GetNative(), &swap_chain_desc, swap_chain_.GetAddressOf());
+	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create swap chain.");
 
-	hr = device_.GetNative()->CreateRenderTargetView(back_buffer_, nullptr, &render_target_view_);
-	AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
-
-	return true;
-}
-
-void GPUSwapChain::Terminate() {
-	AOE_DX_SAFE_RELEASE(render_target_view_);
-	AOE_DX_SAFE_RELEASE(back_buffer_);
-	AOE_DX_SAFE_RELEASE(swap_chain_);
-	AOE_DX_SAFE_RELEASE(dxgi_factory_);
+	hr = swap_chain_->GetBuffer(0, IID_ID3D11Texture2D, reinterpret_cast<void**>(back_buffer_.GetAddressOf()));
+	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to get back buffer.");
+	
+	hr = device_.GetNative()->CreateRenderTargetView(back_buffer_.Get(), nullptr, &render_target_view_);
+	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create render target for back buffer.");
 }
 
 bool GPUSwapChain::Resize(size_t width, size_t height) {

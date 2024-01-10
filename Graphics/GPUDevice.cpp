@@ -8,23 +8,18 @@
 namespace aoe {
 
 ID3D11Device* GPUDevice::GetNative() const {
-	return device_;
+	return device_.Get();
 }
 
 GPUContext GPUDevice::GetContext() const {
 	AOE_ASSERT_MSG(context_ != nullptr, "GPUDevice is not initialized.");
-	return { context_ };
+	return { context_.Get()};
 }
 
 GPUDevice::GPUDevice()
 	: device_(nullptr)
 	, context_(nullptr)
-{}
-
-bool GPUDevice::Initialize() {
-	AOE_ASSERT(device_ == nullptr);
-	AOE_ASSERT(context_ == nullptr);
-
+{
 	UINT device_flags =
 		D3D11_CREATE_DEVICE_SINGLETHREADED |
 		D3D11_CREATE_DEVICE_BGRA_SUPPORT |
@@ -47,12 +42,7 @@ bool GPUDevice::Initialize() {
 		nullptr,
 		&context_);
 
-	return SUCCEEDED(hr);
-}
-
-void GPUDevice::Terminate() {
-	AOE_DX_SAFE_RELEASE(device_);
-	AOE_DX_SAFE_RELEASE(context_);
+	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create device and context.");
 }
 
 } // namespace aoe

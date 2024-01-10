@@ -7,7 +7,7 @@
 #include "GPUEnums.h"
 #include "Viewport.h"
 
-#define AOE_DX_ERROR_MESSAGE(hr, msg) std::format("DX error occured [file: {}, line: {}, code: {}]: {}", __FILE__, __LINE__, hr, msg)
+#define AOE_DX_ERROR_MESSAGE(hr, msg) std::format("DX error occured [file: {}, line: {}, code: {}]:\n\t{}", __FILE__, __LINE__, hr, msg)
 
 #define AOE_DX_TRY_LOG_ERROR_AND_RETURN(hr, msg)      \
 	if (FAILED(hr)) {                                 \

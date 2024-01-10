@@ -99,10 +99,8 @@ struct GPUBufferDescription {
 	}
 };
 
-class GPUBuffer : public IGPUResource {
+class GPUBuffer {
 public:
-	AOE_NON_COPYABLE_CLASS(GPUBuffer)
-
 	ID3D11Buffer* GetNative() const;
 	const GPUBufferDescription& GetDescription() const;
 
@@ -115,15 +113,12 @@ public:
 	bool IsConstantBuffer() const;
 	bool IsDynamic() const;
 
-	GPUBuffer(const GPUDevice& device);
-
-	bool Initialize(const GPUBufferDescription& description);
-	void Terminate() override;
+	GPUBuffer(const GPUDevice& device, GPUBufferDescription description);
 
 private:
 	const GPUDevice& device_;
 	GPUBufferDescription description_;
-	ID3D11Buffer* buffer_;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_;
 
 	static D3D11_USAGE ToDXUsage(const GPUResourceUsage value);
 	static D3D11_BIND_FLAG ToDXBufferType(const GPUBufferType buffer_type);
