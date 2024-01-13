@@ -6,18 +6,9 @@
 
 namespace aoe {
 
-class GPUDevice;
-
 struct GPUBufferDescription {
 	GPUBufferType buffer_type;
-	const void* data;
-	size_t size;
-	size_t stride;
 	GPUResourceUsage usage;
-
-	size_t GetElementsCount() const {
-		return stride > 0 ? size / stride : 0;
-	}
 
 	bool IsVertexBuffer() const {
 		return buffer_type == GPUBufferType::kVertexBuffer;
@@ -35,72 +26,25 @@ struct GPUBufferDescription {
 		return usage == GPUResourceUsage::kDynamic;
 	}
 
-	GPUBufferDescription()
-		: GPUBufferDescription(GPUBufferType::kVertexBuffer, nullptr, 0, 0, GPUResourceUsage::kDefault)
-	{}
-
-	GPUBufferDescription(GPUBufferType buffer_type, const void* data, size_t size, size_t stride, GPUResourceUsage usage)
+	GPUBufferDescription(GPUBufferType buffer_type, GPUResourceUsage usage)
 		: buffer_type(buffer_type)
-		, data(data)
-		, size(size)
-		, stride(stride)
 		, usage(usage)
 	{}
 
-	template<typename TElement>
-	static GPUBufferDescription Create(
-		GPUBufferType type, 
-		const TElement* data, 
-		size_t count, 
-		GPUResourceUsage usage) 
-	{
-		size_t stride = sizeof(TElement);
-		return { data, stride * count, stride, usage };
-	}
-
-	template<typename TElement>
-	static GPUBufferDescription CreateVertex(
-		const TElement* data, 
-		size_t count, 
-		GPUResourceUsage usage = GPUResourceUsage::kDefault) 
-	{
-		size_t stride = sizeof(TElement);
-		return { GPUBufferType::kVertexBuffer, data, stride * count, stride, usage };
-	}
-
-	template<typename TElement>
-	static GPUBufferDescription CreateIndex(
-		const TElement* data, 
-		size_t count, 
-		GPUResourceUsage usage = GPUResourceUsage::kDefault) 
-	{
-		size_t stride = sizeof(TElement);
-		return { GPUBufferType::kIndexBuffer, data, stride * count, stride, usage };
-	}
-
-	template<typename TElement>
-	static GPUBufferDescription CreateConstant(
-		const TElement* data, 
-		size_t count, 
-		GPUResourceUsage usage) 
-	{
-		size_t stride = sizeof(TElement);
-		return { GPUBufferType::kConstantBuffer, data, stride * count, stride, usage };
-	}
-
-	template<typename TElement>
-	static GPUBufferDescription CreateConstant(const TElement* data, GPUResourceUsage usage) {
-		return CreateConstant<TElement>(data, 1, usage);
-	}
-
-	template<typename TElement>
-	static GPUBufferDescription CreateConstant(GPUResourceUsage usage) {
-		return CreateConstant<TElement>(nullptr, 1, usage);
-	}
+	GPUBufferDescription()
+		: buffer_type(GPUBufferType::kVertexBuffer)
+		, usage(GPUResourceUsage::kDefault)
+	{}
 };
 
 class GPUBuffer {
 public:
+	template<typename TElement>
+	static GPUBuffer Create(const GPUDevice& device, GPUBufferDescription description, const TElement* data, size_t count);
+
+	template<typename TElement>
+	static GPUBuffer Create(const GPUDevice& device, GPUBufferDescription description, size_t count = 1);
+
 	ID3D11Buffer* GetNative() const;
 	const GPUBufferDescription& GetDescription() const;
 
@@ -113,15 +57,28 @@ public:
 	bool IsConstantBuffer() const;
 	bool IsDynamic() const;
 
-	GPUBuffer(const GPUDevice& device, GPUBufferDescription description);
+	GPUBuffer(const GPUDevice& device, GPUBufferDescription description, const void* data, size_t size, size_t stride);
 
 private:
 	const GPUDevice& device_;
 	GPUBufferDescription description_;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_;
 
+	size_t size_;
+	size_t stride_;
+
 	static D3D11_USAGE ToDXUsage(const GPUResourceUsage value);
 	static D3D11_BIND_FLAG ToDXBufferType(const GPUBufferType buffer_type);
 };
+
+template<typename TElement>
+GPUBuffer GPUBuffer::Create(const GPUDevice& device, GPUBufferDescription description, const TElement* data, size_t count) {
+	return { device, description, data, sizeof(TElement) * count, sizeof(TElement) };
+}
+
+template<typename TElement>
+GPUBuffer GPUBuffer::Create(const GPUDevice& device, GPUBufferDescription description, size_t count) {
+	return { device, description, nullptr, sizeof(TElement) * count, sizeof(TElement) };
+}
 
 } // namespace aoe

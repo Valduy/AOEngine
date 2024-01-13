@@ -151,12 +151,13 @@
     <ClInclude Include="GPURasterizerState.h" />
     <ClInclude Include="GPUResourceWrapper.h" />
     <ClInclude Include="GPUSampler.h" />
-    <ClInclude Include="GPUShader.h" />
+    <ClInclude Include="GPUPixelShader.h" />
     <ClInclude Include="GPUShadersCompiler.h" />
     <ClInclude Include="GPUSwapChain.h" />
     <ClInclude Include="GPUTexture2D.h" />
     <ClInclude Include="GPUEnums.h" />
     <ClInclude Include="GPUBuffer.h" />
+    <ClInclude Include="GPUVertexShader.h" />
     <ClInclude Include="IGPUResource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="GPUPixelFormat.h" />
@@ -168,10 +169,12 @@
     <ClCompile Include="GPUDepthState.cpp" />
     <ClCompile Include="GPUDevice.cpp" />
     <ClCompile Include="GPULayoutDescriptor.cpp" />
+    <ClCompile Include="GPUPixelShader.cpp" />
     <ClCompile Include="GPURasterizerState.cpp" />
     <ClCompile Include="GPUSampler.cpp" />
     <ClCompile Include="GPUSwapChain.cpp" />
     <ClCompile Include="GPUTexture2D.cpp" />
+    <ClCompile Include="GPUVertexShader.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

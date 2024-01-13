@@ -6,7 +6,8 @@
 #include "GPUDepthState.h"
 #include "GPUTexture2D.h"
 #include "GPUBuffer.h"
-#include "GPUShader.h"
+#include "GPUVertexShader.h"
+#include "GPUPixelShader.h"
 #include "GPUSampler.h"
 
 namespace aoe {

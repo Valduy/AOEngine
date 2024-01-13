@@ -22,17 +22,47 @@ struct Constants {
     float dummy;
 };
 
-static const aoe::GPUDepthStateDescription kDepthStateDesc =
-    { true, aoe::GPUDepthWriteMask::kWriteAll, aoe::GPUComparsionFunction::kLess };
+static const aoe::GPUDepthStateDescription kDepthStateDesc = { 
+    true, 
+    aoe::GPUDepthWriteMask::kWriteAll, 
+    aoe::GPUComparsionFunction::kLess 
+};
 
-static const aoe::GPUBufferDescription kVertexBufferDesc = 
-    aoe::GPUBufferDescription::CreateVertex<Vertex>(kVertexData, ARRAYSIZE(kVertexData));
+static const aoe::GPURasteriserStateDescription kRasterizerStateDesc = {
+    aoe::GPUCullMode::kBack,
+    aoe::GPUFillMode::kSolid,
+};
 
-static const aoe::GPUBufferDescription kIndexBufferDesc =
-    aoe::GPUBufferDescription::CreateIndex<int32_t>(kIndexData, ARRAYSIZE(kIndexData));
+static const aoe::GPUBufferDescription kVertexBufferDesc = { 
+    aoe::GPUBufferType::kVertexBuffer, 
+    aoe::GPUResourceUsage::kDefault 
+};
 
-static const aoe::GPUBufferDescription kConstBufferDesc =
-    aoe::GPUBufferDescription::CreateConstant<Constants>(aoe::GPUResourceUsage::kDynamic);
+static const aoe::GPUBufferDescription kIndexBufferDesc = { 
+    aoe::GPUBufferType::kIndexBuffer, 
+    aoe::GPUResourceUsage::kDefault 
+};
+
+static const aoe::GPUBufferDescription kConstBufferDesc = { 
+    aoe::GPUBufferType::kConstantBuffer, 
+    aoe::GPUResourceUsage::kDynamic 
+};
+
+static const aoe::GPULayoutDescriptor kLayoutDesc = {
+    {aoe::LayoutElementSemantics::kPosition, aoe::GPUPixelFormat::kR32G32B32_Float},
+    {aoe::LayoutElementSemantics::kNormal, aoe::GPUPixelFormat::kR32G32B32_Float},
+    {aoe::LayoutElementSemantics::kTexcoord, aoe::GPUPixelFormat::kR32G32_Float},
+    {aoe::LayoutElementSemantics::kColor, aoe::GPUPixelFormat::kR32G32B32_Float},
+};
+
+static const aoe::GPUSamplerDescription kSamplerDesc = {};
+
+static const aoe::GPUTexture2DDescription kTextureDesc = {
+    TEXTURE_WIDTH,
+    TEXTURE_HEIGHT,
+    aoe::GPUPixelFormat::kR8G8B8A8_Unorm,
+    aoe::GPUTextureFlags::kShaderResource,
+};
 
 class MyGame : public aoe::IGame {
 public:
@@ -40,72 +70,29 @@ public:
         : window_(window)
         , device_()
         , swap_chain_(device_, window)
-        , depth_stencil_buffer_(device_)
+        , depth_stencil_buffer_(nullptr)
         , depth_state_(device_, kDepthStateDesc)
-        , rasterized_state_(device_)
-        , vertex_buffer_(device_, kVertexBufferDesc)
-        , index_buffer_(device_, kIndexBufferDesc)
-        , constant_buffer_(device_, kConstBufferDesc)
-        , vertex_shader_(device_)
-        , pixel_shader_(device_)
-        , sampler_(device_)
-        , texture_(device_)
+        , rasterized_state_(device_, kRasterizerStateDesc)
+        , vertex_buffer_(aoe::GPUBuffer::Create<Vertex>(device_, kVertexBufferDesc, kVertexData, ARRAYSIZE(kVertexData)))
+        , index_buffer_(aoe::GPUBuffer::Create<int32_t>(device_, kIndexBufferDesc, kIndexData, ARRAYSIZE(kIndexData)))
+        , constant_buffer_(aoe::GPUBuffer::Create<Constants>(device_, kConstBufferDesc))
+        , vertex_shader_(device_, aoe::GPUShadersCompiler::CompileVertexShader(L"shaders.hlsl", "vs_main"), kLayoutDesc)
+        , pixel_shader_(device_, aoe::GPUShadersCompiler::CompilePixelShader(L"shaders.hlsl", "ps_main"))
+        , sampler_(device_, kSamplerDesc)
+        , texture_(aoe::GPUTexture2D::Create<uint32_t>(device_, kTextureDesc, kTextureData))
     {}
 
     void Initialize() override {
-        bool result = false;
-
         aoe::GPUTexture2DDescription depth_stencil_desc;
         depth_stencil_desc.width = window_.GetWidth();
         depth_stencil_desc.height = window_.GetHeight();
         depth_stencil_desc.pixel_format = aoe::GPUPixelFormat::kD24_Unorm_S8_Uint;
         depth_stencil_desc.texture_flags = aoe::GPUTextureFlags::kDepthStencil;
-        result = depth_stencil_buffer_.Initialize(depth_stencil_desc);
-        AOE_ASSERT(result);
-
-        aoe::GPURasteriserStateDescription rasterizer_state_desc;
-        rasterizer_state_desc.cull_mode = aoe::GPUCullMode::kBack;
-        rasterizer_state_desc.fill_mode = aoe::GPUFillMode::kSolid;
-        result = rasterized_state_.Initialize(rasterizer_state_desc);
-        AOE_ASSERT(result);
-
-        aoe::GPUShadersCompiler shader_compiler(device_);
-
-        aoe::DXByteCode vertex_byte_code = shader_compiler.CompileVertexShader(L"shaders.hlsl", "vs_main");
-        result = vertex_shader_.Initialize(vertex_byte_code, {
-            {aoe::LayoutElementSemantics::kPosition, aoe::GPUPixelFormat::kR32G32B32_Float},
-            {aoe::LayoutElementSemantics::kNormal, aoe::GPUPixelFormat::kR32G32B32_Float},
-            {aoe::LayoutElementSemantics::kTexcoord, aoe::GPUPixelFormat::kR32G32_Float},
-            {aoe::LayoutElementSemantics::kColor, aoe::GPUPixelFormat::kR32G32B32_Float},
-        });
-        AOE_ASSERT(result);
-
-        aoe::DXByteCode pixel_byte_code = shader_compiler.CompilePixelShader(L"shaders.hlsl", "ps_main");
-        result = pixel_shader_.Initialize(pixel_byte_code);
-        AOE_ASSERT(result);
-
-        aoe::GPUSamplerDescription sampler_desc;
-        result = sampler_.Initialize(sampler_desc);
-        AOE_ASSERT(result);
-
-        auto texture_desc = aoe::GPUTexture2DDescription::Create<uint32_t>(
-            TEXTURE_WIDTH,
-            TEXTURE_HEIGHT,
-            aoe::GPUPixelFormat::kR8G8B8A8_Unorm,
-            aoe::GPUTextureFlags::kShaderResource,
-            kTextureData
-        );
-        result = texture_.Initialize(texture_desc);
-        AOE_ASSERT(result);
+        depth_stencil_buffer_ = new aoe::GPUTexture2D(device_, depth_stencil_desc, nullptr, 0);
     };
 
     void Terminate() override {
-        texture_.Terminate();
-        sampler_.Terminate();
-        pixel_shader_.Terminate();
-        vertex_shader_.Terminate();
-        rasterized_state_.Terminate();
-        depth_stencil_buffer_.Terminate();
+        delete depth_stencil_buffer_;
     };
 
     void PerTickUpdate(float dt) override {
@@ -115,7 +102,7 @@ public:
         context.ClearState();
 
         context.ClearRenderTarget(swap_chain_.GetRenderTargetView(), background_color);
-        context.ClearDepth(depth_stencil_buffer_.GetDepthStencilView(), 1.0f);
+        context.ClearDepth(depth_stencil_buffer_->GetDepthStencilView(), 1.0f);
 
         context.SetVertexBuffer(vertex_buffer_);
         context.SetIndexBuffer(index_buffer_);
@@ -131,7 +118,7 @@ public:
         context.SetShaderResource(aoe::GPUShaderType::kPixel, texture_, 0);
         context.SetSampler(aoe::GPUShaderType::kPixel, sampler_);
 
-        context.SetRenderTarget(swap_chain_.GetRenderTargetView(), depth_stencil_buffer_.GetDepthStencilView());
+        context.SetRenderTarget(swap_chain_.GetRenderTargetView(), depth_stencil_buffer_->GetDepthStencilView());
         context.SetDepthState(depth_state_);
 
         context.DrawIndexed(index_buffer_.GetElementsCount());
@@ -168,7 +155,7 @@ private:
 
     aoe::GPUDevice device_;
     aoe::GPUSwapChain swap_chain_;
-    aoe::GPUTexture2D depth_stencil_buffer_;
+    aoe::GPUTexture2D* depth_stencil_buffer_;
     aoe::GPUDepthState depth_state_;
     aoe::GPURasterizerState rasterized_state_;
 

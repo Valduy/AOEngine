@@ -60,7 +60,7 @@
     <ClInclude Include="GPUBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GPUShader.h">
+    <ClInclude Include="GPUPixelShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GPUShadersCompiler.h">
@@ -76,6 +76,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GPUSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GPUVertexShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -108,6 +111,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GPUBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GPUVertexShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GPUPixelShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -17,6 +17,30 @@ struct GPUSamplerDescription {
 	float max_mip_level;
 	uint32_t max_anisotropy;
 	
+	GPUSamplerDescription(
+		GPUSamplerFilter filter,
+		GPUSamplerAddressMode address_u,
+		GPUSamplerAddressMode address_v,
+		GPUSamplerAddressMode address_w,
+		GPUSamplerComparsionFunction comparsion_function,
+		GPUSamplerBorderColor border_color,
+		float mip_bias,
+		float min_mip_level,
+		float max_mip_level,
+		uint32_t max_anisotropy
+	)
+		: filter(filter)
+		, address_u(address_u)
+		, address_v(address_v)
+		, address_w(address_w)
+		, comparsion_function(comparsion_function)
+		, border_color(border_color)
+		, mip_bias(mip_bias)
+		, min_mip_level(min_mip_level)
+		, max_mip_level(max_mip_level)
+		, max_anisotropy(max_anisotropy)
+	{}
+
 	GPUSamplerDescription()
 		: filter(GPUSamplerFilter::kPoint)
 		, address_u(GPUSamplerAddressMode::kWrap)
@@ -31,22 +55,17 @@ struct GPUSamplerDescription {
 	{}
 };
 
-class GPUSampler : public IGPUResource {
+class GPUSampler {
 public:
-	AOE_NON_COPYABLE_CLASS(GPUSampler)
-
 	ID3D11SamplerState* GetNative() const;
 	const GPUSamplerDescription& GetDescription() const;
 
-	GPUSampler(const GPUDevice& device);
-
-	bool Initialize(const GPUSamplerDescription& description);
-	void Terminate() override;
+	GPUSampler(const GPUDevice& device, const GPUSamplerDescription& description);
 
 private:
 	const GPUDevice& device_;
 	GPUSamplerDescription description_;
-	ID3D11SamplerState* sampler_;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_;
 
 	static D3D11_FILTER ToDXFilter(const GPUSamplerFilter filter, const GPUSamplerComparsionFunction comparsion_function);
 	static D3D11_COMPARISON_FUNC ToDXComparsionFunction(const GPUSamplerComparsionFunction comparsion_function);

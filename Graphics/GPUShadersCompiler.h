@@ -18,11 +18,9 @@ public:
 	inline static const std::string kVsTarget = "vs_5_0";
 	inline static const std::string kPsTarget = "ps_5_0";
 
-	GPUShadersCompiler(const GPUDevice& device)
-		: device_(device)
-	{}
+	GPUShadersCompiler() = delete;
 
-	DXByteCode CompileVertexShader(
+	static DXByteCode CompileVertexShader(
 		const std::wstring& path, 
 		const std::string& entry_point = kEntyPoint, 
 		const std::string& target = kVsTarget) 
@@ -31,7 +29,7 @@ public:
 		return { byte_code };
 	}
 
-	DXByteCode CompilePixelShader(
+	static DXByteCode CompilePixelShader(
 		const std::wstring& path,
 		const std::string& entry_point = kEntyPoint,
 		const std::string& target = kPsTarget)
@@ -41,9 +39,7 @@ public:
 	}
 
 private:
-	const GPUDevice& device_;
-
-	ID3DBlob* CompileByteCode(
+	static ID3DBlob* CompileByteCode(
 		const std::wstring& path, 
 		const std::string& entry_point, 
 		const std::string& target) 

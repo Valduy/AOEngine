@@ -7,8 +7,6 @@
 
 namespace aoe {
 
-class GPUDevice;
-
 struct GPUDepthStateDescription {
 	bool is_depth_enabled;
 	GPUDepthWriteMask write_mask;

@@ -7,8 +7,12 @@
 
 namespace aoe {
 
+GPUTexture2D GPUTexture2D::Create(const GPUDevice& device, const GPUTexture2DDescription& description) {
+	return { device, description, nullptr, 0 };
+}
+
 const ID3D11Texture2D* GPUTexture2D::GetNative() const {
-	return texture_;
+	return texture_.Get();
 }
 
 const GPUTexture2DDescription& GPUTexture2D::GetDescription() const {
@@ -45,42 +49,38 @@ bool GPUTexture2D::IsUnorderedAccess() const {
 
 GPUShaderResourceView GPUTexture2D::GetShaderResourceView() const {
 	AOE_ASSERT(shader_resource_view_ != nullptr);
-	return { shader_resource_view_ };
+	return { shader_resource_view_.Get()};
 }
 
 GPUDepthStencilView GPUTexture2D::GetDepthStencilView() const {
 	AOE_ASSERT(depth_stencil_view_ != nullptr);
-	return { depth_stencil_view_ };
+	return { depth_stencil_view_.Get() };
 }
 
 GPURenderTargetView GPUTexture2D::GetRenderTargetView() const {
 	AOE_ASSERT(render_target_view_ != nullptr);
-	return { render_target_view_ };
+	return { render_target_view_.Get() };
 }
 
 GPUUnorderedAccessView GPUTexture2D::GetUnorderedAccessView() const {
 	AOE_ASSERT(unordered_access_view_ != nullptr);
-	return { unordered_access_view_ };
+	return { unordered_access_view_.Get() };
 }
 
-GPUTexture2D::GPUTexture2D(const GPUDevice& device)
+GPUTexture2D::GPUTexture2D(
+	const GPUDevice& device, 
+	const GPUTexture2DDescription& description,
+	const void* data, 
+	size_t stride
+)
 	: device_(device)
-	, description_()
+	, description_(description)
 	, texture_(nullptr)
 	, shader_resource_view_(nullptr)
 	, depth_stencil_view_(nullptr)
 	, render_target_view_(nullptr)
 	, unordered_access_view_(nullptr)
-{}
-
-bool GPUTexture2D::Initialize(const GPUTexture2DDescription& description) {
-	AOE_ASSERT(texture_ == nullptr);
-	AOE_ASSERT(shader_resource_view_ == nullptr);
-	AOE_ASSERT(depth_stencil_view_ == nullptr);
-	AOE_ASSERT(render_target_view_ == nullptr);
-	AOE_ASSERT(unordered_access_view_ == nullptr);
-	description_ = description;
-
+{
 	D3D11_TEXTURE2D_DESC texture_desc;
 	texture_desc.Width = description_.width;
 	texture_desc.Height = description_.height;
@@ -96,48 +96,39 @@ bool GPUTexture2D::Initialize(const GPUTexture2DDescription& description) {
 
 	HRESULT hr = S_OK;
 
-	if (description_.data != nullptr) {
+	if (data != nullptr) {
 		D3D11_SUBRESOURCE_DATA subresource_data = {};
-		subresource_data.pSysMem = description_.data;
-		subresource_data.SysMemPitch = description_.width * description_.stride;
-		subresource_data.SysMemSlicePitch = description_.height * description_.width * description_.stride;
+		subresource_data.pSysMem = data;
+		subresource_data.SysMemPitch = description_.width * stride;
+		subresource_data.SysMemSlicePitch = description_.height * description_.width * stride;
 
-		hr = device_.GetNative()->CreateTexture2D(&texture_desc, &subresource_data,	&texture_);
-	} else {
-		hr = device_.GetNative()->CreateTexture2D(&texture_desc, nullptr, &texture_);
+		hr = device_.GetNative()->CreateTexture2D(&texture_desc, &subresource_data, texture_.GetAddressOf());
+	}
+	else {
+		hr = device_.GetNative()->CreateTexture2D(&texture_desc, nullptr, texture_.GetAddressOf());
 	}
 
-	AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
+	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create texture.");
 
 	if (IsShaderResource()) {
-		hr = device_.GetNative()->CreateShaderResourceView(texture_, nullptr, &shader_resource_view_);
-		AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
+		hr = device_.GetNative()->CreateShaderResourceView(texture_.Get(), nullptr, shader_resource_view_.GetAddressOf());
+		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create shader resource view.");
 	}
 
 	if (IsDepthStencil()) {
-		hr = device_.GetNative()->CreateDepthStencilView(texture_, nullptr, &depth_stencil_view_);
-		AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
+		hr = device_.GetNative()->CreateDepthStencilView(texture_.Get(), nullptr, depth_stencil_view_.GetAddressOf());
+		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create depth stencil view.");
 	}
 
 	if (IsRenderTarget()) {
-		hr = device_.GetNative()->CreateRenderTargetView(texture_, nullptr, &render_target_view_);
-		AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
+		hr = device_.GetNative()->CreateRenderTargetView(texture_.Get(), nullptr, render_target_view_.GetAddressOf());
+		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create render target view.");
 	}
 
 	if (IsUnorderedAccess()) {
-		hr = device_.GetNative()->CreateUnorderedAccessView(texture_, nullptr, &unordered_access_view_);
-		AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
+		hr = device_.GetNative()->CreateUnorderedAccessView(texture_.Get(), nullptr, unordered_access_view_.GetAddressOf());
+		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create unordered access view.");
 	}
-
-	return true;
-}
-
-void GPUTexture2D::Terminate() {
-	AOE_DX_SAFE_RELEASE(unordered_access_view_);
-	AOE_DX_SAFE_RELEASE(render_target_view_);
-	AOE_DX_SAFE_RELEASE(depth_stencil_view_);
-	AOE_DX_SAFE_RELEASE(shader_resource_view_);
-	AOE_DX_SAFE_RELEASE(texture_);
 }
 
 uint32_t GPUTexture2D::ToDXBindFlag(GPUTextureFlags value) {

@@ -5,23 +5,18 @@
 namespace aoe {
 
 ID3D11SamplerState* GPUSampler::GetNative() const {
-	return sampler_;
+	return sampler_.Get();
 }
 
 const GPUSamplerDescription& GPUSampler::GetDescription() const {
 	return description_;
 }
 
-GPUSampler::GPUSampler(const GPUDevice& device)
+GPUSampler::GPUSampler(const GPUDevice& device, const GPUSamplerDescription& description)
 	: device_(device)
-	, description_()
+	, description_(description)
 	, sampler_(nullptr)
-{}
-
-bool GPUSampler::Initialize(const GPUSamplerDescription& description) {
-	AOE_ASSERT(sampler_ == nullptr);
-	description_ = description;
-
+{
 	D3D11_SAMPLER_DESC sampler_desc{};
 	sampler_desc.Filter = ToDXFilter(description_.filter, description_.comparsion_function);
 	sampler_desc.AddressU = ToDXAddressMode(description_.address_u);
@@ -34,14 +29,8 @@ bool GPUSampler::Initialize(const GPUSamplerDescription& description) {
 	sampler_desc.MinLOD = description_.min_mip_level;
 	sampler_desc.MaxLOD = description_.max_mip_level;
 
-	const HRESULT hr = device_.GetNative()->CreateSamplerState(&sampler_desc, &sampler_);
-	AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, false);
-
-	return true;
-}
-
-void GPUSampler::Terminate() {
-	AOE_DX_SAFE_RELEASE(sampler_);
+	const HRESULT hr = device_.GetNative()->CreateSamplerState(&sampler_desc, sampler_.GetAddressOf());
+	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create sampler state.");
 }
 
 D3D11_FILTER GPUSampler::ToDXFilter(const GPUSamplerFilter filter, const GPUSamplerComparsionFunction comparsion_function) {

@@ -12,15 +12,15 @@ const GPUBufferDescription& GPUBuffer::GetDescription() const {
 }
 
 size_t GPUBuffer::GetElementsCount() const {
-	return description_.GetElementsCount();
+	return stride_ > 0 ? size_ / stride_ : 0;
 }
 
 size_t GPUBuffer::GetSize() const {
-	return description_.size;
+	return size_;
 }
 
 size_t GPUBuffer::GetStride() const {
-	return description_.stride;
+	return stride_;
 }
 
 bool GPUBuffer::IsVertexBuffer() const {
@@ -39,10 +39,12 @@ bool GPUBuffer::IsDynamic() const {
 	return description_.IsDynamic();
 }
 
-GPUBuffer::GPUBuffer(const GPUDevice& device, GPUBufferDescription description)
+GPUBuffer::GPUBuffer(const GPUDevice& device, GPUBufferDescription description, const void* data, size_t size, size_t stride)
 	: device_(device)
 	, description_(std::move(description))
-	//, buffer_(nullptr)
+	, buffer_(nullptr)
+	, size_(size)
+	, stride_(stride)
 {
 	D3D11_BUFFER_DESC buffer_desc = {};
 	buffer_desc.Usage = ToDXUsage(description_.usage);
@@ -50,13 +52,13 @@ GPUBuffer::GPUBuffer(const GPUDevice& device, GPUBufferDescription description)
 	buffer_desc.CPUAccessFlags = description_.IsDynamic() ? D3D11_CPU_ACCESS_WRITE : 0;
 	buffer_desc.MiscFlags = 0;
 	buffer_desc.StructureByteStride = 0;
-	buffer_desc.ByteWidth = description_.size;
+	buffer_desc.ByteWidth = size;
 
 	HRESULT hr = S_OK;
 
-	if (description_.data != nullptr) {
+	if (data != nullptr) {
 		D3D11_SUBRESOURCE_DATA buffer_data = {};
-		buffer_data.pSysMem = description_.data;
+		buffer_data.pSysMem = data;
 		buffer_data.SysMemPitch = 0;
 		buffer_data.SysMemSlicePitch = 0;
 
