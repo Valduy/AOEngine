@@ -2,20 +2,20 @@
 
 #include "../Core/Debug.h"
 
-#include "GPURasterizerState.h"
-#include "DXHelper.h"
+#include "DX11GPURasterizerState.h"
+#include "DX11Helper.h"
 
 namespace aoe {
 
-ID3D11RasterizerState* GPURasterizerState::GetNative() const {
+void* DX11GPURasterizerState::GetNative() const {
 	return rasterizer_state_.Get();
 }
 
-const GPURasteriserStateDescription& GPURasterizerState::GetDescription() const {
+const GPURasterizerStateDescription& DX11GPURasterizerState::GetDescription() const {
 	return description_;
 }
 
-GPURasterizerState::GPURasterizerState(const GPUDevice& device, const GPURasteriserStateDescription& description)
+DX11GPURasterizerState::DX11GPURasterizerState(const DX11GPUDevice& device, const GPURasterizerStateDescription& description)
 	: device_(device)
 	, description_(description)
 	, rasterizer_state_(nullptr)
@@ -28,11 +28,11 @@ GPURasterizerState::GPURasterizerState(const GPUDevice& device, const GPURasteri
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create rasterizer state.");
 }
 
-D3D11_CULL_MODE GPURasterizerState::ToDXCullMode(const GPUCullMode value) {
+D3D11_CULL_MODE DX11GPURasterizerState::ToDXCullMode(const GPUCullMode value) {
 	return static_cast<D3D11_CULL_MODE>(value);
 }
 
-D3D11_FILL_MODE GPURasterizerState::ToDXFillMode(const GPUFillMode value) {
+D3D11_FILL_MODE DX11GPURasterizerState::ToDXFillMode(const GPUFillMode value) {
 	return static_cast<D3D11_FILL_MODE>(value);
 }
 

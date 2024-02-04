@@ -2,7 +2,7 @@
 
 #include "../Core/Debug.h"
 
-#include "DXHeaders.h"
+#include "DX11Headers.h"
 #include "GPUPixelFormat.h"
 #include "GPUEnums.h"
 #include "Viewport.h"
@@ -28,20 +28,18 @@
 		resource = nullptr;           \
 	}
 
-#define AOE_DX_TERMINATE_AND_RETURN_ON_FAILURE(hr, return_value) \
-	if (FAILED(hr)){                                             \
-		static_cast<aoe::IGPUResource*>(this)->Terminate();      \
-		return return_value;                                     \
-	}
-
 namespace aoe {
 
-class DXHelper {
+class DX11Helper {
 public:
-	DXHelper() = delete;
+	DX11Helper() = delete;
 
 	static DXGI_FORMAT ToDxgiFormat(const GPUPixelFormat value) {
 		return static_cast<DXGI_FORMAT>(value);
+	}
+
+	static GPUPixelFormat FromDxgiFormat(const DXGI_FORMAT value) {
+		return static_cast<GPUPixelFormat>(value);
 	}
 };
 

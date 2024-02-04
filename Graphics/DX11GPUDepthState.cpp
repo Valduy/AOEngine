@@ -1,18 +1,19 @@
 #include "pch.h"
 
-#include "GPUDepthState.h"
+#include "DX11GPUDepthState.h"
+#include "DX11Helper.h"
 
 namespace aoe {
 
-ID3D11DepthStencilState* GPUDepthState::GetNative() const {
+void* DX11GPUDepthState::GetNative() const {
 	return depth_stencil_state_.Get();
 }
 
-const GPUDepthStateDescription& GPUDepthState::GetDescription() const {
+const GPUDepthStateDescription& DX11GPUDepthState::GetDescription() const {
 	return description_;
 }
 
-GPUDepthState::GPUDepthState(const GPUDevice& device, GPUDepthStateDescription description)
+DX11GPUDepthState::DX11GPUDepthState(const DX11GPUDevice& device, GPUDepthStateDescription description)
 	: device_(device)
 	, description_(std::move(description))
 	, depth_stencil_state_(nullptr)
@@ -26,11 +27,11 @@ GPUDepthState::GPUDepthState(const GPUDevice& device, GPUDepthStateDescription d
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create depth state.");
 }
 
-D3D11_DEPTH_WRITE_MASK GPUDepthState::ToDXDepthWirteMask(const GPUDepthWriteMask value) {
+D3D11_DEPTH_WRITE_MASK DX11GPUDepthState::ToDXDepthWirteMask(const GPUDepthWriteMask value) {
 	return static_cast<D3D11_DEPTH_WRITE_MASK>(value);
 }
 
-D3D11_COMPARISON_FUNC GPUDepthState::ToDXComparsionFunc(const GPUComparsionFunction value) {
+D3D11_COMPARISON_FUNC DX11GPUDepthState::ToDXComparsionFunc(const GPUComparsionFunction value) {
 	return static_cast<D3D11_COMPARISON_FUNC>(value);
 }
 

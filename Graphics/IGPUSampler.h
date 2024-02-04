@@ -1,7 +1,6 @@
 #pragma once
 
-#include "GPUDevice.h"
-#include "IGPUResource.h"
+#include "GPUEnums.h"
 
 namespace aoe {
 
@@ -16,7 +15,7 @@ struct GPUSamplerDescription {
 	float min_mip_level;
 	float max_mip_level;
 	uint32_t max_anisotropy;
-	
+
 	GPUSamplerDescription(
 		GPUSamplerFilter filter,
 		GPUSamplerAddressMode address_u,
@@ -55,22 +54,12 @@ struct GPUSamplerDescription {
 	{}
 };
 
-class GPUSampler {
+class IGPUSampler {
 public:
-	ID3D11SamplerState* GetNative() const;
-	const GPUSamplerDescription& GetDescription() const;
+	virtual void* GetNative() const = 0;
+	virtual const GPUSamplerDescription& GetDescription() const = 0;
 
-	GPUSampler(const GPUDevice& device, const GPUSamplerDescription& description);
-
-private:
-	const GPUDevice& device_;
-	GPUSamplerDescription description_;
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_;
-
-	static D3D11_FILTER ToDXFilter(const GPUSamplerFilter filter, const GPUSamplerComparsionFunction comparsion_function);
-	static D3D11_COMPARISON_FUNC ToDXComparsionFunction(const GPUSamplerComparsionFunction comparsion_function);
-	static D3D11_TEXTURE_ADDRESS_MODE ToDXAddressMode(const GPUSamplerAddressMode address_mode);
-	static void FillBorderColor(const GPUSamplerBorderColor border_color, float color[4]);
+	virtual ~IGPUSampler() = default;
 };
 
 } // namespace aoe

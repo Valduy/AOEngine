@@ -57,7 +57,7 @@ public:
 		result = depth_state_.Initialize(depth_state_desc);
 		AOE_ASSERT(result);
 
-		aoe::GPURasteriserStateDescription rasterizer_state_desc;
+		aoe::GPURasterizerStateDescription rasterizer_state_desc;
 		rasterizer_state_desc.cull_mode = aoe::GPUCullMode::kBack;
 		rasterizer_state_desc.fill_mode = aoe::GPUFillMode::kSolid;
 		result = rasterized_state_.Initialize(rasterizer_state_desc);
@@ -100,7 +100,7 @@ public:
 	void PerTickUpdate(float dt) override {
 		perTickSum += dt;
 
-		aoe::GPUContext context = device_.GetContext();
+		aoe::DX11GPUContext context = device_.GetContext();
 		context.ClearState();
 
 		aoe::Viewport viewport;
@@ -148,14 +148,14 @@ public:
 private:
 	const aoe::Window& window_;
 
-	aoe::GPUDevice device_;
-	aoe::GPUSwapChain swap_chain_;
-	aoe::GPUTexture2D depth_stencil_buffer_;
+	aoe::DX11GPUDevice device_;
+	aoe::DX11GPUSwapChain swap_chain_;
+	aoe::DX11GPUTexture2D depth_stencil_buffer_;
 	aoe::GPUDepthState depth_state_;
 	aoe::GPURasterizerState rasterized_state_;
 	aoe::GPUShadersCompiler shader_compiler_;
 
-	aoe::GPUBuffer vertex_buffer_;
+	aoe::DX11GPUBuffer vertex_buffer_;
 
 	aoe::GPUVertexShader vertex_shader_;
 	aoe::GPUPixelShader pixel_shader_;

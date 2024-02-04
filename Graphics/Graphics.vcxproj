@@ -140,40 +140,48 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DX11GPUTextureView.h" />
     <ClInclude Include="DXByteCode.h" />
-    <ClInclude Include="DXHeaders.h" />
-    <ClInclude Include="DXHelper.h" />
+    <ClInclude Include="DX11Headers.h" />
+    <ClInclude Include="DX11Helper.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="GPUContext.h" />
-    <ClInclude Include="GPUDepthState.h" />
-    <ClInclude Include="GPUDevice.h" />
+    <ClInclude Include="DX11GPUContext.h" />
+    <ClInclude Include="DX11GPUDepthState.h" />
+    <ClInclude Include="DX11GPUDevice.h" />
     <ClInclude Include="GPULayoutDescriptor.h" />
-    <ClInclude Include="GPURasterizerState.h" />
+    <ClInclude Include="DX11GPURasterizerState.h" />
     <ClInclude Include="GPUResourceWrapper.h" />
-    <ClInclude Include="GPUSampler.h" />
+    <ClInclude Include="DX11GPUSampler.h" />
     <ClInclude Include="GPUPixelShader.h" />
     <ClInclude Include="GPUShadersCompiler.h" />
-    <ClInclude Include="GPUSwapChain.h" />
-    <ClInclude Include="GPUTexture2D.h" />
+    <ClInclude Include="DX11GPUSwapChain.h" />
+    <ClInclude Include="DX11GPUTexture2D.h" />
     <ClInclude Include="GPUEnums.h" />
-    <ClInclude Include="GPUBuffer.h" />
+    <ClInclude Include="DX11GPUBuffer.h" />
     <ClInclude Include="GPUVertexShader.h" />
-    <ClInclude Include="IGPUResource.h" />
+    <ClInclude Include="IGPUBuffer.h" />
+    <ClInclude Include="IGPUDepthState.h" />
+    <ClInclude Include="IGPUDevice.h" />
+    <ClInclude Include="IGPURasterizerState.h" />
+    <ClInclude Include="IGPUSampler.h" />
+    <ClInclude Include="IGPUSwapChain.h" />
+    <ClInclude Include="IGPUTexture2D.h" />
+    <ClInclude Include="IGPUTextureView.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="GPUPixelFormat.h" />
     <ClInclude Include="Viewport.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GPUBuffer.cpp" />
-    <ClCompile Include="GPUContext.cpp" />
-    <ClCompile Include="GPUDepthState.cpp" />
-    <ClCompile Include="GPUDevice.cpp" />
+    <ClCompile Include="DX11GPUBuffer.cpp" />
+    <ClCompile Include="DX11GPUContext.cpp" />
+    <ClCompile Include="DX11GPUDepthState.cpp" />
+    <ClCompile Include="DX11GPUDevice.cpp" />
     <ClCompile Include="GPULayoutDescriptor.cpp" />
     <ClCompile Include="GPUPixelShader.cpp" />
-    <ClCompile Include="GPURasterizerState.cpp" />
-    <ClCompile Include="GPUSampler.cpp" />
-    <ClCompile Include="GPUSwapChain.cpp" />
-    <ClCompile Include="GPUTexture2D.cpp" />
+    <ClCompile Include="DX11GPURasterizerState.cpp" />
+    <ClCompile Include="DX11GPUSampler.cpp" />
+    <ClCompile Include="DX11GPUSwapChain.cpp" />
+    <ClCompile Include="DX11GPUTexture2D.cpp" />
     <ClCompile Include="GPUVertexShader.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

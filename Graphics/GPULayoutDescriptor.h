@@ -3,7 +3,7 @@
 #include <vector>
 #include <initializer_list>
 
-#include "DXHelper.h"
+#include "DX11Helper.h"
 
 namespace aoe {
 

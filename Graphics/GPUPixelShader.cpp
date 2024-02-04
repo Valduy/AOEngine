@@ -7,7 +7,7 @@ ID3D11PixelShader* aoe::GPUPixelShader::GetNative() const {
 	return pixel_shader_.Get();
 }
 
-GPUPixelShader::GPUPixelShader(const GPUDevice& device, const DXByteCode& byte_code)
+GPUPixelShader::GPUPixelShader(const DX11GPUDevice& device, const DXByteCode& byte_code)
 	: device_(device)
 	, pixel_shader_(nullptr)
 {

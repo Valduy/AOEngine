@@ -6,8 +6,8 @@
 
 #include "../Core/Logger.h"
 
-#include "DXHelper.h"
-#include "GPUDevice.h"
+#include "DX11Helper.h"
+#include "DX11GPUDevice.h"
 #include "DXByteCode.h"
 
 namespace aoe {

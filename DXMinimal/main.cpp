@@ -2,11 +2,10 @@
 #include <math.h>
 
 #include "../Application/Application.h"
-#include "../Graphics/GPUDevice.h"
-#include "../Graphics/GPUContext.h"
-#include "../Graphics/GPUSwapChain.h"
+#include "../Graphics/DX11GPUDevice.h"
+#include "../Graphics/DX11GPUContext.h"
+#include "../Graphics/DX11GPUSwapChain.h"
 #include "../Graphics/GPUShadersCompiler.h"
-#include "../Graphics/GPUSampler.h"
 
 #include "xdata.h"
 
@@ -22,32 +21,6 @@ struct Constants {
     float dummy;
 };
 
-static const aoe::GPUDepthStateDescription kDepthStateDesc = { 
-    true, 
-    aoe::GPUDepthWriteMask::kWriteAll, 
-    aoe::GPUComparsionFunction::kLess 
-};
-
-static const aoe::GPURasteriserStateDescription kRasterizerStateDesc = {
-    aoe::GPUCullMode::kBack,
-    aoe::GPUFillMode::kSolid,
-};
-
-static const aoe::GPUBufferDescription kVertexBufferDesc = { 
-    aoe::GPUBufferType::kVertexBuffer, 
-    aoe::GPUResourceUsage::kDefault 
-};
-
-static const aoe::GPUBufferDescription kIndexBufferDesc = { 
-    aoe::GPUBufferType::kIndexBuffer, 
-    aoe::GPUResourceUsage::kDefault 
-};
-
-static const aoe::GPUBufferDescription kConstBufferDesc = { 
-    aoe::GPUBufferType::kConstantBuffer, 
-    aoe::GPUResourceUsage::kDynamic 
-};
-
 static const aoe::GPULayoutDescriptor kLayoutDesc = {
     {aoe::LayoutElementSemantics::kPosition, aoe::GPUPixelFormat::kR32G32B32_Float},
     {aoe::LayoutElementSemantics::kNormal, aoe::GPUPixelFormat::kR32G32B32_Float},
@@ -55,44 +28,89 @@ static const aoe::GPULayoutDescriptor kLayoutDesc = {
     {aoe::LayoutElementSemantics::kColor, aoe::GPUPixelFormat::kR32G32B32_Float},
 };
 
-static const aoe::GPUSamplerDescription kSamplerDesc = {};
-
-static const aoe::GPUTexture2DDescription kTextureDesc = {
-    TEXTURE_WIDTH,
-    TEXTURE_HEIGHT,
-    aoe::GPUPixelFormat::kR8G8B8A8_Unorm,
-    aoe::GPUTextureFlags::kShaderResource,
-};
-
 class MyGame : public aoe::IGame {
 public:
     MyGame(const aoe::Window& window)
         : window_(window)
         , device_()
-        , swap_chain_(device_, window)
+        , swap_chain_(nullptr)
         , depth_stencil_buffer_(nullptr)
-        , depth_state_(device_, kDepthStateDesc)
-        , rasterized_state_(device_, kRasterizerStateDesc)
-        , vertex_buffer_(aoe::GPUBuffer::Create<Vertex>(device_, kVertexBufferDesc, kVertexData, ARRAYSIZE(kVertexData)))
-        , index_buffer_(aoe::GPUBuffer::Create<int32_t>(device_, kIndexBufferDesc, kIndexData, ARRAYSIZE(kIndexData)))
-        , constant_buffer_(aoe::GPUBuffer::Create<Constants>(device_, kConstBufferDesc))
+        , depth_state_(nullptr)
+        , rasterized_state_(nullptr)
+        , vertex_buffer_(nullptr)
+        , index_buffer_(nullptr)
+        , constant_buffer_(nullptr)
         , vertex_shader_(device_, aoe::GPUShadersCompiler::CompileVertexShader(L"shaders.hlsl", "vs_main"), kLayoutDesc)
         , pixel_shader_(device_, aoe::GPUShadersCompiler::CompilePixelShader(L"shaders.hlsl", "ps_main"))
-        , sampler_(device_, kSamplerDesc)
-        , texture_(aoe::GPUTexture2D::Create<uint32_t>(device_, kTextureDesc, kTextureData))
+        , sampler_(nullptr)
+        , texture_()
     {}
 
     void Initialize() override {
+        aoe::IGPUDevice* device_interface = &device_;
+
+        swap_chain_ = device_.CreateSwapChain(window_);
+
+        const aoe::GPUDepthStateDescription depth_state_desc = {
+            true,
+            aoe::GPUDepthWriteMask::kWriteAll,
+            aoe::GPUComparsionFunction::kLess
+        };
+        depth_state_ = device_.CreateDepthState(depth_state_desc);
+
+        const aoe::GPURasterizerStateDescription rasterizer_state_desc = {
+            aoe::GPUCullMode::kBack,
+            aoe::GPUFillMode::kSolid,
+        };
+        rasterized_state_ = device_.CreateRasterizerState(rasterizer_state_desc);
+        
+        const aoe::GPUSamplerDescription sampler_desc = {};
+        sampler_ = device_.CreateSampler(sampler_desc);
+
+        const aoe::GPUBufferDescription vertex_buffer_desc = {
+            aoe::GPUBufferType::kVertexBuffer,
+            aoe::GPUResourceUsage::kDefault
+        };
+        vertex_buffer_ = device_interface->CreateBuffer<Vertex>(vertex_buffer_desc, kVertexData, ARRAYSIZE(kVertexData));
+
+        const aoe::GPUBufferDescription index_buffer_desc = {
+            aoe::GPUBufferType::kIndexBuffer,
+            aoe::GPUResourceUsage::kDefault
+        };
+        index_buffer_ = device_interface->CreateBuffer<int32_t>(index_buffer_desc, kIndexData, ARRAYSIZE(kIndexData));
+
+        const aoe::GPUBufferDescription const_buffer_desc = {
+            aoe::GPUBufferType::kConstantBuffer,
+            aoe::GPUResourceUsage::kDynamic
+        };
+        constant_buffer_ = device_interface->CreateBuffer<Constants>(const_buffer_desc);
+
         aoe::GPUTexture2DDescription depth_stencil_desc;
         depth_stencil_desc.width = window_.GetWidth();
         depth_stencil_desc.height = window_.GetHeight();
         depth_stencil_desc.pixel_format = aoe::GPUPixelFormat::kD24_Unorm_S8_Uint;
         depth_stencil_desc.texture_flags = aoe::GPUTextureFlags::kDepthStencil;
-        depth_stencil_buffer_ = new aoe::GPUTexture2D(device_, depth_stencil_desc, nullptr, 0);
+        depth_stencil_buffer_ = device_interface->CreateTexture2D(depth_stencil_desc);
+
+        const aoe::GPUTexture2DDescription texture_desc = {
+            TEXTURE_WIDTH,
+            TEXTURE_HEIGHT,
+            aoe::GPUPixelFormat::kR8G8B8A8_Unorm,
+            aoe::GPUTextureFlags::kShaderResource,
+        };
+        texture_ = device_interface->CreateTexture2D<uint32_t>(texture_desc, kTextureData);
     };
 
     void Terminate() override {
+        delete swap_chain_;
+        delete depth_state_;
+        delete rasterized_state_;
+        delete vertex_buffer_;
+        delete index_buffer_;
+        delete constant_buffer_;
         delete depth_stencil_buffer_;
+        delete sampler_;
+        delete texture_;
     };
 
     void PerTickUpdate(float dt) override {
@@ -101,8 +119,8 @@ public:
         auto context = device_.GetContext();
         context.ClearState();
 
-        context.ClearRenderTarget(swap_chain_.GetRenderTargetView(), background_color);
-        context.ClearDepth(depth_stencil_buffer_->GetDepthStencilView(), 1.0f);
+        context.ClearRenderTarget(swap_chain_->GetRenderTargetView(), background_color);
+        context.ClearDepth(depth_stencil_buffer_->GetTextureView(), 1.0f);
 
         context.SetVertexBuffer(vertex_buffer_);
         context.SetIndexBuffer(index_buffer_);
@@ -118,12 +136,12 @@ public:
         context.SetShaderResource(aoe::GPUShaderType::kPixel, texture_, 0);
         context.SetSampler(aoe::GPUShaderType::kPixel, sampler_);
 
-        context.SetRenderTarget(swap_chain_.GetRenderTargetView(), depth_stencil_buffer_->GetDepthStencilView());
+        context.SetRenderTarget(swap_chain_->GetRenderTargetView(), depth_stencil_buffer_->GetTextureView());
         context.SetDepthState(depth_state_);
 
-        context.DrawIndexed(index_buffer_.GetElementsCount());
+        context.DrawIndexed(index_buffer_->GetElementsCount());
 
-        swap_chain_.Present();
+        swap_chain_->Present();
     };
 
     void PerFrameUpdate(float dt) override {
@@ -153,22 +171,22 @@ public:
 private:
     const aoe::Window& window_;
 
-    aoe::GPUDevice device_;
-    aoe::GPUSwapChain swap_chain_;
-    aoe::GPUTexture2D* depth_stencil_buffer_;
-    aoe::GPUDepthState depth_state_;
-    aoe::GPURasterizerState rasterized_state_;
+    aoe::DX11GPUDevice device_;
+    aoe::IGPUSwapChain* swap_chain_;
+    aoe::IGPUTexture2D* depth_stencil_buffer_;
+    aoe::IGPUDepthState* depth_state_;
+    aoe::IGPURasterizerState* rasterized_state_;
 
-    aoe::GPUBuffer vertex_buffer_;
-    aoe::GPUBuffer index_buffer_;
-    aoe::GPUBuffer constant_buffer_;
+    aoe::IGPUBuffer* vertex_buffer_;
+    aoe::IGPUBuffer* index_buffer_;
+    aoe::IGPUBuffer* constant_buffer_;
 
     aoe::GPUVertexShader vertex_shader_;
     aoe::GPUPixelShader pixel_shader_;
 
-    aoe::GPUSampler sampler_;
+    aoe::IGPUSampler* sampler_;
 
-    aoe::GPUTexture2D texture_;
+    aoe::IGPUTexture2D* texture_;
 
     aoe::Viewport viewport_;
 

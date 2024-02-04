@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GPUDevice.h"
+#include "DX11GPUDevice.h"
 #include "DXByteCode.h"
 #include "GPULayoutDescriptor.h"
 #include "GPUResourceWrapper.h"
@@ -14,10 +14,10 @@ public:
 	ID3D11VertexShader* GetNative() const;
 	GPUInputLayout GetInputLayout() const;
 
-	GPUVertexShader(const GPUDevice& device, const DXByteCode& byte_code, const GPULayoutDescriptor& layout_desc);
+	GPUVertexShader(const DX11GPUDevice& device, const DXByteCode& byte_code, const GPULayoutDescriptor& layout_desc);
 
 private:
-	const GPUDevice& device_;
+	const DX11GPUDevice& device_;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertex_shader_;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> input_layout_;
 };

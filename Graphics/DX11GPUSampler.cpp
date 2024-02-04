@@ -1,18 +1,21 @@
 #include "pch.h"
 
-#include "GPUSampler.h"
+#include "../Core/Debug.h"
+
+#include "DX11GPUSampler.h"
+#include "DX11Helper.h"
 
 namespace aoe {
 
-ID3D11SamplerState* GPUSampler::GetNative() const {
+void* DX11GPUSampler::GetNative() const {
 	return sampler_.Get();
 }
 
-const GPUSamplerDescription& GPUSampler::GetDescription() const {
+const GPUSamplerDescription& DX11GPUSampler::GetDescription() const {
 	return description_;
 }
 
-GPUSampler::GPUSampler(const GPUDevice& device, const GPUSamplerDescription& description)
+DX11GPUSampler::DX11GPUSampler(const DX11GPUDevice& device, const GPUSamplerDescription& description)
 	: device_(device)
 	, description_(description)
 	, sampler_(nullptr)
@@ -33,7 +36,7 @@ GPUSampler::GPUSampler(const GPUDevice& device, const GPUSamplerDescription& des
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create sampler state.");
 }
 
-D3D11_FILTER GPUSampler::ToDXFilter(const GPUSamplerFilter filter, const GPUSamplerComparsionFunction comparsion_function) {
+D3D11_FILTER DX11GPUSampler::ToDXFilter(const GPUSamplerFilter filter, const GPUSamplerComparsionFunction comparsion_function) {
 	switch (comparsion_function) {
 	case GPUSamplerComparsionFunction::kNever:
 		switch (filter) {
@@ -69,7 +72,7 @@ D3D11_FILTER GPUSampler::ToDXFilter(const GPUSamplerFilter filter, const GPUSamp
 	}
 }
 
-D3D11_COMPARISON_FUNC GPUSampler::ToDXComparsionFunction(const GPUSamplerComparsionFunction comparsion_function) {
+D3D11_COMPARISON_FUNC DX11GPUSampler::ToDXComparsionFunction(const GPUSamplerComparsionFunction comparsion_function) {
 	switch (comparsion_function) {
 	case GPUSamplerComparsionFunction::kNever:
 		return D3D11_COMPARISON_NEVER;
@@ -81,7 +84,7 @@ D3D11_COMPARISON_FUNC GPUSampler::ToDXComparsionFunction(const GPUSamplerCompars
 	}
 }
 
-D3D11_TEXTURE_ADDRESS_MODE GPUSampler::ToDXAddressMode(const GPUSamplerAddressMode address_mode) {
+D3D11_TEXTURE_ADDRESS_MODE DX11GPUSampler::ToDXAddressMode(const GPUSamplerAddressMode address_mode) {
 	switch (address_mode) {
 	case GPUSamplerAddressMode::kWrap:
 		return D3D11_TEXTURE_ADDRESS_WRAP;
@@ -97,7 +100,7 @@ D3D11_TEXTURE_ADDRESS_MODE GPUSampler::ToDXAddressMode(const GPUSamplerAddressMo
 	}
 }
 
-void GPUSampler::FillBorderColor(const GPUSamplerBorderColor border_color, float color[4]) {
+void DX11GPUSampler::FillBorderColor(const GPUSamplerBorderColor border_color, float color[4]) {
 	switch (border_color) {
 	case GPUSamplerBorderColor::kTransparentBlack:
 		color[0] = 0.0f;

@@ -1,45 +1,49 @@
 #include "pch.h"
-#include "GPUBuffer.h"
+
+#include "../Core/Debug.h"
+
+#include "DX11GPUBuffer.h"
+#include "DX11Helper.h"
 
 namespace aoe {
 
-ID3D11Buffer* GPUBuffer::GetNative() const {
+void* DX11GPUBuffer::GetNative() const {
 	return buffer_.Get();
 }
 
-const GPUBufferDescription& GPUBuffer::GetDescription() const {
+const GPUBufferDescription& DX11GPUBuffer::GetDescription() const {
 	return description_;
 }
 
-size_t GPUBuffer::GetElementsCount() const {
+size_t DX11GPUBuffer::GetElementsCount() const {
 	return stride_ > 0 ? size_ / stride_ : 0;
 }
 
-size_t GPUBuffer::GetSize() const {
+size_t DX11GPUBuffer::GetSize() const {
 	return size_;
 }
 
-size_t GPUBuffer::GetStride() const {
+size_t DX11GPUBuffer::GetStride() const {
 	return stride_;
 }
 
-bool GPUBuffer::IsVertexBuffer() const {
+bool DX11GPUBuffer::IsVertexBuffer() const {
 	return description_.IsVertexBuffer();
 }
 
-bool GPUBuffer::IsIndexBuffer() const {
+bool DX11GPUBuffer::IsIndexBuffer() const {
 	return description_.IsIndexBuffer();
 }
 
-bool GPUBuffer::IsConstantBuffer() const {
+bool DX11GPUBuffer::IsConstantBuffer() const {
 	return description_.IsConstantBuffer();
 }
 
-bool GPUBuffer::IsDynamic() const {
+bool DX11GPUBuffer::IsDynamic() const {
 	return description_.IsDynamic();
 }
 
-GPUBuffer::GPUBuffer(const GPUDevice& device, GPUBufferDescription description, const void* data, size_t size, size_t stride)
+DX11GPUBuffer::DX11GPUBuffer(const DX11GPUDevice& device, GPUBufferDescription description, const void* data, size_t size, size_t stride)
 	: device_(device)
 	, description_(std::move(description))
 	, buffer_(nullptr)
@@ -71,11 +75,11 @@ GPUBuffer::GPUBuffer(const GPUDevice& device, GPUBufferDescription description, 
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create buffer.");
 }
 
-D3D11_USAGE GPUBuffer::ToDXUsage(const GPUResourceUsage value) {
+D3D11_USAGE DX11GPUBuffer::ToDXUsage(const GPUResourceUsage value) {
 	return static_cast<D3D11_USAGE>(value);
 }
 
-D3D11_BIND_FLAG GPUBuffer::ToDXBufferType(const GPUBufferType buffer_type) {
+D3D11_BIND_FLAG DX11GPUBuffer::ToDXBufferType(const GPUBufferType buffer_type) {
 	switch (buffer_type) {
 	case GPUBufferType::kVertexBuffer:
 		return D3D11_BIND_VERTEX_BUFFER;

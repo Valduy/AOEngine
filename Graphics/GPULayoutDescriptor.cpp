@@ -23,7 +23,7 @@ void GPULayoutDescriptor::Add(const LayoutElement& element) {
 	layout_.emplace_back(D3D11_INPUT_ELEMENT_DESC{
 		ToSemanticName(element.sematic),
 		0,
-		DXHelper::ToDxgiFormat(element.format),
+		DX11Helper::ToDxgiFormat(element.format),
 		0,
 		D3D11_APPEND_ALIGNED_ELEMENT,
 		D3D11_INPUT_PER_VERTEX_DATA,

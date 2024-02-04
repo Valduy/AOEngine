@@ -2,7 +2,7 @@
 
 #include <wrl/client.h>
 
-#include "DXHelper.h"
+#include "DX11Helper.h"
 
 namespace aoe{
 

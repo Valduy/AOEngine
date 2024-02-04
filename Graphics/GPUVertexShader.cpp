@@ -11,7 +11,7 @@ GPUInputLayout GPUVertexShader::GetInputLayout() const {
 	return { input_layout_.Get() };
 }
 
-GPUVertexShader::GPUVertexShader(const GPUDevice& device, const DXByteCode& byte_code, const GPULayoutDescriptor& layout_desc)
+GPUVertexShader::GPUVertexShader(const DX11GPUDevice& device, const DXByteCode& byte_code, const GPULayoutDescriptor& layout_desc)
 	: device_(device)
 	, vertex_shader_(nullptr)
 	, input_layout_(nullptr)
