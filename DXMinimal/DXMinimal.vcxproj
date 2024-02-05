@@ -24,6 +24,7 @@
     <ProjectGuid>{24be9c06-742b-46ef-b433-326fe176727e}</ProjectGuid>
     <RootNamespace>DXMinimal</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>DX11MinimalDemo</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
