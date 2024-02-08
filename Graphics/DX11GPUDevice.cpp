@@ -1,7 +1,5 @@
 #include "pch.h"
 
-#include "../Core/Debug.h"
-
 #include "DX11GPUDevice.h"
 #include "DX11GPUContext.h"
 #include "DX11GPUSwapChain.h"
@@ -10,6 +8,7 @@
 #include "DX11GPUDepthState.h"
 #include "DX11GPURasterizerState.h"
 #include "DX11GPUSampler.h"
+#include "DX11Helper.h"
 
 namespace aoe {
 

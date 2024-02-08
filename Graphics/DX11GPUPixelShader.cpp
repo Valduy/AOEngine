@@ -1,13 +1,15 @@
 #include "pch.h"
-#include "GPUPixelShader.h"
+
+#include "DX11GPUPixelShader.h"
+#include "DX11Helper.h"
 
 namespace aoe {
 
-ID3D11PixelShader* aoe::GPUPixelShader::GetNative() const {
+ID3D11PixelShader* aoe::DX11GPUPixelShader::GetNative() const {
 	return pixel_shader_.Get();
 }
 
-GPUPixelShader::GPUPixelShader(const DX11GPUDevice& device, const DXByteCode& byte_code)
+DX11GPUPixelShader::DX11GPUPixelShader(const DX11GPUDevice& device, const DX11GPUByteCode& byte_code)
 	: device_(device)
 	, pixel_shader_(nullptr)
 {

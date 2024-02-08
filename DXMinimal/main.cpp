@@ -5,7 +5,7 @@
 #include "../Graphics/DX11GPUDevice.h"
 #include "../Graphics/DX11GPUContext.h"
 #include "../Graphics/DX11GPUSwapChain.h"
-#include "../Graphics/GPUShadersCompiler.h"
+#include "../Graphics/DX11GPUShadersCompiler.h"
 
 #include "xdata.h"
 
@@ -21,13 +21,6 @@ struct Constants {
     float dummy;
 };
 
-static const aoe::GPULayoutDescriptor kLayoutDesc = {
-    {aoe::LayoutElementSemantics::kPosition, aoe::GPUPixelFormat::kR32G32B32_Float},
-    {aoe::LayoutElementSemantics::kNormal, aoe::GPUPixelFormat::kR32G32B32_Float},
-    {aoe::LayoutElementSemantics::kTexcoord, aoe::GPUPixelFormat::kR32G32_Float},
-    {aoe::LayoutElementSemantics::kColor, aoe::GPUPixelFormat::kR32G32B32_Float},
-};
-
 class MyGame : public aoe::IGame {
 public:
     MyGame(const aoe::Window& window)
@@ -40,10 +33,10 @@ public:
         , vertex_buffer_(nullptr)
         , index_buffer_(nullptr)
         , constant_buffer_(nullptr)
-        , vertex_shader_(device_, aoe::GPUShadersCompiler::CompileVertexShader(L"shaders.hlsl", "vs_main"), kLayoutDesc)
-        , pixel_shader_(device_, aoe::GPUShadersCompiler::CompilePixelShader(L"shaders.hlsl", "ps_main"))
+        , vertex_shader_(device_, aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kVertex, L"shaders.hlsl", "vs_main"}))
+        , pixel_shader_(device_, aoe::DX11GPUShadersCompiler::CompileShader({ aoe::GPUShaderType::kPixel, L"shaders.hlsl", "ps_main"}))
         , sampler_(nullptr)
-        , texture_()
+        , texture_(nullptr)
     {}
 
     void Initialize() override {
@@ -181,8 +174,8 @@ private:
     aoe::IGPUBuffer* index_buffer_;
     aoe::IGPUBuffer* constant_buffer_;
 
-    aoe::GPUVertexShader vertex_shader_;
-    aoe::GPUPixelShader pixel_shader_;
+    aoe::DX11GPUVertexShader vertex_shader_;
+    aoe::DX11GPUPixelShader pixel_shader_;
 
     aoe::IGPUSampler* sampler_;
 

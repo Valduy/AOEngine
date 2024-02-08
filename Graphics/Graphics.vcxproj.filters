@@ -39,7 +39,7 @@
     <ClInclude Include="IGPUDevice.h">
       <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="DXByteCode.h">
+    <ClInclude Include="DX11GPUByteCode.h">
       <Filter>Header Files\DX11Implementation</Filter>
     </ClInclude>
     <ClInclude Include="DX11Headers.h">
@@ -60,22 +60,16 @@
     <ClInclude Include="DX11GPUDevice.h">
       <Filter>Header Files\DX11Implementation</Filter>
     </ClInclude>
-    <ClInclude Include="GPULayoutDescriptor.h">
-      <Filter>Header Files\DX11Implementation</Filter>
-    </ClInclude>
-    <ClInclude Include="GPUPixelShader.h">
+    <ClInclude Include="DX11GPUPixelShader.h">
       <Filter>Header Files\DX11Implementation</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPURasterizerState.h">
       <Filter>Header Files\DX11Implementation</Filter>
     </ClInclude>
-    <ClInclude Include="GPUResourceWrapper.h">
-      <Filter>Header Files\DX11Implementation</Filter>
-    </ClInclude>
     <ClInclude Include="DX11GPUSampler.h">
       <Filter>Header Files\DX11Implementation</Filter>
     </ClInclude>
-    <ClInclude Include="GPUShadersCompiler.h">
+    <ClInclude Include="DX11GPUShadersCompiler.h">
       <Filter>Header Files\DX11Implementation</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUSwapChain.h">
@@ -84,7 +78,7 @@
     <ClInclude Include="DX11GPUTexture2D.h">
       <Filter>Header Files\DX11Implementation</Filter>
     </ClInclude>
-    <ClInclude Include="GPUVertexShader.h">
+    <ClInclude Include="DX11GPUVertexShader.h">
       <Filter>Header Files\DX11Implementation</Filter>
     </ClInclude>
     <ClInclude Include="GPUPixelFormat.h">
@@ -131,10 +125,7 @@
     <ClCompile Include="DX11GPUDevice.cpp">
       <Filter>Source Files\DX11Implementation</Filter>
     </ClCompile>
-    <ClCompile Include="GPULayoutDescriptor.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="GPUPixelShader.cpp">
+    <ClCompile Include="DX11GPUPixelShader.cpp">
       <Filter>Source Files\DX11Implementation</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPURasterizerState.cpp">
@@ -149,7 +140,13 @@
     <ClCompile Include="DX11GPUTexture2D.cpp">
       <Filter>Source Files\DX11Implementation</Filter>
     </ClCompile>
-    <ClCompile Include="GPUVertexShader.cpp">
+    <ClCompile Include="DX11GPUVertexShader.cpp">
+      <Filter>Source Files\DX11Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GPUByteCode.cpp">
+      <Filter>Source Files\DX11Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GPUShadersCompiler.cpp">
       <Filter>Source Files\DX11Implementation</Filter>
     </ClCompile>
   </ItemGroup>

@@ -6,8 +6,8 @@
 #include "IGPUDepthState.h"
 #include "IGPUTexture2D.h"
 #include "IGPUBuffer.h"
-#include "GPUVertexShader.h"
-#include "GPUPixelShader.h"
+#include "DX11GPUVertexShader.h"
+#include "DX11GPUPixelShader.h"
 #include "IGPUSampler.h"
 
 namespace aoe {
@@ -52,8 +52,8 @@ public:
 	
 	void SetPrimitiveTopology(const GPUPrimitiveTopology topology);
 	
-	void SetVertexShader(const GPUVertexShader& vertex_shader);
-	void SetPixelShader(const GPUPixelShader& pixel_shader);
+	void SetVertexShader(const DX11GPUVertexShader& vertex_shader);
+	void SetPixelShader(const DX11GPUPixelShader& pixel_shader);
 	
 	void Draw(uint32_t vertex_count);
 	void DrawIndexed(uint32_t index_count);

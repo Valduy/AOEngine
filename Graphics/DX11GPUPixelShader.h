@@ -1,15 +1,15 @@
 #pragma once
 
 #include "DX11GPUDevice.h"
-#include "DXByteCode.h"
+#include "DX11GPUByteCode.h"
 
 namespace aoe {
 
-class GPUPixelShader {
+class DX11GPUPixelShader {
 public:
 	ID3D11PixelShader* GetNative() const;
 
-	GPUPixelShader(const DX11GPUDevice& device, const DXByteCode& byte_code);
+	DX11GPUPixelShader(const DX11GPUDevice& device, const DX11GPUByteCode& byte_code);
 
 private:
 	const DX11GPUDevice& device_;

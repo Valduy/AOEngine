@@ -147,6 +147,7 @@
     <ClInclude Include="Identifier.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Singleton.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

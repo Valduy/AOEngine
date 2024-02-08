@@ -2,6 +2,7 @@
 
 #include "DX11GPUContext.h"
 #include "DX11GPUTextureView.h"
+#include "DX11Helper.h"
 
 namespace aoe {
 
@@ -179,13 +180,13 @@ void DX11GPUContext::SetPrimitiveTopology(const GPUPrimitiveTopology topology) {
 	context_->IASetPrimitiveTopology(ToDXPrimitiveTopology(topology));
 }
 
-void DX11GPUContext::SetVertexShader(const GPUVertexShader& vertex_shader) {
-	GPUInputLayout input_layout = vertex_shader.GetInputLayout();
-	context_->IASetInputLayout(input_layout.GetNative());
+void DX11GPUContext::SetVertexShader(const DX11GPUVertexShader& vertex_shader) {
+	ID3D11InputLayout* input_layout = vertex_shader.GetInputLayout();
+	context_->IASetInputLayout(input_layout);
 	context_->VSSetShader(vertex_shader.GetNative(), nullptr, 0);
 }
 
-void DX11GPUContext::SetPixelShader(const GPUPixelShader& pixel_shader) {
+void DX11GPUContext::SetPixelShader(const DX11GPUPixelShader& pixel_shader) {
 	context_->PSSetShader(pixel_shader.GetNative(), nullptr, 0);
 }
 
