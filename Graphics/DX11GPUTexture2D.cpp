@@ -7,11 +7,7 @@
 
 namespace aoe {
 
-DX11GPUTexture2D DX11GPUTexture2D::Create(const DX11GPUDevice& device, const GPUTexture2DDescription& description) {
-	return { device, description, nullptr, 0 };
-}
-
-void* DX11GPUTexture2D::GetNative() const {
+ID3D11Texture2D* DX11GPUTexture2D::GetNative() const {
 	return texture_.Get();
 }
 
@@ -19,8 +15,8 @@ const GPUTexture2DDescription& DX11GPUTexture2D::GetDescription() const {
 	return description_;
 }
 
-const IGPUTextureView* DX11GPUTexture2D::GetTextureView() const {
-	return &texture_view_;
+const DX11GPUTextureView& DX11GPUTexture2D::GetTextureView() const {
+	return texture_view_;
 }
 
 uint32_t DX11GPUTexture2D::GetWidth() const {
@@ -52,13 +48,11 @@ bool DX11GPUTexture2D::IsUnorderedAccess() const {
 }
 
 DX11GPUTexture2D::DX11GPUTexture2D(
-	const DX11GPUDevice& device, 
 	const GPUTexture2DDescription& description,
 	const void* data, 
-	size_t stride
+	uint32_t stride
 )
-	: device_(device)
-	, description_(description)
+	: description_(description)
 	, texture_view_(this)
 	, texture_(nullptr)
 {
@@ -83,10 +77,10 @@ DX11GPUTexture2D::DX11GPUTexture2D(
 		subresource_data.SysMemPitch = description_.width * stride;
 		subresource_data.SysMemSlicePitch = description_.height * description_.width * stride;
 
-		hr = device_.GetNative()->CreateTexture2D(&texture_desc, &subresource_data, texture_.GetAddressOf());
+		hr = DX11GPUDevice::Instance()->GetNative()->CreateTexture2D(&texture_desc, &subresource_data, texture_.GetAddressOf());
 	}
 	else {
-		hr = device_.GetNative()->CreateTexture2D(&texture_desc, nullptr, texture_.GetAddressOf());
+		hr = DX11GPUDevice::Instance()->GetNative()->CreateTexture2D(&texture_desc, nullptr, texture_.GetAddressOf());
 	}
 
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create texture.");
@@ -94,9 +88,12 @@ DX11GPUTexture2D::DX11GPUTexture2D(
 	CreateTextureViews();
 }
 
-DX11GPUTexture2D::DX11GPUTexture2D(const DX11GPUDevice& device, ID3D11Texture2D* texture)
-	: device_(device)
-	, description_()
+DX11GPUTexture2D::DX11GPUTexture2D(const GPUTexture2DDescription& description)
+	: DX11GPUTexture2D(description, nullptr, 0)
+{}
+
+DX11GPUTexture2D::DX11GPUTexture2D(ID3D11Texture2D* texture)
+	: description_()
 	, texture_view_(this)
 	, texture_(texture)
 {
@@ -154,28 +151,28 @@ void DX11GPUTexture2D::CreateTextureViews() {
 
 	if (IsShaderResource()) {
 		ID3D11ShaderResourceView* shader_resource_view;
-		hr = device_.GetNative()->CreateShaderResourceView(texture_.Get(), nullptr, &shader_resource_view);
+		hr = DX11GPUDevice::Instance()->GetNative()->CreateShaderResourceView(texture_.Get(), nullptr, &shader_resource_view);
 		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create shader resource view.");
 		texture_view_.Attach(shader_resource_view);
 	}
 
 	if (IsDepthStencil()) {
 		ID3D11DepthStencilView* depth_stencil_view;
-		hr = device_.GetNative()->CreateDepthStencilView(texture_.Get(), nullptr, &depth_stencil_view);
+		hr = DX11GPUDevice::Instance()->GetNative()->CreateDepthStencilView(texture_.Get(), nullptr, &depth_stencil_view);
 		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create depth stencil view.");
 		texture_view_.Attach(depth_stencil_view);
 	}
 
 	if (IsRenderTarget()) {
 		ID3D11RenderTargetView* render_target_view;
-		hr = device_.GetNative()->CreateRenderTargetView(texture_.Get(), nullptr, &render_target_view);
+		hr = DX11GPUDevice::Instance()->GetNative()->CreateRenderTargetView(texture_.Get(), nullptr, &render_target_view);
 		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create render target view.");
 		texture_view_.Attach(render_target_view);
 	}
 
 	if (IsUnorderedAccess()) {
 		ID3D11UnorderedAccessView* unordered_access_view;
-		hr = device_.GetNative()->CreateUnorderedAccessView(texture_.Get(), nullptr, &unordered_access_view);
+		hr = DX11GPUDevice::Instance()->GetNative()->CreateUnorderedAccessView(texture_.Get(), nullptr, &unordered_access_view);
 		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create unordered access view.");
 		texture_view_.Attach(unordered_access_view);
 	}

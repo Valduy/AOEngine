@@ -4,8 +4,6 @@
 
 #include <string>
 
-#include "../Core/Logger.h"
-
 #include "DX11Helper.h"
 #include "DX11GPUByteCode.h"
 

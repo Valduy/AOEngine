@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Interfaces">
-      <UniqueIdentifier>{8ce52647-e54f-46d4-a764-be36cff61446}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\DX11Implementation">
       <UniqueIdentifier>{eca99edb-8740-4d84-bea5-6756ee13ce86}</UniqueIdentifier>
     </Filter>
@@ -32,12 +29,6 @@
     </ClInclude>
     <ClInclude Include="Viewport.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IGPUBuffer.h">
-      <Filter>Header Files\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="IGPUDevice.h">
-      <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUByteCode.h">
       <Filter>Header Files\DX11Implementation</Filter>
@@ -86,24 +77,6 @@
     </ClInclude>
     <ClInclude Include="GPUEnums.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IGPUDepthState.h">
-      <Filter>Header Files\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="IGPURasterizerState.h">
-      <Filter>Header Files\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="IGPUSampler.h">
-      <Filter>Header Files\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="IGPUSwapChain.h">
-      <Filter>Header Files\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="IGPUTextureView.h">
-      <Filter>Header Files\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="IGPUTexture2D.h">
-      <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUTextureView.h">
       <Filter>Header Files\DX11Implementation</Filter>

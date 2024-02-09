@@ -7,7 +7,7 @@
 
 namespace aoe {
 
-void* DX11GPUBuffer::GetNative() const {
+ID3D11Buffer* DX11GPUBuffer::GetNative() const {
 	return buffer_.Get();
 }
 
@@ -15,15 +15,15 @@ const GPUBufferDescription& DX11GPUBuffer::GetDescription() const {
 	return description_;
 }
 
-size_t DX11GPUBuffer::GetElementsCount() const {
+uint32_t DX11GPUBuffer::GetElementsCount() const {
 	return stride_ > 0 ? size_ / stride_ : 0;
 }
 
-size_t DX11GPUBuffer::GetSize() const {
+uint32_t DX11GPUBuffer::GetSize() const {
 	return size_;
 }
 
-size_t DX11GPUBuffer::GetStride() const {
+uint32_t DX11GPUBuffer::GetStride() const {
 	return stride_;
 }
 
@@ -43,9 +43,8 @@ bool DX11GPUBuffer::IsDynamic() const {
 	return description_.IsDynamic();
 }
 
-DX11GPUBuffer::DX11GPUBuffer(const DX11GPUDevice& device, GPUBufferDescription description, const void* data, size_t size, size_t stride)
-	: device_(device)
-	, description_(std::move(description))
+DX11GPUBuffer::DX11GPUBuffer(GPUBufferDescription description, const void* data, uint32_t size, uint32_t stride)
+	: description_(std::move(description))
 	, buffer_(nullptr)
 	, size_(size)
 	, stride_(stride)
@@ -66,10 +65,10 @@ DX11GPUBuffer::DX11GPUBuffer(const DX11GPUDevice& device, GPUBufferDescription d
 		buffer_data.SysMemPitch = 0;
 		buffer_data.SysMemSlicePitch = 0;
 
-		hr = device_.GetNative()->CreateBuffer(&buffer_desc, &buffer_data, buffer_.GetAddressOf());
+		hr = DX11GPUDevice::Instance()->GetNative()->CreateBuffer(&buffer_desc, &buffer_data, buffer_.GetAddressOf());
 	}
 	else {
-		hr = device_.GetNative()->CreateBuffer(&buffer_desc, nullptr, buffer_.GetAddressOf());
+		hr = DX11GPUDevice::Instance()->GetNative()->CreateBuffer(&buffer_desc, nullptr, buffer_.GetAddressOf());
 	}
 
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create buffer.");

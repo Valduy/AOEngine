@@ -1,36 +1,66 @@
 #pragma once
 
-#include "IGPUTexture2D.h"
+#include "GPUPixelFormat.h"
+#include "GPUEnums.h"
 #include "DX11GPUDevice.h"
 #include "DX11GPUTextureView.h"
 
 namespace aoe {
 
-class DX11GPUTexture2D : public IGPUTexture2D {
+struct GPUTexture2DDescription {
+	uint32_t width;
+	uint32_t height;
+	GPUPixelFormat pixel_format;
+	GPUTextureFlags texture_flags;
+
+	static GPUTexture2DDescription DepthStencilBuffer(uint32_t width, uint32_t height) {
+		return { width, height, GPUPixelFormat::kD24_Unorm_S8_Uint, GPUTextureFlags::kDepthStencil };
+	}
+
+	GPUTexture2DDescription(
+		uint32_t width,
+		uint32_t height,
+		GPUPixelFormat pixel_format,
+		GPUTextureFlags texture_flags
+	)
+		: width(width)
+		, height(height)
+		, pixel_format(pixel_format)
+		, texture_flags(texture_flags)
+	{}
+
+	GPUTexture2DDescription()
+		: width(0)
+		, height(0)
+		, pixel_format(GPUPixelFormat::kUnknown)
+		, texture_flags(GPUTextureFlags::kNone)
+	{}
+};
+
+class DX11GPUTexture2D {
 public:
 	template<typename TElement>
-	static DX11GPUTexture2D Create(const DX11GPUDevice& device, const GPUTexture2DDescription& description, const TElement* data);
-	static DX11GPUTexture2D Create(const DX11GPUDevice& device, const GPUTexture2DDescription& description);
+	static DX11GPUTexture2D Create(const GPUTexture2DDescription& description, const TElement* data);
 
-	void* GetNative() const override;
-	const GPUTexture2DDescription& GetDescription() const override;
-	virtual const IGPUTextureView* GetTextureView() const override;
+	ID3D11Texture2D* GetNative() const;
+	const GPUTexture2DDescription& GetDescription() const;
+	virtual const DX11GPUTextureView& GetTextureView() const;
 
-	uint32_t GetWidth() const override;
-	uint32_t GetHeight() const override;
+	uint32_t GetWidth() const;
+	uint32_t GetHeight() const;
 
-	GPUPixelFormat GetPixelFormat() const override;
+	GPUPixelFormat GetPixelFormat() const;
 
-	bool IsShaderResource() const override;
-	bool IsDepthStencil() const override;
-	bool IsRenderTarget() const override;
-	bool IsUnorderedAccess() const override;
+	bool IsShaderResource() const;
+	bool IsDepthStencil() const;
+	bool IsRenderTarget() const;
+	bool IsUnorderedAccess() const;
 
-	DX11GPUTexture2D(const DX11GPUDevice& device, const GPUTexture2DDescription& description, const void* data, size_t stride);
-	DX11GPUTexture2D(const DX11GPUDevice& device, ID3D11Texture2D* texture);
+	DX11GPUTexture2D(const GPUTexture2DDescription& description, const void* data, uint32_t stride);
+	DX11GPUTexture2D(const GPUTexture2DDescription& description);
+	DX11GPUTexture2D(ID3D11Texture2D* texture);
 
 private:
-	const DX11GPUDevice& device_;
 	GPUTexture2DDescription description_;
 	DX11GPUTextureView texture_view_;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture_;
@@ -42,8 +72,8 @@ private:
 };
 
 template<typename TElement>
-static DX11GPUTexture2D DX11GPUTexture2D::Create(const DX11GPUDevice& device, const GPUTexture2DDescription& description, const TElement* data) {
-	return { device, description, data, sizeof(TElement) };
+static DX11GPUTexture2D DX11GPUTexture2D::Create(const GPUTexture2DDescription& description, const TElement* data) {
+	return { description, data, sizeof(TElement) };
 }
 
 } // namespace aoe

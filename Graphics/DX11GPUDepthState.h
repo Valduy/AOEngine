@@ -1,19 +1,40 @@
 #pragma once
 
-#include "IGPUDepthState.h"
+#include "GPUEnums.h"
 #include "DX11GPUDevice.h"
 
 namespace aoe {
 
-class DX11GPUDepthState : public IGPUDepthState {
-public:
-	void* GetNative() const override;
-	const GPUDepthStateDescription& GetDescription() const override;
+struct GPUDepthStateDescription {
+	bool is_depth_enabled;
+	GPUDepthWriteMask write_mask;
+	GPUComparsionFunction comparsion_function;
 
-	DX11GPUDepthState(const DX11GPUDevice& device, GPUDepthStateDescription description);
+	GPUDepthStateDescription(
+		bool is_depth_enabled,
+		GPUDepthWriteMask write_mask,
+		GPUComparsionFunction comparsion_function
+	)
+		: is_depth_enabled(is_depth_enabled)
+		, write_mask(write_mask)
+		, comparsion_function(comparsion_function)
+	{}
+
+	GPUDepthStateDescription()
+		: is_depth_enabled(false)
+		, write_mask(GPUDepthWriteMask::kWriteNone)
+		, comparsion_function(GPUComparsionFunction::kNever)
+	{}
+};
+
+class DX11GPUDepthState {
+public:
+	ID3D11DepthStencilState* GetNative() const;
+	const GPUDepthStateDescription& GetDescription() const;
+
+	DX11GPUDepthState(GPUDepthStateDescription description);
 
 private:
-	const DX11GPUDevice& device_;
 	GPUDepthStateDescription description_;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depth_stencil_state_;
 

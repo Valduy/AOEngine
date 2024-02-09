@@ -1,7 +1,6 @@
 #include "pch.h"
 
 #include "DX11GPUContext.h"
-#include "DX11GPUTextureView.h"
 #include "DX11Helper.h"
 
 namespace aoe {
@@ -19,69 +18,64 @@ void DX11GPUContext::SetViewport(const Viewport& viewport) {
 	context_->RSSetViewports(1, &mapped);
 }
 
-void DX11GPUContext::SetRasterizerState(const IGPURasterizerState* rasterizer_state) {
-	ID3D11RasterizerState* native = static_cast<ID3D11RasterizerState*>(rasterizer_state->GetNative());
+void DX11GPUContext::SetRasterizerState(const DX11GPURasterizerState& rasterizer_state) {
+	ID3D11RasterizerState* native = rasterizer_state.GetNative();
 	context_->RSSetState(native);
 }
 
-void DX11GPUContext::SetRenderTarget(const IGPUTexture2D& texture) {
-	const IGPUTextureView* render_target_view = texture.GetTextureView();
+void DX11GPUContext::SetRenderTarget(const DX11GPUTexture2D& texture) {
+	const DX11GPUTextureView& render_target_view = texture.GetTextureView();
 	SetRenderTarget(render_target_view);
 }
 
-void DX11GPUContext::SetRenderTarget(const IGPUTextureView* render_target_view) {
-	const DX11GPUTextureView* dx11_render_target_view = static_cast<const DX11GPUTextureView*>(render_target_view);
+void DX11GPUContext::SetRenderTarget(const DX11GPUTextureView& render_target_view) {
+	AOE_ASSERT_MSG(render_target_view.IsRenderTargetView(), "Texture view is not render target view.");
 
-	AOE_ASSERT_MSG(dx11_render_target_view->IsRenderTargetView(), "Texture view is not render target view.");
-
-	ID3D11RenderTargetView* native = dx11_render_target_view->GetRenderTargetView();
+	ID3D11RenderTargetView* native = render_target_view.GetRenderTargetView();
 	context_->OMSetRenderTargets(1, &native, nullptr);
 }
 
 void DX11GPUContext::SetRenderTarget(
-	const IGPUTextureView* render_target_view, 
-	const IGPUTextureView* depth_stencil_view) 
+	const DX11GPUTextureView& render_target_view, 
+	const DX11GPUTextureView& depth_stencil_view) 
 {
-	const DX11GPUTextureView* dx11_render_target_view = static_cast<const DX11GPUTextureView*>(render_target_view);
-	const DX11GPUTextureView* dx11_depth_stencil_view = static_cast<const DX11GPUTextureView*>(depth_stencil_view);
+	AOE_ASSERT_MSG(render_target_view.IsRenderTargetView(), "Texture view is not render target view.");
+	AOE_ASSERT_MSG(depth_stencil_view.IsDepthStencilView(), "Texture view is not depth stencil view.");
 
-	AOE_ASSERT_MSG(dx11_render_target_view->IsRenderTargetView(), "Texture view is not render target view.");
-	AOE_ASSERT_MSG(dx11_depth_stencil_view->IsDepthStencilView(), "Texture view is not depth stencil view.");
-
-	ID3D11RenderTargetView* native_render_target_view = dx11_render_target_view->GetRenderTargetView();
-	ID3D11DepthStencilView* native_depth_stencil_view = dx11_depth_stencil_view->GetDepthStencilView();
+	ID3D11RenderTargetView* native_render_target_view = render_target_view.GetRenderTargetView();
+	ID3D11DepthStencilView* native_depth_stencil_view = depth_stencil_view.GetDepthStencilView();
 
 	context_->OMSetRenderTargets(1, &native_render_target_view, native_depth_stencil_view);
 }
 
-void DX11GPUContext::SetDepthState(const IGPUDepthState* depth_stencil_state) {
-	ID3D11DepthStencilState* native = static_cast<ID3D11DepthStencilState*>(depth_stencil_state->GetNative());
+void DX11GPUContext::SetDepthState(const DX11GPUDepthState& depth_stencil_state) {
+	ID3D11DepthStencilState* native = depth_stencil_state.GetNative();
 	context_->OMSetDepthStencilState(native, 0);
 }
 
-void DX11GPUContext::SetVertexBuffer(const IGPUBuffer* buffer) {
-	AOE_ASSERT_MSG(buffer->IsVertexBuffer(), "Buffer is not vertex buffer.");
+void DX11GPUContext::SetVertexBuffer(const DX11GPUBuffer& buffer) {
+	AOE_ASSERT_MSG(buffer.IsVertexBuffer(), "Buffer is not vertex buffer.");
 
-	ID3D11Buffer* native = static_cast<ID3D11Buffer*>(buffer->GetNative());
+	ID3D11Buffer* native = buffer.GetNative();
 
-	const UINT strides[] = { buffer->GetStride()};
+	const UINT strides[] = { buffer.GetStride()};
 	const UINT offsets[] = { 0 };
 
 	context_->IASetVertexBuffers(0, 1, &native, strides, offsets);
 }
 
-void DX11GPUContext::SetIndexBuffer(const IGPUBuffer* buffer) {
-	AOE_ASSERT_MSG(buffer->IsIndexBuffer(), "Buffer is not index buffer.");
+void DX11GPUContext::SetIndexBuffer(const DX11GPUBuffer& buffer) {
+	AOE_ASSERT_MSG(buffer.IsIndexBuffer(), "Buffer is not index buffer.");
 
-	ID3D11Buffer* native = static_cast<ID3D11Buffer*>(buffer->GetNative());
+	ID3D11Buffer* native = buffer.GetNative();
 
 	context_->IASetIndexBuffer(native, DXGI_FORMAT_R32_UINT, 0);
 }
 
-void DX11GPUContext::SetConstantBuffer(const GPUShaderType shader_type, const IGPUBuffer* buffer, uint32_t slot) {
-	AOE_ASSERT_MSG(buffer->IsConstantBuffer(), "Buffer is not constant buffer.");
+void DX11GPUContext::SetConstantBuffer(const GPUShaderType shader_type, const DX11GPUBuffer& buffer, uint32_t slot) {
+	AOE_ASSERT_MSG(buffer.IsConstantBuffer(), "Buffer is not constant buffer.");
 
-	ID3D11Buffer* native = static_cast<ID3D11Buffer*>(buffer->GetNative());
+	ID3D11Buffer* native = buffer.GetNative();
 
 	switch (shader_type) {
 	case GPUShaderType::kVertex:
@@ -93,13 +87,13 @@ void DX11GPUContext::SetConstantBuffer(const GPUShaderType shader_type, const IG
 	}
 }
 
-void DX11GPUContext::UpdateBuffer(const IGPUBuffer* buffer, const void* data, size_t size) {
+void DX11GPUContext::UpdateBuffer(const DX11GPUBuffer& buffer, const void* data, uint32_t size) {
 	AOE_ASSERT_MSG(data != nullptr, "Can't update buffer with null data.");
-	AOE_ASSERT_MSG(buffer->GetSize() >= size, "Buffer size less than data size.");
+	AOE_ASSERT_MSG(buffer.GetSize() >= size, "Buffer size less than data size.");
 
-	ID3D11Buffer* native = static_cast<ID3D11Buffer*>(buffer->GetNative());
+	ID3D11Buffer* native = buffer.GetNative();
 
-	if (buffer->IsDynamic()) {
+	if (buffer.IsDynamic()) {
 		D3D11_MAPPED_SUBRESOURCE mapped_subresource;
 		const HRESULT hr = context_->Map(native, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_subresource);
 		AOE_DX_TRY_LOG_ERROR_AND_RETURN(hr, "Failed to map subresource.");
@@ -112,14 +106,13 @@ void DX11GPUContext::UpdateBuffer(const IGPUBuffer* buffer, const void* data, si
 	}
 }
 
-void DX11GPUContext::SetShaderResource(const GPUShaderType shader_type, const IGPUTexture2D* texture, uint32_t slot) {
-	const IGPUTextureView* shader_resource_view = texture->GetTextureView();
+void DX11GPUContext::SetShaderResource(const GPUShaderType shader_type, const DX11GPUTexture2D& texture, uint32_t slot) {
+	const DX11GPUTextureView& shader_resource_view = texture.GetTextureView();
 	SetShaderResource(shader_type, shader_resource_view, slot);
 }
 
-void DX11GPUContext::SetShaderResource(const GPUShaderType shader_type, const IGPUTextureView* shader_resource_view, uint32_t slot) {
-	const DX11GPUTextureView* dx11_shader_resource_view = static_cast<const DX11GPUTextureView*>(shader_resource_view);
-	ID3D11ShaderResourceView* native = dx11_shader_resource_view->GetShaderResourceView();
+void DX11GPUContext::SetShaderResource(const GPUShaderType shader_type, const DX11GPUTextureView& shader_resource_view, uint32_t slot) {
+	ID3D11ShaderResourceView* native = shader_resource_view.GetShaderResourceView();
 
 	switch (shader_type) {
 	case GPUShaderType::kVertex:
@@ -131,8 +124,8 @@ void DX11GPUContext::SetShaderResource(const GPUShaderType shader_type, const IG
 	}
 }
 
-void DX11GPUContext::SetSampler(const GPUShaderType shader_type, const IGPUSampler* sampler, uint32_t slot) {
-	ID3D11SamplerState* native = static_cast<ID3D11SamplerState*>(sampler->GetNative());
+void DX11GPUContext::SetSampler(const GPUShaderType shader_type, const DX11GPUSampler& sampler, uint32_t slot) {
+	ID3D11SamplerState* native = sampler.GetNative();
 
 	switch (shader_type) {
 	case GPUShaderType::kVertex:
@@ -148,32 +141,28 @@ void DX11GPUContext::ClearState() {
 	context_->ClearState();
 }
 
-void DX11GPUContext::ClearRenderTarget(const IGPUTexture2D& texture, const float color[4]) {
-	const IGPUTextureView* render_target_view = texture.GetTextureView();
+void DX11GPUContext::ClearRenderTarget(const DX11GPUTexture2D& texture, const float color[4]) {
+	const DX11GPUTextureView& render_target_view = texture.GetTextureView();
 	ClearRenderTarget(render_target_view, color);
 }
 
-void DX11GPUContext::ClearRenderTarget(const IGPUTextureView* render_target_view, const float color[4]) {
-	const DX11GPUTextureView* dx11_render_target_view = static_cast<const DX11GPUTextureView*>(render_target_view);
+void DX11GPUContext::ClearRenderTarget(const DX11GPUTextureView& render_target_view, const float color[4]) {
+	AOE_ASSERT_MSG(render_target_view.IsRenderTargetView(), "Texture view is not render target view.");
 
-	AOE_ASSERT_MSG(dx11_render_target_view->IsRenderTargetView(), "Texture view is not render target view.");
-
-	ID3D11RenderTargetView* native = dx11_render_target_view->GetRenderTargetView();
+	ID3D11RenderTargetView* native = render_target_view.GetRenderTargetView();
 	context_->ClearRenderTargetView(native, color);
 }
 
-void DX11GPUContext::ClearDepth(const IGPUTexture2D& texture, float value) {
-	const IGPUTextureView* depth_stencil_view = texture.GetTextureView();
+void DX11GPUContext::ClearDepth(const DX11GPUTexture2D& texture, float value) {
+	const DX11GPUTextureView& depth_stencil_view = texture.GetTextureView();
 	ClearDepth(depth_stencil_view, value);
 }
 
-void DX11GPUContext::ClearDepth(const IGPUTextureView* depth_stencil_view, float value) {
-	const DX11GPUTextureView* dx11_depth_stencil_view = static_cast<const DX11GPUTextureView*>(depth_stencil_view);
+void DX11GPUContext::ClearDepth(const DX11GPUTextureView& depth_stencil_view, float value) {
+	AOE_ASSERT_MSG(depth_stencil_view.IsDepthStencilView(), "Texture view is not depth stencil view.");
 
-	AOE_ASSERT_MSG(dx11_depth_stencil_view->IsDepthStencilView(), "Texture view is not depth stencil view.");
-
-	ID3D11DepthStencilView* native = dx11_depth_stencil_view->GetDepthStencilView();
-	context_->ClearDepthStencilView(native, D3D11_CLEAR_DEPTH, value, 0.0f);
+	ID3D11DepthStencilView* native = depth_stencil_view.GetDepthStencilView();
+	context_->ClearDepthStencilView(native, D3D11_CLEAR_DEPTH, value, 0);
 }
 
 void DX11GPUContext::SetPrimitiveTopology(const GPUPrimitiveTopology topology) {

@@ -1,19 +1,68 @@
 #pragma once
 
-#include "IGPUSampler.h"
+#include "GPUEnums.h"
 #include "DX11GPUDevice.h"
 
 namespace aoe {
 
-class DX11GPUSampler : public IGPUSampler {
-public:
-	void* GetNative() const override;
-	const GPUSamplerDescription& GetDescription() const override;
+struct GPUSamplerDescription {
+	GPUSamplerFilter filter;
+	GPUSamplerAddressMode address_u;
+	GPUSamplerAddressMode address_v;
+	GPUSamplerAddressMode address_w;
+	GPUSamplerComparsionFunction comparsion_function;
+	GPUSamplerBorderColor border_color;
+	float mip_bias;
+	float min_mip_level;
+	float max_mip_level;
+	uint32_t max_anisotropy;
 
-	DX11GPUSampler(const DX11GPUDevice& device, const GPUSamplerDescription& description);
+	GPUSamplerDescription(
+		GPUSamplerFilter filter,
+		GPUSamplerAddressMode address_u,
+		GPUSamplerAddressMode address_v,
+		GPUSamplerAddressMode address_w,
+		GPUSamplerComparsionFunction comparsion_function,
+		GPUSamplerBorderColor border_color,
+		float mip_bias,
+		float min_mip_level,
+		float max_mip_level,
+		uint32_t max_anisotropy
+	)
+		: filter(filter)
+		, address_u(address_u)
+		, address_v(address_v)
+		, address_w(address_w)
+		, comparsion_function(comparsion_function)
+		, border_color(border_color)
+		, mip_bias(mip_bias)
+		, min_mip_level(min_mip_level)
+		, max_mip_level(max_mip_level)
+		, max_anisotropy(max_anisotropy)
+	{}
+
+	GPUSamplerDescription()
+		: filter(GPUSamplerFilter::kPoint)
+		, address_u(GPUSamplerAddressMode::kWrap)
+		, address_v(GPUSamplerAddressMode::kWrap)
+		, address_w(GPUSamplerAddressMode::kWrap)
+		, comparsion_function(GPUSamplerComparsionFunction::kNever)
+		, border_color(GPUSamplerBorderColor::kOpaqueBlack)
+		, mip_bias(0)
+		, min_mip_level(0)
+		, max_mip_level(0)
+		, max_anisotropy(0)
+	{}
+};
+
+class DX11GPUSampler {
+public:
+	ID3D11SamplerState* GetNative() const;
+	const GPUSamplerDescription& GetDescription() const;
+
+	DX11GPUSampler(const GPUSamplerDescription& description);
 
 private:
-	const DX11GPUDevice& device_;
 	GPUSamplerDescription description_;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler_;
 

@@ -3,11 +3,12 @@
 #include <wrl/client.h>
 
 #include "DX11Headers.h"
-#include "IGPUTextureView.h"
 
 namespace aoe {
 
-class DX11GPUTextureView : public IGPUTextureView {
+class DX11GPUTexture2D;
+
+class DX11GPUTextureView {
 public:
 	bool IsShaderResourceView() const {
 		return GetShaderResourceView() != nullptr;
@@ -41,7 +42,7 @@ public:
 		return unordered_access_view_.Get();
 	}
 
-	DX11GPUTextureView(IGPUTexture2D* texture)
+	DX11GPUTextureView(DX11GPUTexture2D* texture)
 		: texture_(texture)
 		, shader_resource_view_(nullptr)
 		, depth_stencil_view_(nullptr)
@@ -49,11 +50,11 @@ public:
 		, unordered_access_view_(nullptr)
 	{}
 
-	IGPUTexture2D* GetTexture() const override {
+	DX11GPUTexture2D* GetTexture() const {
 		return texture_;
 	}
 
-	void Attach(IGPUTexture2D* texture) {
+	void Attach(DX11GPUTexture2D* texture) {
 		texture_ = texture;
 	}
 
@@ -74,7 +75,7 @@ public:
 	}
 
 private:
-	IGPUTexture2D* texture_;
+	DX11GPUTexture2D* texture_;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shader_resource_view_;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depth_stencil_view_;

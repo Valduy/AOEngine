@@ -9,11 +9,10 @@ ID3D11PixelShader* aoe::DX11GPUPixelShader::GetNative() const {
 	return pixel_shader_.Get();
 }
 
-DX11GPUPixelShader::DX11GPUPixelShader(const DX11GPUDevice& device, const DX11GPUByteCode& byte_code)
-	: device_(device)
-	, pixel_shader_(nullptr)
+DX11GPUPixelShader::DX11GPUPixelShader(const DX11GPUByteCode& byte_code)
+	: pixel_shader_(nullptr)
 {
-	const HRESULT hr = device_.GetNative()->CreatePixelShader(
+	const HRESULT hr = DX11GPUDevice::Instance()->GetNative()->CreatePixelShader(
 		byte_code.GetBufferPointer(),
 		byte_code.GetBufferSize(),
 		nullptr,

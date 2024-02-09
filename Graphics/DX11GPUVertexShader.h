@@ -1,5 +1,9 @@
 #pragma once
 
+#include <d3dcompiler.h>
+
+#include <vector>
+
 #include "DX11GPUDevice.h"
 #include "DX11GPUByteCode.h"
 
@@ -10,10 +14,9 @@ public:
 	ID3D11VertexShader* GetNative() const;
 	ID3D11InputLayout* GetInputLayout() const;
 
-	DX11GPUVertexShader(const DX11GPUDevice& device, const DX11GPUByteCode& byte_code);
+	DX11GPUVertexShader(const DX11GPUByteCode& byte_code);
 
 private:
-	const DX11GPUDevice& device_;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertex_shader_;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> input_layout_;
 

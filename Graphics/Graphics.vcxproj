@@ -157,14 +157,6 @@
     <ClInclude Include="GPUEnums.h" />
     <ClInclude Include="DX11GPUBuffer.h" />
     <ClInclude Include="DX11GPUVertexShader.h" />
-    <ClInclude Include="IGPUBuffer.h" />
-    <ClInclude Include="IGPUDepthState.h" />
-    <ClInclude Include="IGPUDevice.h" />
-    <ClInclude Include="IGPURasterizerState.h" />
-    <ClInclude Include="IGPUSampler.h" />
-    <ClInclude Include="IGPUSwapChain.h" />
-    <ClInclude Include="IGPUTexture2D.h" />
-    <ClInclude Include="IGPUTextureView.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="GPUPixelFormat.h" />
     <ClInclude Include="Viewport.h" />

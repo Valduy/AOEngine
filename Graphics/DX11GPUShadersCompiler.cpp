@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "../Core/Logger.h"
+
 #include "DX11GPUShadersCompiler.h"
 
 namespace aoe {

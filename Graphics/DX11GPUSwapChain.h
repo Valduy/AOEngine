@@ -2,25 +2,25 @@
 
 #include <cstdint>
 
-#include "IGPUSwapChain.h"
+#include "../Application/Window.h"
+
 #include "DX11GPUDevice.h"
 #include "DX11GPUTexture2D.h"
 
 namespace aoe {
 
-class DX11GPUSwapChain : public IGPUSwapChain {
+class DX11GPUSwapChain {
 public:
-	void* GetNative() const override;
-	const IGPUTextureView* GetRenderTargetView() const override;
+	IDXGISwapChain* GetNative() const;
+	const DX11GPUTextureView& GetRenderTargetView() const;
 
-	DX11GPUSwapChain(const DX11GPUDevice& device, const Window& window);
-	~DX11GPUSwapChain() override;
+	DX11GPUSwapChain(const Window& window);
+	~DX11GPUSwapChain();
 
-	bool Resize(size_t width, size_t height) override;
-	void Present() override;
+	bool Resize(uint32_t width, uint32_t height);
+	void Present();
 
 private:
-	const DX11GPUDevice& device_;
 	const Window& window_;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory> dxgi_factory_;

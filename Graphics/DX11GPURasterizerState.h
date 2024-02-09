@@ -1,19 +1,33 @@
 #pragma once
 
-#include "IGPURasterizerState.h"
+#include "GPUEnums.h"
 #include "DX11GPUDevice.h"
 
 namespace aoe {
 
-class DX11GPURasterizerState : public IGPURasterizerState {
-public:
-	void* GetNative() const override;
-	const GPURasterizerStateDescription& GetDescription() const override;
+struct GPURasterizerStateDescription {
+	GPUCullMode cull_mode;
+	GPUFillMode fill_mode;
 
-	DX11GPURasterizerState(const DX11GPUDevice& device, const GPURasterizerStateDescription& description);
+	GPURasterizerStateDescription(GPUCullMode cull_mode, GPUFillMode fill_mode)
+		: cull_mode(cull_mode)
+		, fill_mode(fill_mode)
+	{}
+
+	GPURasterizerStateDescription()
+		: cull_mode(GPUCullMode::kBack)
+		, fill_mode(GPUFillMode::kSolid)
+	{}
+};
+
+class DX11GPURasterizerState {
+public:
+	ID3D11RasterizerState* GetNative() const;
+	const GPURasterizerStateDescription& GetDescription() const;
+
+	DX11GPURasterizerState(const GPURasterizerStateDescription& description);
 
 private:
-	const DX11GPUDevice& device_;
 	GPURasterizerStateDescription description_;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizer_state_;
 

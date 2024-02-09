@@ -13,14 +13,13 @@ ID3D11InputLayout* DX11GPUVertexShader::GetInputLayout() const {
 	return input_layout_.Get();
 }
 
-DX11GPUVertexShader::DX11GPUVertexShader(const DX11GPUDevice& device, const DX11GPUByteCode& byte_code)
-	: device_(device)
-	, vertex_shader_(nullptr)
+DX11GPUVertexShader::DX11GPUVertexShader(const DX11GPUByteCode& byte_code)
+	: vertex_shader_(nullptr)
 	, input_layout_(nullptr)
 {
 	HRESULT hr = S_OK;
 
-	hr = device_.GetNative()->CreateVertexShader(
+	hr = DX11GPUDevice::Instance()->GetNative()->CreateVertexShader(
 		byte_code.GetBufferPointer(),
 		byte_code.GetBufferSize(),
 		nullptr,
@@ -30,9 +29,9 @@ DX11GPUVertexShader::DX11GPUVertexShader(const DX11GPUDevice& device, const DX11
 
     std::vector<D3D11_INPUT_ELEMENT_DESC> layout_desc = CreateInputLayoutDescriptor(byte_code.GetNative());
 
-	hr = device_.GetNative()->CreateInputLayout(
+	hr = DX11GPUDevice::Instance()->GetNative()->CreateInputLayout(
         layout_desc.data(),
-		layout_desc.size(),
+		static_cast<uint32_t>(layout_desc.size()),
 		byte_code.GetBufferPointer(),
 		byte_code.GetBufferSize(),
 		input_layout_.GetAddressOf());
@@ -56,7 +55,7 @@ std::vector<D3D11_INPUT_ELEMENT_DESC> DX11GPUVertexShader::CreateInputLayoutDesc
 
     std::vector<D3D11_INPUT_ELEMENT_DESC> input_layout_desc(shader_desc.InputParameters);
 
-    for (size_t i = 0; i < shader_desc.InputParameters; ++i) {
+    for (uint32_t i = 0; i < shader_desc.InputParameters; ++i) {
         D3D11_SIGNATURE_PARAMETER_DESC param_desc;
         shader_reflection->GetInputParameterDesc(i, &param_desc);
 

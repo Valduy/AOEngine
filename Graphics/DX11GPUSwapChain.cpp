@@ -7,17 +7,16 @@
 
 namespace aoe {
 
-void* DX11GPUSwapChain::GetNative() const {
+IDXGISwapChain* DX11GPUSwapChain::GetNative() const {
 	return swap_chain_.Get();
 }
 
-const IGPUTextureView* DX11GPUSwapChain::GetRenderTargetView() const {
+const DX11GPUTextureView& DX11GPUSwapChain::GetRenderTargetView() const {
 	return back_buffer_->GetTextureView();
 }
 
-DX11GPUSwapChain::DX11GPUSwapChain(const DX11GPUDevice& device, const Window& window)
-	: device_(device)
-	, window_(window)
+DX11GPUSwapChain::DX11GPUSwapChain(const Window& window)
+	: window_(window)
 	, dxgi_factory_(nullptr)
 	, swap_chain_(nullptr)
 	, back_buffer_(nullptr)
@@ -44,20 +43,20 @@ DX11GPUSwapChain::DX11GPUSwapChain(const DX11GPUDevice& device, const Window& wi
 	hr = CreateDXGIFactory(IID_PPV_ARGS(dxgi_factory_.GetAddressOf()));
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create DXGI factory.");
 
-	hr = dxgi_factory_->CreateSwapChain(device_.GetNative(), &swap_chain_desc, swap_chain_.GetAddressOf());
+	hr = dxgi_factory_->CreateSwapChain(DX11GPUDevice::Instance()->GetNative(), &swap_chain_desc, swap_chain_.GetAddressOf());
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create swap chain.");
 
 	ID3D11Texture2D* texture;
 	hr = swap_chain_->GetBuffer(0, IID_ID3D11Texture2D, reinterpret_cast<void**>(&texture));
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to get back buffer.");
-	back_buffer_ = new DX11GPUTexture2D(device, texture);
+	back_buffer_ = new DX11GPUTexture2D(texture);
 }
 
 DX11GPUSwapChain::~DX11GPUSwapChain() {
 	delete back_buffer_;
 }
 
-bool DX11GPUSwapChain::Resize(size_t width, size_t height) {
+bool DX11GPUSwapChain::Resize(uint32_t width, uint32_t height) {
 	AOE_ASSERT(swap_chain_ != nullptr);
 
 	if (width_ == width && height_ == height) {
@@ -65,6 +64,7 @@ bool DX11GPUSwapChain::Resize(size_t width, size_t height) {
 	}
 
 	// TODO: implement resize logic
+	return true;
 }
 
 void DX11GPUSwapChain::Present() {
