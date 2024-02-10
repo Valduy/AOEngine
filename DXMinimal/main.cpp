@@ -11,7 +11,7 @@
 #include "../Graphics/DX11GPUShadersCompiler.h"
 #include "../Graphics/DX11GPUSampler.h"
 
-#include "xdata.h"
+#include "Resources.h"
 
 struct Vector { float x, y, z; };
 struct Matrix { float m[4][4]; };
@@ -82,7 +82,7 @@ public:
     void Terminate() override {};
 
     void PerTickUpdate(float dt) override {
-        float background_color[4] = { 1.01f, 0.01f, 0.01f, 1.0f };
+        float background_color[4] = { 0.15f, 0.15f, 0.15f, 1.0f };
         
         auto context = aoe::DX11GPUDevice::Instance()->GetContext();
         context.ClearState();
