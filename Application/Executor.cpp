@@ -10,6 +10,7 @@ Executor::Executor(IScene& scene)
 	, lag_(0.0f)
 {
 	scene_.Initialize();
+	ResetDeltaTime();
 }
 
 Executor::~Executor() {
