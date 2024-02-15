@@ -12,16 +12,15 @@ Application::Application(const std::wstring& window_name, int32_t width, int32_t
 	: hinstance_(GetModuleHandle(nullptr))
 	, window_(hinstance_, window_name, width, height)
 	, is_stoping_(false)
-{}
+{
+	window_.Show();
+}
 
-void Application::Start(IGame& game) {
+void Application::Start(IScene& scene) {
 	MSG msg = {};
-	Executor executor(game);
+	Executor executor(scene);
 
 	is_stoping_ = false;
-	window_.Show();
-	executor.Initialize();
-	executor.ResetDeltaTime();
 
 	while (!is_stoping_) {
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -35,8 +34,6 @@ void Application::Start(IGame& game) {
 
 		executor.Tick();
 	}
-
-	executor.Terminate();
 }
 
 void Application::Stop() {

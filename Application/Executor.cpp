@@ -1,20 +1,19 @@
 #include "pch.h"
+
 #include "Executor.h"
 
 namespace aoe {
 
-Executor::Executor(IGame& game)
-	: game_(game)
+Executor::Executor(IScene& scene)
+	: scene_(scene)
 	, timestamp_(clock::now())
 	, lag_(0.0f)
-{}
-
-void Executor::Initialize() {
-	game_.Initialize();
+{
+	scene_.Initialize();
 }
 
-void Executor::Terminate() {
-	game_.Terminate();
+Executor::~Executor() {
+	scene_.Terminate();
 }
 
 void Executor::ResetDeltaTime() {
@@ -34,7 +33,7 @@ void Executor::Tick() {
 
 	while (lag_ >= kFrameSec) {
 		lag_ -= kFrameSec;
-		game_.PerFrameUpdate(kFrameSec);
+		scene_.PerFrameUpdate(kFrameSec);
 		compinsations += 1;
 
 		if (compinsations >= kLagCompinsationLimitation) {
@@ -44,7 +43,7 @@ void Executor::Tick() {
 		}
 	}
 
-	game_.PerTickUpdate(dt);
+	scene_.PerTickUpdate(dt);
 }
 
 } // namespace aoe

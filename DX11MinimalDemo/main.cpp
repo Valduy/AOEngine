@@ -1,8 +1,4 @@
-#include <windows.h>
-#include <math.h>
-
-#include "mathfu/hlsl_mappings.h"
-
+#include "../Core/Math.h"
 #include "../Application/Application.h"
 #include "../Graphics/DX11GPUDevice.h"
 #include "../Graphics/DX11GPUContext.h"
@@ -16,9 +12,9 @@
 #include "Resources.h"
 
 struct Constants {
-    mathfu::float4x4 transform;
-    mathfu::float4x4 projection;
-    mathfu::float3 light_vector;
+    aoe::Matrix4 transform;
+    aoe::Matrix4 projection;
+    aoe::Vector3 light_vector;
     float dummy;
 };
 
@@ -57,9 +53,9 @@ static const aoe::GPUTexture2DDescription kTextureDesc = {
     aoe::GPUTextureFlags::kShaderResource,
 };
 
-class MyGame : public aoe::IGame {
+class DX11MinimalScene : public aoe::IScene {
 public:
-    MyGame(const aoe::Window& window)
+    DX11MinimalScene(const aoe::Window& window)
         : window_(window)
         , swap_chain_(window)
         , depth_stencil_buffer_(aoe::GPUTexture2DDescription::DepthStencilBuffer(window_.GetWidth(), window_.GetHeight()))
@@ -115,10 +111,10 @@ public:
         const float aspect = viewport_.width / viewport_.height;
         auto context = aoe::DX11GPUDevice::Instance()->GetContext();
 
-        mathfu::float4x4 model = mathfu::float4x4::Identity();
-        model *= mathfu::float4x4::FromTranslationVector(translation_);
-        model *= mathfu::Quaternion<float>::FromEulerAngles(rotation_).ToMatrix4();
-        model *= mathfu::float4x4::FromScaleVector(scale_);
+        aoe::Matrix4 model = aoe::Matrix4::Identity();
+        model *= aoe::Matrix4::FromTranslationVector(translation_);
+        model *= aoe::Quaternion::FromEulerAngles(rotation_).ToMatrix4();
+        model *= aoe::Matrix4::FromScaleVector(scale_);
 
         rotation_.x += 0.5f * dt;
         rotation_.y += 0.9f * dt;
@@ -129,7 +125,7 @@ public:
         const float far_plain = 10.0f;
         const float handedness = -1.0f;
 
-        mathfu::float4x4 projection = mathfu::float4x4::Perspective(
+        aoe::Matrix4 projection = aoe::Matrix4::Perspective(
             fov, aspect, near_plain, far_plain, handedness);
 
         Constants constants{};
@@ -160,9 +156,9 @@ private:
 
     aoe::Viewport viewport_;
 
-    mathfu::float3 rotation_ = { 0.0f, 0.0f, 0.0f };
-    mathfu::float3 scale_ = { 1.0f, 1.0f, 1.0f };
-    mathfu::float3 translation_ = { 0.0f, 0.0f, 4.0f };
+    aoe::Vector3 rotation_ = { 0.0f, 0.0f, 0.0f };
+    aoe::Vector3 scale_ = { 1.0f, 1.0f, 1.0f };
+    aoe::Vector3 translation_ = { 0.0f, 0.0f, 4.0f };
 
     aoe::Viewport GetViewport() {
         const float width = static_cast<float>(window_.GetWidth());
@@ -175,8 +171,8 @@ private:
 int main() {
     aoe::Application application(L"Game", 800, 600);
 
-    MyGame game(application.GetWindow());
-    application.Start(game);
+    DX11MinimalScene scene(application.GetWindow());
+    application.Start(scene);
 
     return 0;
 }

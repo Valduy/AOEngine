@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-#include "IGame.h"
+#include "IScene.h"
 
 namespace aoe {
 
@@ -11,10 +11,9 @@ public:
 	static constexpr int32_t kFps = 60; // TODO: move outside
 	static constexpr float kFrameSec = 1.0f / kFps;
 
-	Executor(IGame& game);
+	Executor(IScene& scene);
+	~Executor();
 
-	void Initialize();
-	void Terminate();
 	void ResetDeltaTime();
 	void Tick();
 
@@ -24,7 +23,7 @@ private:
 
 	static const size_t kLagCompinsationLimitation = 3;
 
-	IGame& game_;
+	IScene& scene_;
 	time_point timestamp_;
 	float lag_;
 };

@@ -13,7 +13,7 @@ public:
 
 	Application(const std::wstring& window_name, int32_t width, int32_t height);
 
-	void Start(IGame& game);
+	void Start(IScene& game);
 	void Stop();
 
 private:
