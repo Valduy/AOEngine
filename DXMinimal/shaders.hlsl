@@ -1,8 +1,8 @@
 cbuffer constants : register(b0)
 {
-    row_major float4x4 transform;
-    row_major float4x4 projection;
-              float3   lightvector;
+    float4x4 transform;
+    float4x4 projection;
+    float3   lightvector;
 }
 
 struct vs_in

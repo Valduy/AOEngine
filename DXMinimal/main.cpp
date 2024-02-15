@@ -1,6 +1,8 @@
 #include <windows.h>
 #include <math.h>
 
+#include "mathfu/hlsl_mappings.h"
+
 #include "../Application/Application.h"
 #include "../Graphics/DX11GPUDevice.h"
 #include "../Graphics/DX11GPUContext.h"
@@ -13,15 +15,10 @@
 
 #include "Resources.h"
 
-struct Vector { float x, y, z; };
-struct Matrix { float m[4][4]; };
-
-Matrix operator*(const Matrix& m1, const Matrix& m2);
-
 struct Constants {
-    Matrix transform;
-    Matrix projection;
-    Vector light_vector;
+    mathfu::float4x4 transform;
+    mathfu::float4x4 projection;
+    mathfu::float3 light_vector;
     float dummy;
 };
 
@@ -72,7 +69,7 @@ public:
         , index_buffer_(aoe::DX11GPUBuffer::Create<int32_t>(kIndexBufferDesc, kIndexData, ARRAYSIZE(kIndexData)))
         , constant_buffer_(aoe::DX11GPUBuffer::Create<Constants>(kConstBufferDesc))
         , vertex_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kVertex, L"shaders.hlsl", "vs_main"}))
-        , pixel_shader_( aoe::DX11GPUShadersCompiler::CompileShader({ aoe::GPUShaderType::kPixel, L"shaders.hlsl", "ps_main"}))
+        , pixel_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kPixel, L"shaders.hlsl", "ps_main"}))
         , sampler_(kSamplerDesc)
         , texture_(aoe::DX11GPUTexture2D::Create<uint32_t>(kTextureDesc, kTextureData))
     {}
@@ -118,20 +115,26 @@ public:
         const float aspect = viewport_.width / viewport_.height;
         auto context = aoe::DX11GPUDevice::Instance()->GetContext();
 
-        Matrix rotate_x = RotationX(model_rotation_.x);
-        Matrix rotate_y = RotationY(model_rotation_.y);
-        Matrix rotate_z = RotationZ(model_rotation_.z);
-        Matrix scale = Scale(model_scale_);
-        Matrix translate = Translate(model_translation_);
-        Matrix transform = rotate_x * rotate_y * rotate_z * scale * translate;
+        mathfu::float4x4 model = mathfu::float4x4::Identity();
+        model *= mathfu::float4x4::FromTranslationVector(translation_);
+        model *= mathfu::Quaternion<float>::FromEulerAngles(rotation_).ToMatrix4();
+        model *= mathfu::float4x4::FromScaleVector(scale_);
 
-        model_rotation_.x += 0.5f * dt;
-        model_rotation_.y += 0.9f * dt;
-        model_rotation_.z += 0.1f * dt;
+        rotation_.x += 0.5f * dt;
+        rotation_.y += 0.9f * dt;
+        rotation_.z += 0.1f * dt;
+
+        const float fov = M_PI / 3;
+        const float near_plain = 0.1f;
+        const float far_plain = 10.0f;
+        const float handedness = -1.0f;
+
+        mathfu::float4x4 projection = mathfu::float4x4::Perspective(
+            fov, aspect, near_plain, far_plain, handedness);
 
         Constants constants{};
-        constants.transform = transform;
-        constants.projection = Projection(aspect, 1.0f, 9.0f);
+        constants.transform = model.Transpose();
+        constants.projection = projection.Transpose();
         constants.light_vector = { 1.0f, -1.0f, 1.0f };
         context.UpdateBuffer<Constants>(constant_buffer_, &constants, 1);
     };
@@ -157,171 +160,9 @@ private:
 
     aoe::Viewport viewport_;
 
-    Vector model_rotation_ = { 0.0f, 0.0f, 0.0f };
-    Vector model_scale_ = { 1.0f, 1.0f, 1.0f };
-    Vector model_translation_ = { 0.0f, 0.0f, 4.0f };
-
-    static Matrix RotationX(float angle) {
-        Matrix result;
-        const float cosa = static_cast<float>(cos(angle));
-        const float sina = static_cast<float>(sin(angle));
-        
-        result.m[0][0] = 1;
-        result.m[0][1] = 0;
-        result.m[0][2] = 0;
-        result.m[0][3] = 0;
-
-        result.m[1][0] = 0;
-        result.m[1][1] = cosa;
-        result.m[1][2] = -sina;
-        result.m[1][3] = 0;
-
-        result.m[2][0] = 0;
-        result.m[2][1] = sina;
-        result.m[2][2] = cosa;
-        result.m[2][3] = 0;
-
-        result.m[3][0] = 0;
-        result.m[3][1] = 0;
-        result.m[3][2] = 0;
-        result.m[3][3] = 1;
-
-        return result;
-    }
-
-    static Matrix RotationY(float angle) {
-        Matrix result;
-        const float cosa = static_cast<float>(cos(angle));
-        const float sina = static_cast<float>(sin(angle));
-
-        result.m[0][0] = cosa;
-        result.m[0][1] = 0;
-        result.m[0][2] = sina;
-        result.m[0][3] = 0;
-
-        result.m[1][0] = 0;
-        result.m[1][1] = 1;
-        result.m[1][2] = 0;
-        result.m[1][3] = 0;
-
-        result.m[2][0] = -sina;
-        result.m[2][1] = 0;
-        result.m[2][2] = cosa;
-        result.m[2][3] = 0;
-
-        result.m[3][0] = 0;
-        result.m[3][1] = 0;
-        result.m[3][2] = 0;
-        result.m[3][3] = 1;
-
-        return result;
-    }
-
-    static Matrix RotationZ(float angle) {
-        Matrix result;
-        const float cosa = static_cast<float>(cos(angle));
-        const float sina = static_cast<float>(sin(angle));
-
-        result.m[0][0] = cosa;
-        result.m[0][1] = -sina;
-        result.m[0][2] = 0;
-        result.m[0][3] = 0;
-
-        result.m[1][0] = sina;
-        result.m[1][1] = cosa;
-        result.m[1][2] = 0;
-        result.m[1][3] = 0;
-
-        result.m[2][0] = 0;
-        result.m[2][1] = 0;
-        result.m[2][2] = 1;
-        result.m[2][3] = 0;
-
-        result.m[3][0] = 0;
-        result.m[3][1] = 0;
-        result.m[3][2] = 0;
-        result.m[3][3] = 1;
-
-        return result;
-    }
-
-    const Matrix Scale(const Vector& scale) {
-        Matrix result;
-
-        result.m[0][0] = scale.x;
-        result.m[0][1] = 0;
-        result.m[0][2] = 0;
-        result.m[0][3] = 0;
-
-        result.m[1][0] = 0;
-        result.m[1][1] = scale.y;
-        result.m[1][2] = 0;
-        result.m[1][3] = 0;
-
-        result.m[2][0] = 0;
-        result.m[2][1] = 0;
-        result.m[2][2] = scale.z;
-        result.m[2][3] = 0;
-
-        result.m[3][0] = 0;
-        result.m[3][1] = 0;
-        result.m[3][2] = 0;
-        result.m[3][3] = 1;
-
-        return result;
-    }
-
-    static Matrix Translate(const Vector& translation) {
-        Matrix result;
-
-        result.m[0][0] = 1;
-        result.m[0][1] = 0;
-        result.m[0][2] = 0;
-        result.m[0][3] = 0;
-
-        result.m[1][0] = 0;
-        result.m[1][1] = 1;
-        result.m[1][2] = 0;
-        result.m[1][3] = 0;
-
-        result.m[2][0] = 0;
-        result.m[2][1] = 0;
-        result.m[2][2] = 1;
-        result.m[2][3] = 0;
-
-        result.m[3][0] = translation.x;
-        result.m[3][1] = translation.y;
-        result.m[3][2] = translation.z;
-        result.m[3][3] = 1;
-
-        return result;
-    }
-
-    static Matrix Projection(float aspect, float near_plain, float far_plain) {
-        Matrix result;
-
-        result.m[0][0] = 2 * near_plain / aspect;
-        result.m[0][1] = 0;
-        result.m[0][2] = 0;
-        result.m[0][3] = 0;
-
-        result.m[1][0] = 0;
-        result.m[1][1] = 2 * near_plain;
-        result.m[1][2] = 0;
-        result.m[1][3] = 0;
-
-        result.m[2][0] = 0;
-        result.m[2][1] = 0;
-        result.m[2][2] = far_plain / (far_plain - near_plain);
-        result.m[2][3] = 1;
-
-        result.m[3][0] = 0;
-        result.m[3][1] = 0;
-        result.m[3][2] = near_plain * far_plain / (near_plain - far_plain);
-        result.m[3][3] = 0;
-
-        return result;
-    }
+    mathfu::float3 rotation_ = { 0.0f, 0.0f, 0.0f };
+    mathfu::float3 scale_ = { 1.0f, 1.0f, 1.0f };
+    mathfu::float3 translation_ = { 0.0f, 0.0f, 4.0f };
 
     aoe::Viewport GetViewport() {
         const float width = static_cast<float>(window_.GetWidth());
@@ -338,27 +179,4 @@ int main() {
     application.Start(game);
 
     return 0;
-}
-
-Matrix operator*(const Matrix& m1, const Matrix& m2)
-{
-    return
-    {
-        m1.m[0][0] * m2.m[0][0] + m1.m[0][1] * m2.m[1][0] + m1.m[0][2] * m2.m[2][0] + m1.m[0][3] * m2.m[3][0],
-        m1.m[0][0] * m2.m[0][1] + m1.m[0][1] * m2.m[1][1] + m1.m[0][2] * m2.m[2][1] + m1.m[0][3] * m2.m[3][1],
-        m1.m[0][0] * m2.m[0][2] + m1.m[0][1] * m2.m[1][2] + m1.m[0][2] * m2.m[2][2] + m1.m[0][3] * m2.m[3][2],
-        m1.m[0][0] * m2.m[0][3] + m1.m[0][1] * m2.m[1][3] + m1.m[0][2] * m2.m[2][3] + m1.m[0][3] * m2.m[3][3],
-        m1.m[1][0] * m2.m[0][0] + m1.m[1][1] * m2.m[1][0] + m1.m[1][2] * m2.m[2][0] + m1.m[1][3] * m2.m[3][0],
-        m1.m[1][0] * m2.m[0][1] + m1.m[1][1] * m2.m[1][1] + m1.m[1][2] * m2.m[2][1] + m1.m[1][3] * m2.m[3][1],
-        m1.m[1][0] * m2.m[0][2] + m1.m[1][1] * m2.m[1][2] + m1.m[1][2] * m2.m[2][2] + m1.m[1][3] * m2.m[3][2],
-        m1.m[1][0] * m2.m[0][3] + m1.m[1][1] * m2.m[1][3] + m1.m[1][2] * m2.m[2][3] + m1.m[1][3] * m2.m[3][3],
-        m1.m[2][0] * m2.m[0][0] + m1.m[2][1] * m2.m[1][0] + m1.m[2][2] * m2.m[2][0] + m1.m[2][3] * m2.m[3][0],
-        m1.m[2][0] * m2.m[0][1] + m1.m[2][1] * m2.m[1][1] + m1.m[2][2] * m2.m[2][1] + m1.m[2][3] * m2.m[3][1],
-        m1.m[2][0] * m2.m[0][2] + m1.m[2][1] * m2.m[1][2] + m1.m[2][2] * m2.m[2][2] + m1.m[2][3] * m2.m[3][2],
-        m1.m[2][0] * m2.m[0][3] + m1.m[2][1] * m2.m[1][3] + m1.m[2][2] * m2.m[2][3] + m1.m[2][3] * m2.m[3][3],
-        m1.m[3][0] * m2.m[0][0] + m1.m[3][1] * m2.m[1][0] + m1.m[3][2] * m2.m[2][0] + m1.m[3][3] * m2.m[3][0],
-        m1.m[3][0] * m2.m[0][1] + m1.m[3][1] * m2.m[1][1] + m1.m[3][2] * m2.m[2][1] + m1.m[3][3] * m2.m[3][1],
-        m1.m[3][0] * m2.m[0][2] + m1.m[3][1] * m2.m[1][2] + m1.m[3][2] * m2.m[2][2] + m1.m[3][3] * m2.m[3][2],
-        m1.m[3][0] * m2.m[0][3] + m1.m[3][1] * m2.m[1][3] + m1.m[3][2] * m2.m[2][3] + m1.m[3][3] * m2.m[3][3],
-    };
 }
