@@ -1,48 +1,29 @@
 #include <iostream>
 
-#include "../Application/Application.h"
-#include "../Core/Logger.h"
-#include "../Core/Debug.h"
+#include "../Core/Event.h"
 
-class TestGame : public aoe::IGame {
+class Subject {
 public:
-	TestGame(const aoe::Window& window)
-		: window_(window)
-	{}
+	aoe::Event<Subject> ActionHappened;
 
-	void Initialize() override {}
-	
-	void Terminate() override {}
-	
-	void PerTickUpdate(float dt) override {
-		perTickSum += dt;
+	void Foo() {
+		ActionHappened.Notify();
 	}
+};
 
-	void PerFrameUpdate(float dt) override {
-		perFrameSum += dt;
-
-		if (perFrameSum >= 1.0f) {
-			AOE_LOG_INFO("Another one second");
-			AOE_LOG_INFO("PerTickSum: {}", perTickSum);
-			AOE_LOG_INFO("PerFrameSum: {}", perFrameSum);
-
-			perTickSum = 0;
-			perFrameSum = 0;
-		}
+class Observer {
+public:
+	void Bar() {
+		std::cout << "Bar" << std::endl;
 	}
-
-private:
-	const aoe::Window& window_;
-	
-	float perTickSum = 0;
-	float perFrameSum = 0;
 };
 
 int main() {
-	aoe::Application application(L"Game", 800, 600);
+	Subject subject;
+	Observer observer;
 
-	TestGame game(application.GetWindow());
-	application.Start(game);
+	subject.ActionHappened.Attach(observer, &Observer::Bar);
+	subject.Foo();
 
 	return 0;
 }

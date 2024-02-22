@@ -8,6 +8,14 @@ class Entity {
 public:
 	static const Version kInitialVersion = 0;
 
+	static Entity Null() {
+		return { kNullVersion, kNullEntity };
+	}
+
+	bool IsNull() const {
+		return version_ == kNullVersion && id_ == kNullEntity;
+	}
+
 	Version GetVersion() const {
 		return version_;
 	}

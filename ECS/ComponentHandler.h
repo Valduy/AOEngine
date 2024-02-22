@@ -33,7 +33,7 @@ public:
 	TComponent* Get() const {
 		AOE_ASSERT_MSG(pool_ != nullptr, "Handler is invalid.");
 		TComponent* component = pool_->Get(entity_id_);
-		AOE_ASSERT_MSG(component != nullptr, "Handler is invalid.");
+		AOE_ASSERT_MSG(component != nullptr, "Entity doesn't have a required component.");
 		return component;
 	}
 

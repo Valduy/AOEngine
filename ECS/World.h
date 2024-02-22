@@ -13,7 +13,7 @@ namespace aoe {
 
 class World {
 public:
-	bool IsValid(Entity entity) {
+	bool IsValid(Entity entity) const {
 		AOE_ASSERT_MSG(entity.GetId() >= 0, "Invalid entity.");
 
 		if (entity.GetId() >= sparse_.size()) {
@@ -49,7 +49,7 @@ public:
 	}
 
 	template<typename TComponent>
-	bool Has(Entity entity) {
+	bool Has(Entity entity) const {
 		AssertEntityIsValid(entity);
 		Pool<TComponent>* pool = GetPool<TComponent>();
 
@@ -73,7 +73,7 @@ public:
 	}
 
 	template<typename TComponent>
-	ComponentHandler<TComponent> Get(Entity entity) {
+	ComponentHandler<TComponent> Get(Entity entity) const {
 		AssertEntityIsValid(entity);
 		Pool<TComponent>* pool = GetPool<TComponent>();
 		return { pool, entity.GetId() };
@@ -137,12 +137,12 @@ private:
 
 	Lookup bound_ = 0;
 
-	void AssertEntityIsValid(Entity entity) {
+	void AssertEntityIsValid(Entity entity) const {
 		AOE_ASSERT_MSG(IsValid(entity), "Invalid entity.");
 	}
 
 	template<typename TComponent>
-	Pool<TComponent>* GetPool() {
+	Pool<TComponent>* GetPool() const {
 		TypeId type_id = aoe::Identifier::GetTypeId<TComponent>();
 		auto it = pools_.find(type_id);
 

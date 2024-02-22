@@ -147,9 +147,13 @@
   <ItemGroup>
     <ClInclude Include="ClassHelper.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="Delegate.h" />
     <ClInclude Include="EnumHelper.h" />
+    <ClInclude Include="Event.h" />
+    <ClInclude Include="EventHandler.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Identifier.h" />
+    <ClInclude Include="IEventHandler.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="pch.h" />
