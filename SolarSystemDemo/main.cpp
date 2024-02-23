@@ -1,7 +1,9 @@
-#include "../Core/Math.h"
-#include "../Application/Application.h"
-#include "../ECS/World.h"
 #include <functional>
+
+#include "../Application/Application.h"
+
+#include "../Core/Math.h"
+#include "../ECS/World.h"
 
 class TransformComponent {
 public:
@@ -14,6 +16,7 @@ template<typename TComponent>
 class Relationeer {
 public:
 	class Relations {
+	private:
 		friend class Relationeer<TComponent>;
 
 	public:
@@ -118,31 +121,54 @@ private:
 	}
 };
 
-class TransformConvertor {
+class TransformUtils {
 public:
-	TransformConvertor(Relationeer<TransformComponent>& relationeer)
-		: relationeer_(relationeer)
-	{}
+	TransformUtils() = delete;
 
-	aoe::Vector3 GetGlobalPosition() const {
+	static aoe::Vector3 GetGlobalPosition(
+		aoe::World& world, 
+		Relationeer<TransformComponent>& relationeer, 
+		aoe::Entity entity) 
+	{
 		return {};
 	}
 
-	aoe::Quaternion GetGlobalRotation() const {
+	static aoe::Quaternion GetGlobalRotation(
+		aoe::World& world,
+		Relationeer<TransformComponent>& relationeer,
+		aoe::Entity entity)
+	{
 		return {};
 	}
-
-private:
-	Relationeer<TransformComponent>& relationeer_;
 };
 
 class SolarSystemScene : public aoe::IScene {
 public:
 	SolarSystemScene(const aoe::Window& window)
 		: window_(window)
+		, world_()
+		, relationeer_(world_)
 	{}
 
-	void Initialize() override {};
+	void Initialize() override {
+		world_.EntityCreated.Attach(*this, &SolarSystemScene::TestEntityCreated);
+		world_.EntityDestroyed.Attach(*this, &SolarSystemScene::TestEntityDestroyed);
+
+		aoe::Entity parent = world_.Create();
+		aoe::Entity child = world_.Create();
+
+		world_.Add<TransformComponent>(parent);
+		world_.Add<TransformComponent>(child);
+
+		relationeer_.SetParent(child, parent);
+		bool test0 = relationeer_.IsChildrenOf(child, parent);
+		bool test1 = relationeer_.IsChildrenOf(parent, child);
+
+		world_.Destroy(parent);
+		world_.Destroy(child);
+
+		world_.Validate();
+	};
 
 	void Terminate() override {};
 
@@ -152,39 +178,24 @@ public:
 
 private:
 	const aoe::Window& window_;
+
+	aoe::World world_;
+	Relationeer<TransformComponent> relationeer_;
+
+	void TestEntityCreated(aoe::Entity entity) {
+		int test = 0;
+	}
+
+	void TestEntityDestroyed(aoe::Entity entity) {
+		int test = 0;
+	}
 };
 
-int main() {
-	aoe::World world;
-	Relationeer<TransformComponent> relationeer(world);
-	
-	aoe::Entity parent = world.Create();
-	aoe::Entity child = world.Create();
+int main() {	
+	aoe::Application application(L"Game", 800, 600);
 
-	world.Add<TransformComponent>(parent);
-	world.Add<TransformComponent>(child);
-
-	relationeer.SetParent(child, parent);
-	bool test0 = relationeer.IsChildrenOf(child, parent);
-	bool test1 = relationeer.IsChildrenOf(parent, child);
-
-	auto lmbd0 = []() {
-		AOE_LOG_INFO("Some info");
-	};
-
-	auto lmbd1 = []() {
-		AOE_LOG_INFO("Other info");
-	};
-
-	auto lmbd2 = lmbd0;
-
-	bool test2 = lmbd0 == lmbd1;
-	bool test3 = lmbd0 == lmbd2;
-
-	//aoe::Application application(L"Game", 800, 600);
-
-	//SolarSystemScene scene(application.GetWindow());
-	//application.Start(scene);
+	SolarSystemScene scene(application.GetWindow());
+	application.Start(scene);
 
 	return 0;
 }

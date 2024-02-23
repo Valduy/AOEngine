@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "../Core/Event.h"
 #include "../Core/Debug.h"
 
 #include "IPool.h"
@@ -16,6 +17,9 @@ class Pool : public IPool {
 	using Lookup = std::int32_t;
 
 public:
+	Event<Pool, EntityId> ComponentAdded;
+	Event<Pool, EntityId> ComponentRemoved;
+
 	Pool()
 		: sparse_()
 		, dense_()
@@ -64,10 +68,13 @@ public:
 			sparse_[entity_id] = CreateComponent(entity_id, std::forward<TArgs>(args)...);
 		}
 		else {
+			ComponentRemoved.Notify(entity_id);
 			ComponentHolder& holder = dense_[lookup];
 			TComponent component(std::forward<TArgs>(args)...);
 			holder.data = std::move(component);
 		}
+
+		ComponentAdded.Notify(entity_id);
 	}
 
 	void Remove(EntityId entity_id) override {

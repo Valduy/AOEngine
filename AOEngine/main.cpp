@@ -4,17 +4,17 @@
 
 class Subject {
 public:
-	aoe::Event<Subject> ActionHappened;
+	aoe::Event<Subject,size_t> ActionHappened;
 
 	void Foo() {
-		ActionHappened.Notify();
+		ActionHappened.Notify(1);
 	}
 };
 
 class Observer {
 public:
-	void Bar() {
-		std::cout << "Bar" << std::endl;
+	void Bar(size_t num) {
+		std::cout << "Bar " << num << std::endl;
 	}
 };
 

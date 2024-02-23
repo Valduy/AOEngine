@@ -13,6 +13,9 @@ namespace aoe {
 
 class World {
 public:
+	Event<World, Entity> EntityCreated;
+	Event<World, Entity> EntityDestroyed;
+
 	bool IsValid(Entity entity) const {
 		AOE_ASSERT_MSG(entity.GetId() >= 0, "Invalid entity.");
 
@@ -30,16 +33,24 @@ public:
 	}
 
 	Entity Create() {
+		Entity entity = Entity::Null();
+
 		if (bound_ < dense_.size()) {
-			Entity entity = dense_[bound_];
+			entity = dense_[bound_];
 			bound_ += 1;
+
+			EntityCreated.Notify(entity);
 			return entity;
 		}
 
 		AOE_ASSERT_MSG(bound_ == dense_.size(), "Invalid bound.");
+
 		sparse_.push_back(bound_);
 		bound_ += 1;
-		return dense_.emplace_back(dense_.size());
+		entity = dense_.emplace_back(dense_.size());
+
+		EntityCreated.Notify(entity);
+		return entity;
 	}
 
 	void Destroy(Entity entity) {
@@ -94,6 +105,8 @@ public:
 			if (!IsValid(entity)) {
 				continue;
 			}
+
+			EntityDestroyed.Notify(entity);
 
 			bound_ -= 1;
 			Entity moved = dense_[bound_];

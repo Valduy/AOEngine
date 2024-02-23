@@ -9,7 +9,7 @@ class EventBase {
 public:
 	template<typename TObject>
 	bool Attach(TObject& object, Callback<TObject, TParams...> method) {
-		return delegate_.Attach<TObject, TParams...>(object, method);
+		return delegate_.Attach(object, method);
 	}
 
 	template<typename TObject>

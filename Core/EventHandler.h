@@ -11,9 +11,9 @@ using Callback = void(TObject::*)(TParams...);
 template<typename TObject, typename... TParams>
 class EventHandler : public IEventHandler<TParams...> {
 public:
-	using Callback = Callback<TObject, TParams...>;
+	using TMethod = Callback<TObject, TParams...>;
 
-	EventHandler(TObject& object, Callback method)
+	EventHandler(TObject& object, TMethod method)
 		: object_(object)
 		, method_(method)
 	{
@@ -36,7 +36,7 @@ private:
 	using BaseType = IEventHandler<TParams...>;
 
 	TObject& object_;
-	Callback method_;
+	TMethod method_;
 };
 
 } // namespace aoe
