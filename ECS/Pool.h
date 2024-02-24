@@ -6,19 +6,21 @@
 #include "../Core/Debug.h"
 
 #include "IPool.h"
+#include "Entity.h"
 #include "ComponentHandler.h"
 
 namespace aoe {
 
 template<typename TComponent>
 class Pool : public IPool {
+private:
 	friend class ComponentHandler<TComponent>;
 
 	using Lookup = std::int32_t;
 
 public:
-	Event<Pool, EntityId> ComponentAdded;
-	Event<Pool, EntityId> ComponentRemoved;
+	Event<Pool, Entity> ComponentAdded;
+	Event<Pool, Entity> ComponentRemoved;
 
 	Pool()
 		: sparse_()
@@ -26,25 +28,25 @@ public:
 		, bound_(0)
 	{}
 
-	bool Has(EntityId entity_id) override {
-		AssertEntityIsValid(entity_id);
+	bool Has(Entity entity) override {
+		AssertEntityIsValid(entity);
 
-		if (entity_id >= sparse_.size()) {
+		if (entity.GetId() >= sparse_.size()) {
 			return false;
 		}
 
-		Lookup lookup = sparse_[entity_id];
+		Lookup lookup = sparse_[entity.GetId()];
 		return lookup != kInvalid;
 	}
 
-	TComponent* Get(EntityId entity_id) {
-		AssertEntityIsValid(entity_id);
+	TComponent* Get(Entity entity) {
+		AssertEntityIsValid(entity);
 
-		if (entity_id >= sparse_.size()) {
+		if (entity.GetId() >= sparse_.size()) {
 			return nullptr;
 		}
 
-		Lookup lookup = sparse_[entity_id];
+		Lookup lookup = sparse_[entity.GetId()];
 
 		if (lookup == kInvalid) {
 			return nullptr;
@@ -55,36 +57,37 @@ public:
 	}
 
 	template<typename ...TArgs>
-	void Add(EntityId entity_id, TArgs&&... args) {
-		AssertEntityIsValid(entity_id);
+	void Add(Entity entity, TArgs&&... args) {
+		AssertEntityIsValid(entity);
 
-		if (entity_id >= sparse_.size()) {
-			sparse_.resize(entity_id + 1, kInvalid);
+		if (entity.GetId() >= sparse_.size()) {
+			sparse_.resize(entity.GetId() + 1, kInvalid);
 		}
 
-		Lookup lookup = sparse_[entity_id];
+		Lookup lookup = sparse_[entity.GetId()];
 
 		if (lookup == kInvalid) {
-			sparse_[entity_id] = CreateComponent(entity_id, std::forward<TArgs>(args)...);
+			sparse_[entity.GetId()] = CreateComponent(entity, std::forward<TArgs>(args)...);
 		}
 		else {
-			ComponentRemoved.Notify(entity_id);
+			ComponentRemoved.Notify(entity);
 			ComponentHolder& holder = dense_[lookup];
 			TComponent component(std::forward<TArgs>(args)...);
 			holder.data = std::move(component);
 		}
 
-		ComponentAdded.Notify(entity_id);
+		ComponentAdded.Notify(entity);
 	}
 
-	void Remove(EntityId entity_id) override {
-		AssertEntityIsValid(entity_id);
+	void Remove(Entity entity) override {
+		AssertEntityIsValid(entity);
 
-		if (entity_id >= sparse_.size() || sparse_[entity_id] == kInvalid) {
+		if (entity.GetId() >= sparse_.size() || sparse_[entity.GetId()] == kInvalid) {
 			return;
 		}
 
-		RemoveComponent(entity_id);
+		ComponentRemoved.Notify(entity);
+		RemoveComponent(entity);
 	}
 
 private:
@@ -107,36 +110,36 @@ private:
 	// ELSE: dense_[lookup] is a dead component
 	Lookup bound_;
 
-	static void AssertEntityIsValid(EntityId entity_id) {
-		AOE_ASSERT_MSG(entity_id >= 0, "Invalid entity.");
+	static void AssertEntityIsValid(Entity entity) {
+		AOE_ASSERT_MSG(entity.GetId() >= 0, "Invalid entity.");
 	}
 
 	template<typename ...TArgs>
-	Lookup CreateComponent(EntityId entity_id, TArgs&&... args) {
+	Lookup CreateComponent(Entity entity, TArgs&&... args) {
 		AOE_ASSERT_MSG(bound_ <= dense_.size(), "Invalid bound.");
 		TComponent component(std::forward<TArgs>(args)...);
 		Lookup lookup = bound_;
 
 		if (lookup < dense_.size()) {
 			ComponentHolder& holder = dense_[lookup];
-			holder.owner = entity_id;
+			holder.owner = entity.GetId();
 			holder.data = std::move(component);
 		}
 		else {
-			dense_.emplace_back(entity_id, std::move(component));
+			dense_.emplace_back(entity.GetId(), std::move(component));
 		}
 
 		bound_ += 1;
 		return lookup;
 	}
 
-	void RemoveComponent(EntityId entity_id) {
+	void RemoveComponent(Entity entity) {
 		bound_ -= 1;
-		Lookup lookup = sparse_[entity_id];
+		Lookup lookup = sparse_[entity.GetId()];
 		EntityId moved = dense_[bound_].owner;
 		std::swap(dense_[lookup], dense_[bound_]);
 		sparse_[moved] = lookup;
-		sparse_[entity_id] = kInvalid;
+		sparse_[entity.GetId()] = kInvalid;
 	}
 
 };

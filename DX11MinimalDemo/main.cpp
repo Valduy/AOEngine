@@ -115,7 +115,7 @@ public:
         model *= aoe::Matrix4::FromTranslationVector(translation_);
         model *= aoe::Quaternion::FromEulerAngles(rotation_).ToMatrix4();
         model *= aoe::Matrix4::FromScaleVector(scale_);
-
+        
         rotation_.x += 0.5f * dt;
         rotation_.y += 0.9f * dt;
         rotation_.z += 0.1f * dt;

@@ -16,6 +16,18 @@ public:
 	Event<World, Entity> EntityCreated;
 	Event<World, Entity> EntityDestroyed;
 
+	template<typename TComponent>
+	EventBase<Entity>& ComponentAdded() {
+		Pool<TComponent>* pool = GetOrCreatePool<TComponent>();
+		return pool->ComponentAdded;
+	}
+
+	template<typename TComponent>
+	EventBase<Entity>& ComponentRemoved() {
+		Pool<TComponent>* pool = GetOrCreatePool<TComponent>();
+		return pool->ComponentRemoved;
+	}
+
 	bool IsValid(Entity entity) const {
 		AOE_ASSERT_MSG(entity.GetId() >= 0, "Invalid entity.");
 
@@ -74,12 +86,7 @@ public:
 	template<typename TComponent, typename ...TArgs>
 	void Add(Entity entity, TArgs&&... args) {
 		AssertEntityIsValid(entity);
-		Pool<TComponent>* pool = GetPool<TComponent>();
-
-		if (pool == nullptr) {
-			pool = CreatePool<TComponent>();
-		}
-
+		Pool<TComponent>* pool = GetOrCreatePool<TComponent>();
 		pool->Add(entity.GetId(), std::forward<TArgs>(args)...);
 	}
 
@@ -106,6 +113,10 @@ public:
 				continue;
 			}
 
+			for (auto& it : pools_) {
+				it.second->Remove(entity.GetId());
+			}
+
 			EntityDestroyed.Notify(entity);
 
 			bound_ -= 1;
@@ -114,10 +125,6 @@ public:
 			std::swap(sparse_[entity.GetId()], sparse_[moved.GetId()]);
 			dense_[sparse_[moved.GetId()]] = moved;
 			dense_[sparse_[entity.GetId()]] = {entity.GetVersion() + 1, entity.GetId()};
-			
-			for (auto& it : pools_) {
-				it.second->Remove(entity.GetId());
-			}
 		}
 	}
 
@@ -171,6 +178,17 @@ private:
 		TypeId type_id = aoe::Identifier::GetTypeId<TComponent>();
 		Pool<TComponent>* pool = new Pool<TComponent>();
 		pools_[type_id] = pool;
+		return pool;
+	}
+
+	template<typename TComponent>
+	Pool<TComponent>* GetOrCreatePool() {
+		Pool<TComponent>* pool = GetPool<TComponent>();
+
+		if (pool == nullptr) {
+			pool = CreatePool<TComponent>();
+		}
+
 		return pool;
 	}
 };

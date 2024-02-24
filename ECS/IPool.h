@@ -1,13 +1,13 @@
 #pragma once
 
-#include "ECS.h"
+#include "Entity.h"
 
 namespace aoe {
 
 class IPool {
 public:
-	virtual bool Has(EntityId entity_id) = 0;
-	virtual void Remove(EntityId entity_id) = 0;
+	virtual bool Has(Entity entity) = 0;
+	virtual void Remove(Entity entity) = 0;
 	virtual ~IPool() = default;
 };
 

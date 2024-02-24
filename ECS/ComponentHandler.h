@@ -13,7 +13,7 @@ template<typename TComponent>
 class ComponentHandler {
 public:
 	ComponentHandler()
-		: ComponentHandler(nullptr, kNullEntity)
+		: ComponentHandler(nullptr, kNullEntityId)
 	{}
 
 	ComponentHandler(Pool<TComponent>* pool, EntityId entity_id)

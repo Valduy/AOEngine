@@ -7,7 +7,7 @@ namespace ecs_tests {
 
 TEST(PoolTests, Get_PoolIsEmpty_Nullptr) {
 	aoe::Pool<size_t> pool;
-	aoe::EntityId entity = 0;
+	aoe::Entity entity(0);
 
 	size_t* component = pool.Get(entity);
 
@@ -16,7 +16,7 @@ TEST(PoolTests, Get_PoolIsEmpty_Nullptr) {
 
 TEST(PoolTests, Get_EntityIsAddedToPool_Component) {
 	aoe::Pool<size_t> pool;
-	aoe::EntityId entity = 0;
+	aoe::Entity entity(0);
 	size_t value = 42;
 
 	pool.Add(entity, value);
@@ -27,8 +27,8 @@ TEST(PoolTests, Get_EntityIsAddedToPool_Component) {
 
 TEST(PoolTests, Get_EntityIsNotAddedToPool_Nullptr) {
 	aoe::Pool<size_t> pool;
-	aoe::EntityId entity_0 = 0;
-	aoe::EntityId entity_1 = 1;
+	aoe::Entity entity_0(0);
+	aoe::Entity entity_1(1);
 	
 	pool.Add(entity_0);
 	size_t* component = pool.Get(entity_1);
@@ -38,7 +38,7 @@ TEST(PoolTests, Get_EntityIsNotAddedToPool_Nullptr) {
 
 TEST(PoolTests, Get_EntityIsRemovedFromPool_Nullptr) {
 	aoe::Pool<size_t> pool;
-	aoe::EntityId entity = 0;
+	aoe::Entity entity(0);
 
 	pool.Add(entity);
 	pool.Remove(entity);
@@ -49,7 +49,7 @@ TEST(PoolTests, Get_EntityIsRemovedFromPool_Nullptr) {
 
 TEST(PoolTests, Has_PoolIsEmpty_False) {
 	aoe::Pool<size_t> pool;
-	aoe::EntityId entity = 0;
+	aoe::Entity entity(0);
 
 	bool result = pool.Has(entity);
 
@@ -58,7 +58,7 @@ TEST(PoolTests, Has_PoolIsEmpty_False) {
 
 TEST(PoolTests, Has_EntityIsAddedToPool_True) {
 	aoe::Pool<size_t> pool;
-	aoe::EntityId entity = 0;
+	aoe::Entity entity(0);
 
 	pool.Add(entity);
 	bool result = pool.Has(entity);
@@ -68,8 +68,8 @@ TEST(PoolTests, Has_EntityIsAddedToPool_True) {
 
 TEST(PoolTests, Has_EntityIsNotAddedToPool_False) {
 	aoe::Pool<size_t> pool;
-	aoe::EntityId entity_0 = 0;
-	aoe::EntityId entity_1 = 1;
+	aoe::Entity entity_0(0);
+	aoe::Entity entity_1(1);
 	
 	pool.Add(entity_0);
 	bool result = pool.Has(entity_1);
@@ -79,7 +79,7 @@ TEST(PoolTests, Has_EntityIsNotAddedToPool_False) {
 
 TEST(PoolTests, Has_EntityIsRemovedFromPool_False) {
 	aoe::Pool<size_t> pool;
-	aoe::EntityId entity = 0;
+	aoe::Entity entity(0);
 
 	pool.Add(entity);
 	pool.Remove(entity);
@@ -90,7 +90,7 @@ TEST(PoolTests, Has_EntityIsRemovedFromPool_False) {
 
 TEST(PoolTests, Remove_PoolIsEmpty_HasNotEntity) {
 	aoe::Pool<size_t> pool;
-	aoe::EntityId entity = 0;
+	aoe::Entity entity(0);
 
 	pool.Remove(entity);
 	bool result = !pool.Has(entity);
@@ -100,8 +100,8 @@ TEST(PoolTests, Remove_PoolIsEmpty_HasNotEntity) {
 
 TEST(PoolTests, Remove_EntityIsNotAddedToPool_HasNotRemovedEntity) {
 	aoe::Pool<size_t> pool;
-	aoe::EntityId entity_0 = 0;
-	aoe::EntityId entity_1 = 1;
+	aoe::Entity entity_0(0);
+	aoe::Entity entity_1(1);
 
 	pool.Add(entity_0);
 	pool.Remove(entity_1);
@@ -116,17 +116,17 @@ TEST(PoolTests, Remove_MultipleEntitiesInPool_HasNotRemovedEntity) {
 	for (aoe::EntityId to_remove = 0; to_remove < end; ++to_remove) {
 		aoe::Pool<size_t> pool;
 
-		for (aoe::EntityId entity = 0; entity < end; ++entity) {
-			pool.Add(entity);
+		for (aoe::EntityId entity_id = 0; entity_id < end; ++entity_id) {
+			pool.Add({ entity_id });
 		}
 
-		pool.Remove(to_remove);
+		pool.Remove({ to_remove });
 
 		for (aoe::EntityId entity = 0; entity < end; ++entity) {
 			if (entity == to_remove) {
-				ASSERT_FALSE(pool.Has(entity));
+				ASSERT_FALSE(pool.Has({ entity }));
 			} else {
-				ASSERT_TRUE(pool.Has(entity));
+				ASSERT_TRUE(pool.Has({ entity }));
 			}
 		}
 	}
@@ -141,14 +141,14 @@ TEST(PoolTests, Remove_AddAndRemoveMultipleEntities_HasNotRemovedEntity) {
 		aoe::Pool<size_t> pool;
 
 		for (aoe::EntityId entity = 0; entity < end; ++entity) {
-			pool.Add(entity);
+			pool.Add({ entity });
 		}
 
 		for (aoe::EntityId entity = 0; entity < end; ++entity) {
 			uint8_t sign = (signature >> entity) & mask;
 
 			if (!sign) {
-				pool.Remove(entity);
+				pool.Remove({ entity });
 			}
 		}
 
@@ -156,17 +156,12 @@ TEST(PoolTests, Remove_AddAndRemoveMultipleEntities_HasNotRemovedEntity) {
 			uint8_t sign = (signature >> entity) & mask;
 
 			if (!sign) {
-				ASSERT_FALSE(pool.Has(entity));
+				ASSERT_FALSE(pool.Has({ entity }));
 			} else {
-				ASSERT_TRUE(pool.Has(entity));
+				ASSERT_TRUE(pool.Has({ entity }));
 			}
 		}
 	}
-}
-
-template<typename TComponent>
-void Clear(aoe::Pool<TComponent>& pool) {
-
 }
 
 } // ecs_tests
