@@ -29,10 +29,10 @@ struct GPUDepthStateDescription {
 
 class DX11GPUDepthState {
 public:
+	DX11GPUDepthState(GPUDepthStateDescription description);
+
 	ID3D11DepthStencilState* GetNative() const;
 	const GPUDepthStateDescription& GetDescription() const;
-
-	DX11GPUDepthState(GPUDepthStateDescription description);
 
 private:
 	GPUDepthStateDescription description_;

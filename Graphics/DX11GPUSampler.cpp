@@ -7,14 +7,6 @@
 
 namespace aoe {
 
-ID3D11SamplerState* DX11GPUSampler::GetNative() const {
-	return sampler_.Get();
-}
-
-const GPUSamplerDescription& DX11GPUSampler::GetDescription() const {
-	return description_;
-}
-
 DX11GPUSampler::DX11GPUSampler(const GPUSamplerDescription& description)
 	: description_(description)
 	, sampler_(nullptr)
@@ -33,6 +25,14 @@ DX11GPUSampler::DX11GPUSampler(const GPUSamplerDescription& description)
 
 	const HRESULT hr = DX11GPUDevice::Instance()->GetNative()->CreateSamplerState(&sampler_desc, sampler_.GetAddressOf());
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create sampler state.");
+}
+
+ID3D11SamplerState* DX11GPUSampler::GetNative() const {
+	return sampler_.Get();
+}
+
+const GPUSamplerDescription& DX11GPUSampler::GetDescription() const {
+	return description_;
 }
 
 D3D11_FILTER DX11GPUSampler::ToDXFilter(const GPUSamplerFilter filter, const GPUSamplerComparsionFunction comparsion_function) {

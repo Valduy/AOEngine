@@ -4,16 +4,16 @@
 
 namespace aoe {
 
-const Window& Application::GetWindow() const {
-	return window_;
-}
-
 Application::Application(const std::wstring& window_name, int32_t width, int32_t height)
 	: hinstance_(GetModuleHandle(nullptr))
 	, window_(hinstance_, window_name, width, height)
 	, is_stoping_(false)
 {
 	window_.Show();
+}
+
+const Window& Application::GetWindow() const {
+	return window_;
 }
 
 void Application::Start(IScene& scene) {

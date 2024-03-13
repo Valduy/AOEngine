@@ -11,11 +11,11 @@ namespace aoe {
 
 class DX11GPUSwapChain {
 public:
-	IDXGISwapChain* GetNative() const;
-	const DX11GPUTextureView& GetRenderTargetView() const;
-
 	DX11GPUSwapChain(const Window& window);
 	~DX11GPUSwapChain();
+
+	IDXGISwapChain* GetNative() const;
+	const DX11GPUTextureView& GetRenderTargetView() const;
 
 	bool Resize(uint32_t width, uint32_t height);
 	void Present();

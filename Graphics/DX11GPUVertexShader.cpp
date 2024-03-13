@@ -5,38 +5,38 @@
 
 namespace aoe {
 
+DX11GPUVertexShader::DX11GPUVertexShader(const DX11GPUByteCode& byte_code)
+    : vertex_shader_(nullptr)
+    , input_layout_(nullptr)
+{
+    HRESULT hr = S_OK;
+
+    hr = DX11GPUDevice::Instance()->GetNative()->CreateVertexShader(
+        byte_code.GetBufferPointer(),
+        byte_code.GetBufferSize(),
+        nullptr,
+        vertex_shader_.GetAddressOf());
+
+    AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create vertex shader.");
+
+    std::vector<D3D11_INPUT_ELEMENT_DESC> layout_desc = CreateInputLayoutDescriptor(byte_code.GetNative());
+
+    hr = DX11GPUDevice::Instance()->GetNative()->CreateInputLayout(
+        layout_desc.data(),
+        static_cast<uint32_t>(layout_desc.size()),
+        byte_code.GetBufferPointer(),
+        byte_code.GetBufferSize(),
+        input_layout_.GetAddressOf());
+
+    AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create input layout.");
+}
+
 ID3D11VertexShader* aoe::DX11GPUVertexShader::GetNative() const {
 	return vertex_shader_.Get();
 }
 
 ID3D11InputLayout* DX11GPUVertexShader::GetInputLayout() const {
 	return input_layout_.Get();
-}
-
-DX11GPUVertexShader::DX11GPUVertexShader(const DX11GPUByteCode& byte_code)
-	: vertex_shader_(nullptr)
-	, input_layout_(nullptr)
-{
-	HRESULT hr = S_OK;
-
-	hr = DX11GPUDevice::Instance()->GetNative()->CreateVertexShader(
-		byte_code.GetBufferPointer(),
-		byte_code.GetBufferSize(),
-		nullptr,
-		vertex_shader_.GetAddressOf());
-
-	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create vertex shader.");
-
-    std::vector<D3D11_INPUT_ELEMENT_DESC> layout_desc = CreateInputLayoutDescriptor(byte_code.GetNative());
-
-	hr = DX11GPUDevice::Instance()->GetNative()->CreateInputLayout(
-        layout_desc.data(),
-		static_cast<uint32_t>(layout_desc.size()),
-		byte_code.GetBufferPointer(),
-		byte_code.GetBufferSize(),
-		input_layout_.GetAddressOf());
-
-	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create input layout.");
 }
 
 std::vector<D3D11_INPUT_ELEMENT_DESC> DX11GPUVertexShader::CreateInputLayoutDescriptor(ID3DBlob* byte_code)

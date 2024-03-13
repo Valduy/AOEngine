@@ -7,49 +7,9 @@
 
 namespace aoe {
 
-ID3D11Texture2D* DX11GPUTexture2D::GetNative() const {
-	return texture_.Get();
-}
-
-const GPUTexture2DDescription& DX11GPUTexture2D::GetDescription() const {
-	return description_;
-}
-
-const DX11GPUTextureView& DX11GPUTexture2D::GetTextureView() const {
-	return texture_view_;
-}
-
-uint32_t DX11GPUTexture2D::GetWidth() const {
-	return description_.height;
-}
-
-uint32_t DX11GPUTexture2D::GetHeight() const {
-	return description_.width;
-}
-
-GPUPixelFormat DX11GPUTexture2D::GetPixelFormat() const {
-	return description_.pixel_format;
-}
-
-bool DX11GPUTexture2D::IsShaderResource() const {
-	return (description_.texture_flags & GPUTextureFlags::kShaderResource) != GPUTextureFlags::kNone;
-}
-
-bool DX11GPUTexture2D::IsDepthStencil() const {
-	return (description_.texture_flags & GPUTextureFlags::kDepthStencil) != GPUTextureFlags::kNone;
-}
-
-bool DX11GPUTexture2D::IsRenderTarget() const {
-	return (description_.texture_flags & GPUTextureFlags::kRenderTarget) != GPUTextureFlags::kNone;
-}
-
-bool DX11GPUTexture2D::IsUnorderedAccess() const {
-	return (description_.texture_flags & GPUTextureFlags::kUnorderedAccess) != GPUTextureFlags::kNone;
-}
-
 DX11GPUTexture2D::DX11GPUTexture2D(
 	const GPUTexture2DDescription& description,
-	const void* data, 
+	const void* data,
 	uint32_t stride
 )
 	: description_(description)
@@ -106,6 +66,46 @@ DX11GPUTexture2D::DX11GPUTexture2D(ID3D11Texture2D* texture)
 	description_.texture_flags = FromDXBindFlag(native_description.BindFlags);
 
 	CreateTextureViews();
+}
+
+ID3D11Texture2D* DX11GPUTexture2D::GetNative() const {
+	return texture_.Get();
+}
+
+const GPUTexture2DDescription& DX11GPUTexture2D::GetDescription() const {
+	return description_;
+}
+
+const DX11GPUTextureView& DX11GPUTexture2D::GetTextureView() const {
+	return texture_view_;
+}
+
+uint32_t DX11GPUTexture2D::GetWidth() const {
+	return description_.height;
+}
+
+uint32_t DX11GPUTexture2D::GetHeight() const {
+	return description_.width;
+}
+
+GPUPixelFormat DX11GPUTexture2D::GetPixelFormat() const {
+	return description_.pixel_format;
+}
+
+bool DX11GPUTexture2D::IsShaderResource() const {
+	return (description_.texture_flags & GPUTextureFlags::kShaderResource) != GPUTextureFlags::kNone;
+}
+
+bool DX11GPUTexture2D::IsDepthStencil() const {
+	return (description_.texture_flags & GPUTextureFlags::kDepthStencil) != GPUTextureFlags::kNone;
+}
+
+bool DX11GPUTexture2D::IsRenderTarget() const {
+	return (description_.texture_flags & GPUTextureFlags::kRenderTarget) != GPUTextureFlags::kNone;
+}
+
+bool DX11GPUTexture2D::IsUnorderedAccess() const {
+	return (description_.texture_flags & GPUTextureFlags::kUnorderedAccess) != GPUTextureFlags::kNone;
 }
 
 uint32_t DX11GPUTexture2D::ToDXBindFlag(GPUTextureFlags value) {

@@ -13,10 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\DX11Implementation">
+    <Filter Include="Header Files\DX11">
       <UniqueIdentifier>{eca99edb-8740-4d84-bea5-6756ee13ce86}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\DX11Implementation">
+    <Filter Include="Source Files\DX11">
       <UniqueIdentifier>{e81a238c-0284-467c-acd9-0cb0f1b028d9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -31,46 +31,46 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUByteCode.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11Headers.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11Helper.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUBuffer.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUContext.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUDepthState.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUDevice.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUPixelShader.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPURasterizerState.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUSampler.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUShadersCompiler.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUSwapChain.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUTexture2D.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUVertexShader.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="GPUPixelFormat.h">
       <Filter>Header Files</Filter>
@@ -79,7 +79,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DX11GPUTextureView.h">
-      <Filter>Header Files\DX11Implementation</Filter>
+      <Filter>Header Files\DX11</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -87,40 +87,40 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUBuffer.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUContext.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUDepthState.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUDevice.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUPixelShader.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPURasterizerState.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUSampler.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUSwapChain.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUTexture2D.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUVertexShader.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUByteCode.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUShadersCompiler.cpp">
-      <Filter>Source Files\DX11Implementation</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

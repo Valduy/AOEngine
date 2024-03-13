@@ -57,10 +57,10 @@ struct GPUSamplerDescription {
 
 class DX11GPUSampler {
 public:
+	DX11GPUSampler(const GPUSamplerDescription& description);
+
 	ID3D11SamplerState* GetNative() const;
 	const GPUSamplerDescription& GetDescription() const;
-
-	DX11GPUSampler(const GPUSamplerDescription& description);
 
 private:
 	GPUSamplerDescription description_;

@@ -5,10 +5,6 @@
 
 namespace aoe {
 
-ID3D11PixelShader* aoe::DX11GPUPixelShader::GetNative() const {
-	return pixel_shader_.Get();
-}
-
 DX11GPUPixelShader::DX11GPUPixelShader(const DX11GPUByteCode& byte_code)
 	: pixel_shader_(nullptr)
 {
@@ -19,6 +15,10 @@ DX11GPUPixelShader::DX11GPUPixelShader(const DX11GPUByteCode& byte_code)
 		pixel_shader_.GetAddressOf());
 
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create pixel shader.");
+}
+
+ID3D11PixelShader* aoe::DX11GPUPixelShader::GetNative() const {
+	return pixel_shader_.Get();
 }
 
 } // namespace aoe

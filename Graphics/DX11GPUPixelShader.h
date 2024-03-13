@@ -7,9 +7,9 @@ namespace aoe {
 
 class DX11GPUPixelShader {
 public:
-	ID3D11PixelShader* GetNative() const;
-
 	DX11GPUPixelShader(const DX11GPUByteCode& byte_code);
+
+	ID3D11PixelShader* GetNative() const;
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixel_shader_;

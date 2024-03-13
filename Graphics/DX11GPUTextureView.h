@@ -10,6 +10,14 @@ class DX11GPUTexture2D;
 
 class DX11GPUTextureView {
 public:
+	DX11GPUTextureView(DX11GPUTexture2D* texture)
+		: texture_(texture)
+		, shader_resource_view_(nullptr)
+		, depth_stencil_view_(nullptr)
+		, render_target_view_(nullptr)
+		, unordered_access_view_(nullptr)
+	{}
+
 	bool IsShaderResourceView() const {
 		return GetShaderResourceView() != nullptr;
 	}
@@ -41,14 +49,6 @@ public:
 	ID3D11UnorderedAccessView* GetUnorderedAccessView() const {
 		return unordered_access_view_.Get();
 	}
-
-	DX11GPUTextureView(DX11GPUTexture2D* texture)
-		: texture_(texture)
-		, shader_resource_view_(nullptr)
-		, depth_stencil_view_(nullptr)
-		, render_target_view_(nullptr)
-		, unordered_access_view_(nullptr)
-	{}
 
 	DX11GPUTexture2D* GetTexture() const {
 		return texture_;

@@ -7,14 +7,6 @@
 
 namespace aoe {
 
-IDXGISwapChain* DX11GPUSwapChain::GetNative() const {
-	return swap_chain_.Get();
-}
-
-const DX11GPUTextureView& DX11GPUSwapChain::GetRenderTargetView() const {
-	return back_buffer_->GetTextureView();
-}
-
 DX11GPUSwapChain::DX11GPUSwapChain(const Window& window)
 	: window_(window)
 	, dxgi_factory_(nullptr)
@@ -54,6 +46,14 @@ DX11GPUSwapChain::DX11GPUSwapChain(const Window& window)
 
 DX11GPUSwapChain::~DX11GPUSwapChain() {
 	delete back_buffer_;
+}
+
+IDXGISwapChain* DX11GPUSwapChain::GetNative() const {
+	return swap_chain_.Get();
+}
+
+const DX11GPUTextureView& DX11GPUSwapChain::GetRenderTargetView() const {
+	return back_buffer_->GetTextureView();
 }
 
 bool DX11GPUSwapChain::Resize(uint32_t width, uint32_t height) {

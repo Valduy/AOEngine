@@ -12,10 +12,10 @@ class DX11GPUContext;
 
 class DX11GPUDevice : public Singleton<DX11GPUDevice> {
 public:
+	DX11GPUDevice();
+
 	ID3D11Device* GetNative() const;
 	DX11GPUContext GetContext() const;
-
-	DX11GPUDevice();
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Device> device_;

@@ -8,13 +8,13 @@ namespace aoe{
 
 class DX11GPUByteCode {
 public:
+	DX11GPUByteCode(ID3DBlob* byte_code);
+
 	bool IsNull() const;
 	ID3DBlob* GetNative() const;
 
 	void* GetBufferPointer() const;
 	size_t GetBufferSize() const;
-
-	DX11GPUByteCode(ID3DBlob* byte_code);
 
 private:
 	Microsoft::WRL::ComPtr<ID3DBlob> byte_code_;

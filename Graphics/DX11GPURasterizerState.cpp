@@ -7,14 +7,6 @@
 
 namespace aoe {
 
-ID3D11RasterizerState* DX11GPURasterizerState::GetNative() const {
-	return rasterizer_state_.Get();
-}
-
-const GPURasterizerStateDescription& DX11GPURasterizerState::GetDescription() const {
-	return description_;
-}
-
 DX11GPURasterizerState::DX11GPURasterizerState(const GPURasterizerStateDescription& description)
 	: description_(description)
 	, rasterizer_state_(nullptr)
@@ -25,6 +17,14 @@ DX11GPURasterizerState::DX11GPURasterizerState(const GPURasterizerStateDescripti
 
 	const HRESULT hr = DX11GPUDevice::Instance()->GetNative()->CreateRasterizerState(&rasterizer_desc, rasterizer_state_.GetAddressOf());
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create rasterizer state.");
+}
+
+ID3D11RasterizerState* DX11GPURasterizerState::GetNative() const {
+	return rasterizer_state_.Get();
+}
+
+const GPURasterizerStateDescription& DX11GPURasterizerState::GetDescription() const {
+	return description_;
 }
 
 D3D11_CULL_MODE DX11GPURasterizerState::ToDXCullMode(const GPUCullMode value) {

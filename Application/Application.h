@@ -9,9 +9,9 @@ namespace aoe {
 
 class Application {
 public:
-	const Window& GetWindow() const;
-
 	Application(const std::wstring& window_name, int32_t width, int32_t height);
+
+	const Window& GetWindow() const;
 
 	void Start(IScene& game);
 	void Stop();

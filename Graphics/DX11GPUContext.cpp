@@ -5,13 +5,13 @@
 
 namespace aoe {
 
-ID3D11DeviceContext* DX11GPUContext::GetNative() const {
-	return context_;
-}
-
 DX11GPUContext::DX11GPUContext(ID3D11DeviceContext* context)
 	: context_(context)
 {}
+
+ID3D11DeviceContext* DX11GPUContext::GetNative() const {
+	return context_;
+}
 
 void DX11GPUContext::SetViewport(const Viewport& viewport) {
 	D3D11_VIEWPORT mapped = ToDXViewport(viewport);

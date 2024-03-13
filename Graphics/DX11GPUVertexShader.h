@@ -11,10 +11,10 @@ namespace aoe {
 
 class DX11GPUVertexShader {
 public:
+	DX11GPUVertexShader(const DX11GPUByteCode& byte_code);
+
 	ID3D11VertexShader* GetNative() const;
 	ID3D11InputLayout* GetInputLayout() const;
-
-	DX11GPUVertexShader(const DX11GPUByteCode& byte_code);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertex_shader_;

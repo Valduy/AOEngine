@@ -14,9 +14,9 @@ namespace aoe {
 
 class DX11GPUContext {
 public:
-	ID3D11DeviceContext* GetNative() const;
-
 	DX11GPUContext(ID3D11DeviceContext* context);
+
+	ID3D11DeviceContext* GetNative() const;
 
 	void SetViewport(const Viewport& viewport);
 	

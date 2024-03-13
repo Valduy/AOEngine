@@ -4,10 +4,13 @@
 
 #include "../Core/Math.h"
 #include "../ECS/World.h"
+#include "../Resources/ModelLoader.h"
 
 #include "TransformComponent.h"
 #include "Relationeer.h"
 #include "TransformUtils.h"
+#include "IECSSystem.h"
+#include "SystemsPool.h"
 
 class SolarSystemScene : public aoe::IScene {
 public:
@@ -81,7 +84,7 @@ private:
 	}
 };
 
-int main() {	
+int main() {
 	aoe::Application application(L"Game", 800, 600);
 
 	SolarSystemScene scene(application.GetWindow());

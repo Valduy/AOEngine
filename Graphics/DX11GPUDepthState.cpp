@@ -5,14 +5,6 @@
 
 namespace aoe {
 
-ID3D11DepthStencilState* DX11GPUDepthState::GetNative() const {
-	return depth_stencil_state_.Get();
-}
-
-const GPUDepthStateDescription& DX11GPUDepthState::GetDescription() const {
-	return description_;
-}
-
 DX11GPUDepthState::DX11GPUDepthState(GPUDepthStateDescription description)
 	: description_(std::move(description))
 	, depth_stencil_state_(nullptr)
@@ -24,6 +16,14 @@ DX11GPUDepthState::DX11GPUDepthState(GPUDepthStateDescription description)
 
 	const HRESULT hr = DX11GPUDevice::Instance()->GetNative()->CreateDepthStencilState(&depth_stencil_desc, &depth_stencil_state_);
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create depth state.");
+}
+
+ID3D11DepthStencilState* DX11GPUDepthState::GetNative() const {
+	return depth_stencil_state_.Get();
+}
+
+const GPUDepthStateDescription& DX11GPUDepthState::GetDescription() const {
+	return description_;
 }
 
 D3D11_DEPTH_WRITE_MASK DX11GPUDepthState::ToDXDepthWirteMask(const GPUDepthWriteMask value) {

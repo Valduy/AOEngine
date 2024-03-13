@@ -7,6 +7,37 @@
 
 namespace aoe {
 
+DX11GPUBuffer::DX11GPUBuffer(GPUBufferDescription description, const void* data, uint32_t size, uint32_t stride)
+	: description_(std::move(description))
+	, buffer_(nullptr)
+	, size_(size)
+	, stride_(stride)
+{
+	D3D11_BUFFER_DESC buffer_desc = {};
+	buffer_desc.Usage = ToDXUsage(description_.usage);
+	buffer_desc.BindFlags = ToDXBufferType(description_.buffer_type);
+	buffer_desc.CPUAccessFlags = description_.IsDynamic() ? D3D11_CPU_ACCESS_WRITE : 0;
+	buffer_desc.MiscFlags = 0;
+	buffer_desc.StructureByteStride = 0;
+	buffer_desc.ByteWidth = size;
+
+	HRESULT hr = S_OK;
+
+	if (data != nullptr) {
+		D3D11_SUBRESOURCE_DATA buffer_data = {};
+		buffer_data.pSysMem = data;
+		buffer_data.SysMemPitch = 0;
+		buffer_data.SysMemSlicePitch = 0;
+
+		hr = DX11GPUDevice::Instance()->GetNative()->CreateBuffer(&buffer_desc, &buffer_data, buffer_.GetAddressOf());
+	}
+	else {
+		hr = DX11GPUDevice::Instance()->GetNative()->CreateBuffer(&buffer_desc, nullptr, buffer_.GetAddressOf());
+	}
+
+	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create buffer.");
+}
+
 ID3D11Buffer* DX11GPUBuffer::GetNative() const {
 	return buffer_.Get();
 }
@@ -41,37 +72,6 @@ bool DX11GPUBuffer::IsConstantBuffer() const {
 
 bool DX11GPUBuffer::IsDynamic() const {
 	return description_.IsDynamic();
-}
-
-DX11GPUBuffer::DX11GPUBuffer(GPUBufferDescription description, const void* data, uint32_t size, uint32_t stride)
-	: description_(std::move(description))
-	, buffer_(nullptr)
-	, size_(size)
-	, stride_(stride)
-{
-	D3D11_BUFFER_DESC buffer_desc = {};
-	buffer_desc.Usage = ToDXUsage(description_.usage);
-	buffer_desc.BindFlags = ToDXBufferType(description_.buffer_type);
-	buffer_desc.CPUAccessFlags = description_.IsDynamic() ? D3D11_CPU_ACCESS_WRITE : 0;
-	buffer_desc.MiscFlags = 0;
-	buffer_desc.StructureByteStride = 0;
-	buffer_desc.ByteWidth = size;
-
-	HRESULT hr = S_OK;
-
-	if (data != nullptr) {
-		D3D11_SUBRESOURCE_DATA buffer_data = {};
-		buffer_data.pSysMem = data;
-		buffer_data.SysMemPitch = 0;
-		buffer_data.SysMemSlicePitch = 0;
-
-		hr = DX11GPUDevice::Instance()->GetNative()->CreateBuffer(&buffer_desc, &buffer_data, buffer_.GetAddressOf());
-	}
-	else {
-		hr = DX11GPUDevice::Instance()->GetNative()->CreateBuffer(&buffer_desc, nullptr, buffer_.GetAddressOf());
-	}
-
-	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create buffer.");
 }
 
 D3D11_USAGE DX11GPUBuffer::ToDXUsage(const GPUResourceUsage value) {

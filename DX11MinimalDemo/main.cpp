@@ -1,5 +1,7 @@
 #include "../Core/Math.h"
 #include "../Application/Application.h"
+#include "../Resources/ModelLoader.h"
+#include "../Resources/TextureLoader.h"
 #include "../Graphics/DX11GPUDevice.h"
 #include "../Graphics/DX11GPUContext.h"
 #include "../Graphics/DX11GPUSwapChain.h"
@@ -8,8 +10,6 @@
 #include "../Graphics/DX11GPUBuffer.h"
 #include "../Graphics/DX11GPUShadersCompiler.h"
 #include "../Graphics/DX11GPUSampler.h"
-
-#include "Resources.h"
 
 struct Constants {
     aoe::Matrix4 transform;
@@ -46,28 +46,23 @@ static const aoe::GPUBufferDescription kConstBufferDesc = {
 
 static const aoe::GPUSamplerDescription kSamplerDesc = {};
 
-static const aoe::GPUTexture2DDescription kTextureDesc = {
-    TEXTURE_WIDTH,
-    TEXTURE_HEIGHT,
-    aoe::GPUPixelFormat::kR8G8B8A8_Unorm,
-    aoe::GPUTextureFlags::kShaderResource,
-};
-
 class DX11MinimalScene : public aoe::IScene {
 public:
     DX11MinimalScene(const aoe::Window& window)
         : window_(window)
+        , model_(aoe::ModelLoader::Load("Content/Dice_d4.fbx"))
+        , image_(aoe::TextureLoader::Load("Content/Dice_d4_Albedo.png", 4))
         , swap_chain_(window)
         , depth_stencil_buffer_(aoe::GPUTexture2DDescription::DepthStencilBuffer(window_.GetWidth(), window_.GetHeight()))
         , depth_state_(kDepthStateDesc)
         , rasterized_state_(kRasterizerStateDesc)
-        , vertex_buffer_(aoe::DX11GPUBuffer::Create<Vertex>(kVertexBufferDesc, kVertexData, ARRAYSIZE(kVertexData)))
-        , index_buffer_(aoe::DX11GPUBuffer::Create<int32_t>(kIndexBufferDesc, kIndexData, ARRAYSIZE(kIndexData)))
+        , vertex_buffer_(CreateVertexBuffer(model_.GetMeshes().back()))
+        , index_buffer_(CreateIndexBuffer(model_.GetMeshes().back()))
         , constant_buffer_(aoe::DX11GPUBuffer::Create<Constants>(kConstBufferDesc))
-        , vertex_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kVertex, L"shaders.hlsl", "vs_main"}))
-        , pixel_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kPixel, L"shaders.hlsl", "ps_main"}))
+        , vertex_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kVertex, L"Content/shaders.hlsl", "vs_main"}))
+        , pixel_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kPixel, L"Content/shaders.hlsl", "ps_main"}))
         , sampler_(kSamplerDesc)
-        , texture_(aoe::DX11GPUTexture2D::Create<uint32_t>(kTextureDesc, kTextureData))
+        , texture_(CreateTexture(image_))
     {}
 
     void Initialize() override {};
@@ -120,9 +115,9 @@ public:
         rotation_.y += 0.9f * dt;
         rotation_.z += 0.1f * dt;
 
-        const float fov = M_PI / 3;
+        const float fov = aoe::Math::kPi / 3;
         const float near_plain = 0.1f;
-        const float far_plain = 10.0f;
+        const float far_plain = 100.0f;
         const float handedness = -1.0f;
 
         aoe::Matrix4 projection = aoe::Matrix4::Perspective(
@@ -137,6 +132,9 @@ public:
 
 private:
     const aoe::Window& window_;
+
+    aoe::Model model_;
+    aoe::Image image_;
 
     aoe::DX11GPUSwapChain swap_chain_;
     aoe::DX11GPUTexture2D depth_stencil_buffer_;
@@ -160,6 +158,29 @@ private:
     aoe::Vector3 scale_ = { 1.0f, 1.0f, 1.0f };
     aoe::Vector3 translation_ = { 0.0f, 0.0f, 4.0f };
 
+    static aoe::DX11GPUBuffer CreateVertexBuffer(const aoe::Mesh& mesh) {
+        const std::vector<aoe::Vertex>& vertices = mesh.GetVertices();
+        uint32_t size = static_cast<uint32_t>(vertices.size());
+        return aoe::DX11GPUBuffer::Create<aoe::Vertex>(kVertexBufferDesc, vertices.data(), size);
+    }
+
+    static aoe::DX11GPUBuffer CreateIndexBuffer(const aoe::Mesh& mesh) {
+        const std::vector<aoe::Index>& indices = mesh.GetIndices();
+        uint32_t size = static_cast<uint32_t>(indices.size());
+        return aoe::DX11GPUBuffer::Create<aoe::Index>(kIndexBufferDesc, indices.data(), size);
+    }
+
+    static aoe::DX11GPUTexture2D CreateTexture(const aoe::Image& image) {
+        aoe::GPUTexture2DDescription texture_desc{
+            image.GetWidth(),
+            image.GetHeight(),
+            aoe::GPUPixelFormat::kR8G8B8A8_Unorm,
+            aoe::GPUTextureFlags::kShaderResource,
+        };
+
+        return { texture_desc, image.GetData(), image.GetChannels() };
+    }
+
     aoe::Viewport GetViewport() {
         const float width = static_cast<float>(window_.GetWidth());
         const float height = static_cast<float>(window_.GetHeight());
@@ -170,7 +191,6 @@ private:
 
 int main() {
     aoe::Application application(L"Game", 800, 600);
-
     DX11MinimalScene scene(application.GetWindow());
     application.Start(scene);
 

@@ -4,6 +4,10 @@
 
 namespace aoe {
 
+DX11GPUByteCode::DX11GPUByteCode(ID3DBlob* byte_code)
+	: byte_code_(byte_code)
+{}
+
 bool DX11GPUByteCode::IsNull() const {
 	return byte_code_ == nullptr;
 }
@@ -19,9 +23,5 @@ void* DX11GPUByteCode::GetBufferPointer() const {
 size_t DX11GPUByteCode::GetBufferSize() const {
 	return byte_code_ != nullptr ? byte_code_->GetBufferSize() : 0;
 }
-
-DX11GPUByteCode::DX11GPUByteCode(ID3DBlob* byte_code)
-	: byte_code_(byte_code)
-{}
 
 } // namespace aoe

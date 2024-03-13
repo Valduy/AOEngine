@@ -43,6 +43,8 @@ public:
 	template<typename TElement>
 	static DX11GPUBuffer Create(const GPUBufferDescription& description, uint32_t count = 1);
 
+	DX11GPUBuffer(GPUBufferDescription description, const void* data, uint32_t size, uint32_t stride);
+
 	ID3D11Buffer* GetNative() const;
 	const GPUBufferDescription& GetDescription() const;
 
@@ -54,8 +56,6 @@ public:
 	bool IsIndexBuffer() const;
 	bool IsConstantBuffer() const;
 	bool IsDynamic() const;
-
-	DX11GPUBuffer(GPUBufferDescription description, const void* data, uint32_t size, uint32_t stride);
 
 private:
 	GPUBufferDescription description_;

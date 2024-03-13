@@ -42,6 +42,10 @@ public:
 	template<typename TElement>
 	static DX11GPUTexture2D Create(const GPUTexture2DDescription& description, const TElement* data);
 
+	DX11GPUTexture2D(const GPUTexture2DDescription& description, const void* data, uint32_t stride);
+	DX11GPUTexture2D(const GPUTexture2DDescription& description);
+	DX11GPUTexture2D(ID3D11Texture2D* texture);
+
 	ID3D11Texture2D* GetNative() const;
 	const GPUTexture2DDescription& GetDescription() const;
 	virtual const DX11GPUTextureView& GetTextureView() const;
@@ -55,10 +59,6 @@ public:
 	bool IsDepthStencil() const;
 	bool IsRenderTarget() const;
 	bool IsUnorderedAccess() const;
-
-	DX11GPUTexture2D(const GPUTexture2DDescription& description, const void* data, uint32_t stride);
-	DX11GPUTexture2D(const GPUTexture2DDescription& description);
-	DX11GPUTexture2D(ID3D11Texture2D* texture);
 
 private:
 	GPUTexture2DDescription description_;

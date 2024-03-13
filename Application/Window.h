@@ -12,13 +12,13 @@ namespace aoe {
 
 class Window {
 public:
+	Window(HINSTANCE hinstance, const std::wstring& window_name, int32_t width, int32_t height);
+	~Window();
+
 	HWND GetHandler() const;
 	
 	int32_t GetWidth() const;
 	int32_t GetHeight() const;
-
-	Window(HINSTANCE hinstance, const std::wstring& window_name, int32_t width, int32_t height);
-	~Window();
 
 	void Show();
 

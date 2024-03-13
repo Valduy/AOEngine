@@ -12,14 +12,6 @@
 
 namespace aoe {
 
-ID3D11Device* DX11GPUDevice::GetNative() const {
-	return device_.Get();
-}
-
-DX11GPUContext DX11GPUDevice::GetContext() const {
-	return { context_.Get() };
-}
-
 DX11GPUDevice::DX11GPUDevice()
 	: device_(nullptr)
 	, context_(nullptr)
@@ -47,6 +39,14 @@ DX11GPUDevice::DX11GPUDevice()
 		&context_);
 
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create device and context.");
+}
+
+ID3D11Device* DX11GPUDevice::GetNative() const {
+	return device_.Get();
+}
+
+DX11GPUContext DX11GPUDevice::GetContext() const {
+	return { context_.Get() };
 }
 
 } // namespace aoe

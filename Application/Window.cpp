@@ -4,22 +4,6 @@
 
 namespace aoe {
 
-HWND Window::GetHandler() const {
-	return handler_;
-}
-
-int32_t Window::GetWidth() const {
-	RECT rect;
-	GetWindowRect(handler_, &rect);
-	return static_cast<int32_t>(rect.right - rect.left);
-}
-
-int32_t Window::GetHeight() const {
-	RECT rect;
-	GetWindowRect(handler_, &rect);
-	return static_cast<int32_t>(rect.bottom - rect.top);
-}
-
 Window::Window(HINSTANCE hinstance, const std::wstring& window_name, int32_t width, int32_t height)
 	: handler_(0)
 {
@@ -42,6 +26,22 @@ Window::~Window() {
 
 		handler_ = 0;
 	}
+}
+
+HWND Window::GetHandler() const {
+	return handler_;
+}
+
+int32_t Window::GetWidth() const {
+	RECT rect;
+	GetWindowRect(handler_, &rect);
+	return static_cast<int32_t>(rect.right - rect.left);
+}
+
+int32_t Window::GetHeight() const {
+	RECT rect;
+	GetWindowRect(handler_, &rect);
+	return static_cast<int32_t>(rect.bottom - rect.top);
 }
 
 void Window::Show() {

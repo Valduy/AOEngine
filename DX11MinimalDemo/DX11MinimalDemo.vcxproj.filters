@@ -23,12 +23,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Resources.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="shaders.hlsl">
+    <FxCompile Include="Content\shaders.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

@@ -13,12 +13,9 @@ namespace aoe {
 
 template<typename TComponent>
 class Pool : public IPool {
-private:
+public:
 	friend class ComponentHandler<TComponent>;
 
-	using Lookup = std::int32_t;
-
-public:
 	Event<Pool, Entity> ComponentAdded;
 	Event<Pool, Entity> ComponentRemoved;
 
@@ -91,6 +88,8 @@ public:
 	}
 
 private:
+	using Lookup = std::int32_t;
+
 	struct ComponentHolder {
 		EntityId owner;
 		TComponent data;

@@ -8,6 +8,18 @@ class Entity {
 public:
 	static const Version kInitialVersion = 0;
 
+	Entity(EntityId id)
+		: Entity(kInitialVersion, id)
+	{}
+
+	Entity(Version version, EntityId id)
+		: version_(version)
+		, id_(id)
+	{
+		AOE_ASSERT_MSG(version_ >= kNullVersion, "Invalid version.");
+		AOE_ASSERT_MSG(id_ >= kNullEntityId, "Invalid entity id.");
+	}
+
 	static Entity Null() {
 		return { kNullVersion, kNullEntityId };
 	}
@@ -24,18 +36,6 @@ public:
 		return id_;
 	}
 	
-	Entity(EntityId id)
-		: Entity(kInitialVersion, id)
-	{}
-
-	Entity(Version version, EntityId id)
-		: version_(version)
-		, id_(id)
-	{
-		AOE_ASSERT_MSG(version_ >= kNullVersion, "Invalid version.");
-		AOE_ASSERT_MSG(id_ >= kNullEntityId, "Invalid entity id.");
-	}
-
 	friend bool operator==(const Entity& lhs, const Entity& rhs) {
 		return lhs.version_ == rhs.version_ && lhs.id_ == rhs.id_;
 	}

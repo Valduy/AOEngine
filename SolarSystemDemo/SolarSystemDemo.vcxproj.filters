@@ -29,5 +29,11 @@
     <ClInclude Include="TransformUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IECSSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemsPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -22,10 +22,10 @@ struct GPURasterizerStateDescription {
 
 class DX11GPURasterizerState {
 public:
+	DX11GPURasterizerState(const GPURasterizerStateDescription& description);
+
 	ID3D11RasterizerState* GetNative() const;
 	const GPURasterizerStateDescription& GetDescription() const;
-
-	DX11GPURasterizerState(const GPURasterizerStateDescription& description);
 
 private:
 	GPURasterizerStateDescription description_;
