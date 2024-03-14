@@ -163,6 +163,8 @@
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DX11ModelManager.cpp" />
+    <ClCompile Include="DX11TextureManager.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="pch.cpp">

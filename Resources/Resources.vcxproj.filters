@@ -77,5 +77,11 @@
     <ClCompile Include="TextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DX11ModelManager.cpp">
+      <Filter>Source Files\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11TextureManager.cpp">
+      <Filter>Source Files\DX11</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

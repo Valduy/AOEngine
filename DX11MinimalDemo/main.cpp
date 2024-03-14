@@ -11,11 +11,16 @@
 #include "../Graphics/DX11GPUShadersCompiler.h"
 #include "../Graphics/DX11GPUSampler.h"
 
-struct Constants {
-    aoe::Matrix4 transform;
-    aoe::Matrix4 projection;
-    aoe::Vector3 light_vector;
-    float dummy;
+struct ModelData {
+    aoe::Matrix4 world_view_projection;
+    aoe::Matrix4 normal_matrix;
+};
+
+struct LightData {
+    aoe::Vector3 view_position;
+    float dummy0;
+    aoe::Vector3 direction;
+    float dummy1;
 };
 
 static const aoe::GPUDepthStateDescription kDepthStateDesc = {
@@ -58,7 +63,8 @@ public:
         , rasterized_state_(kRasterizerStateDesc)
         , vertex_buffer_(CreateVertexBuffer(model_.GetMeshes().back()))
         , index_buffer_(CreateIndexBuffer(model_.GetMeshes().back()))
-        , constant_buffer_(aoe::DX11GPUBuffer::Create<Constants>(kConstBufferDesc))
+        , model_buffer_(aoe::DX11GPUBuffer::Create<ModelData>(kConstBufferDesc))
+        , light_buffer_(aoe::DX11GPUBuffer::Create<LightData>(kConstBufferDesc))
         , vertex_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kVertex, L"Content/shaders.hlsl", "vs_main"}))
         , pixel_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kPixel, L"Content/shaders.hlsl", "ps_main"}))
         , sampler_(kSamplerDesc)
@@ -83,7 +89,8 @@ public:
 
         context.SetPrimitiveTopology(aoe::GPUPrimitiveTopology::kTriangleList);
         context.SetVertexShader(vertex_shader_);
-        context.SetConstantBuffer(aoe::GPUShaderType::kVertex, constant_buffer_);
+        context.SetConstantBuffer(aoe::GPUShaderType::kVertex, model_buffer_, 0);
+        context.SetConstantBuffer(aoe::GPUShaderType::kPixel, light_buffer_, 1);
 
         context.SetViewport(viewport_);
         context.SetRasterizerState(rasterized_state_);
@@ -106,10 +113,10 @@ public:
         const float aspect = viewport_.width / viewport_.height;
         auto context = aoe::DX11GPUDevice::Instance()->GetContext();
 
-        aoe::Matrix4 model = aoe::Matrix4::Identity();
-        model *= aoe::Matrix4::FromTranslationVector(translation_);
-        model *= aoe::Quaternion::FromEulerAngles(rotation_).ToMatrix4();
-        model *= aoe::Matrix4::FromScaleVector(scale_);
+        aoe::Matrix4 world = aoe::Matrix4::Identity();
+        world *= aoe::Matrix4::FromTranslationVector(translation_);
+        world *= aoe::Quaternion::FromEulerAngles(rotation_).ToMatrix4();
+        world *= aoe::Matrix4::FromScaleVector(scale_);
         
         rotation_.x += 0.5f * dt;
         rotation_.y += 0.9f * dt;
@@ -123,11 +130,17 @@ public:
         aoe::Matrix4 projection = aoe::Matrix4::Perspective(
             fov, aspect, near_plain, far_plain, handedness);
 
-        Constants constants{};
-        constants.transform = model.Transpose();
-        constants.projection = projection.Transpose();
-        constants.light_vector = { 1.0f, -1.0f, 1.0f };
-        context.UpdateBuffer<Constants>(constant_buffer_, &constants, 1);
+        aoe::Matrix4 world_view_projection = projection * world;
+
+        ModelData model_data{};
+        model_data.world_view_projection = world_view_projection.Transpose();
+        model_data.normal_matrix = world.Transpose().Inverse().Transpose();
+        context.UpdateBuffer<ModelData>(model_buffer_, &model_data, 1);
+
+        LightData light_data{};
+        light_data.view_position = aoe::Math::kV3Zero;
+        light_data.direction = -aoe::Math::kV3AxisZ;
+        context.UpdateBuffer<LightData>(light_buffer_, &light_data, 1);
     };
 
 private:
@@ -143,7 +156,8 @@ private:
 
     aoe::DX11GPUBuffer vertex_buffer_;
     aoe::DX11GPUBuffer index_buffer_;
-    aoe::DX11GPUBuffer constant_buffer_;
+    aoe::DX11GPUBuffer model_buffer_;
+    aoe::DX11GPUBuffer light_buffer_;
 
     aoe::DX11GPUVertexShader vertex_shader_;
     aoe::DX11GPUPixelShader pixel_shader_;
