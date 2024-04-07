@@ -29,10 +29,10 @@ DX11GPUBuffer::DX11GPUBuffer(GPUBufferDescription description, const void* data,
 		buffer_data.SysMemPitch = 0;
 		buffer_data.SysMemSlicePitch = 0;
 
-		hr = DX11GPUDevice::Instance()->GetNative()->CreateBuffer(&buffer_desc, &buffer_data, buffer_.GetAddressOf());
+		hr = DX11GPUDevice::Instance().GetNative()->CreateBuffer(&buffer_desc, &buffer_data, buffer_.GetAddressOf());
 	}
 	else {
-		hr = DX11GPUDevice::Instance()->GetNative()->CreateBuffer(&buffer_desc, nullptr, buffer_.GetAddressOf());
+		hr = DX11GPUDevice::Instance().GetNative()->CreateBuffer(&buffer_desc, nullptr, buffer_.GetAddressOf());
 	}
 
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create buffer.");

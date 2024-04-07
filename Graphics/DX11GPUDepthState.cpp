@@ -14,7 +14,7 @@ DX11GPUDepthState::DX11GPUDepthState(GPUDepthStateDescription description)
 	depth_stencil_desc.DepthWriteMask = ToDXDepthWirteMask(description_.write_mask);
 	depth_stencil_desc.DepthFunc = ToDXComparsionFunc(description_.comparsion_function);
 
-	const HRESULT hr = DX11GPUDevice::Instance()->GetNative()->CreateDepthStencilState(&depth_stencil_desc, &depth_stencil_state_);
+	const HRESULT hr = DX11GPUDevice::Instance().GetNative()->CreateDepthStencilState(&depth_stencil_desc, &depth_stencil_state_);
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create depth state.");
 }
 

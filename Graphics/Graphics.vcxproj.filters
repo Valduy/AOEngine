@@ -81,6 +81,12 @@
     <ClInclude Include="DX11GPUTextureView.h">
       <Filter>Header Files\DX11</Filter>
     </ClInclude>
+    <ClInclude Include="DX11GPURenderTargets.h">
+      <Filter>Header Files\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11GPUBlendState.h">
+      <Filter>Header Files\DX11</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -121,6 +127,9 @@
     </ClCompile>
     <ClCompile Include="DX11GPUShadersCompiler.cpp">
       <Filter>Source Files\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GPUBlendState.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

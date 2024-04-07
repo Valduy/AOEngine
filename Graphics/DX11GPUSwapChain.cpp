@@ -35,7 +35,7 @@ DX11GPUSwapChain::DX11GPUSwapChain(const Window& window)
 	hr = CreateDXGIFactory(IID_PPV_ARGS(dxgi_factory_.GetAddressOf()));
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create DXGI factory.");
 
-	hr = dxgi_factory_->CreateSwapChain(DX11GPUDevice::Instance()->GetNative(), &swap_chain_desc, swap_chain_.GetAddressOf());
+	hr = dxgi_factory_->CreateSwapChain(DX11GPUDevice::Instance().GetNative(), &swap_chain_desc, swap_chain_.GetAddressOf());
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create swap chain.");
 
 	ID3D11Texture2D* texture;
@@ -56,7 +56,7 @@ const DX11GPUTextureView& DX11GPUSwapChain::GetRenderTargetView() const {
 	return back_buffer_->GetTextureView();
 }
 
-bool DX11GPUSwapChain::Resize(uint32_t width, uint32_t height) {
+bool DX11GPUSwapChain::Resize(uint32_t width, uint32_t height) const {
 	AOE_ASSERT(swap_chain_ != nullptr);
 
 	if (width_ == width && height_ == height) {
@@ -67,7 +67,7 @@ bool DX11GPUSwapChain::Resize(uint32_t width, uint32_t height) {
 	return true;
 }
 
-void DX11GPUSwapChain::Present() {
+void DX11GPUSwapChain::Present() const {
 	// TODO: vsync and present flags
 	AOE_ASSERT(swap_chain_ != nullptr);
 	swap_chain_->Present(1, 0);

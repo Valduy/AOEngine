@@ -23,7 +23,7 @@ DX11GPUSampler::DX11GPUSampler(const GPUSamplerDescription& description)
 	sampler_desc.MinLOD = description_.min_mip_level;
 	sampler_desc.MaxLOD = description_.max_mip_level;
 
-	const HRESULT hr = DX11GPUDevice::Instance()->GetNative()->CreateSamplerState(&sampler_desc, sampler_.GetAddressOf());
+	const HRESULT hr = DX11GPUDevice::Instance().GetNative()->CreateSamplerState(&sampler_desc, sampler_.GetAddressOf());
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create sampler state.");
 }
 

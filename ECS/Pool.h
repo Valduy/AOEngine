@@ -82,7 +82,7 @@ public:
 		if (entity.GetId() >= sparse_.size() || sparse_[entity.GetId()] == kInvalid) {
 			return;
 		}
-
+				
 		ComponentRemoved.Notify(entity);
 		RemoveComponent(entity);
 	}

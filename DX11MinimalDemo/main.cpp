@@ -78,7 +78,7 @@ public:
     void PerTickUpdate(float dt) override {
         float background_color[4] = { 0.15f, 0.15f, 0.15f, 1.0f };
         
-        auto context = aoe::DX11GPUDevice::Instance()->GetContext();
+        aoe::DX11GPUContext context = aoe::DX11GPUDevice::Instance().GetContext();
         context.ClearState();
 
         context.ClearRenderTarget(swap_chain_.GetRenderTargetView(), background_color);
@@ -94,9 +94,9 @@ public:
 
         context.SetViewport(viewport_);
         context.SetRasterizerState(rasterized_state_);
-
+        
         context.SetPixelShader(pixel_shader_);
-        context.SetShaderResource(aoe::GPUShaderType::kPixel, texture_, 0);
+        context.SetShaderResource(aoe::GPUShaderType::kPixel, texture_.GetTextureView(), 0);
         context.SetSampler(aoe::GPUShaderType::kPixel, sampler_);
 
         context.SetRenderTarget(swap_chain_.GetRenderTargetView(), depth_stencil_buffer_.GetTextureView());
@@ -111,7 +111,7 @@ public:
         viewport_ = GetViewport();
 
         const float aspect = viewport_.width / viewport_.height;
-        auto context = aoe::DX11GPUDevice::Instance()->GetContext();
+        auto context = aoe::DX11GPUDevice::Instance().GetContext();
 
         aoe::Matrix4 world = aoe::Matrix4::Identity();
         world *= aoe::Matrix4::FromTranslationVector(translation_);
@@ -127,10 +127,10 @@ public:
         const float far_plain = 100.0f;
         const float handedness = -1.0f;
 
-        aoe::Matrix4 projection = aoe::Matrix4::Perspective(
+        aoe::Matrix4 projection_matrix = aoe::Matrix4::Perspective(
             fov, aspect, near_plain, far_plain, handedness);
 
-        aoe::Matrix4 world_view_projection = projection * world;
+        aoe::Matrix4 world_view_projection = projection_matrix * world;
 
         ModelData model_data{};
         model_data.world_view_projection = world_view_projection.Transpose();

@@ -19,7 +19,7 @@ Image::Image()
 	: Image(nullptr, 0, 0, 0)
 {}
 
-Image::Image(Image && other) noexcept
+Image::Image(Image&& other) noexcept
 	: Image()
 {
 	swap(*this, other);
@@ -45,15 +45,6 @@ const uint8_t* Image::GetData() const {
 	return data_;
 }
 
-uint8_t Image::operator[](size_t index) {
-	return data_[index];
-}
-
-Image& Image::operator=(Image other) {
-	swap(*this, other);
-	return *this;
-}
-
 void swap(Image& first, Image& second) {
 	using std::swap;
 
@@ -61,6 +52,15 @@ void swap(Image& first, Image& second) {
 	swap(first.height_, second.height_);
 	swap(first.channels_, second.channels_);
 	swap(first.data_, second.data_);
+}
+
+uint8_t Image::operator[](size_t index) {
+	return data_[index];
+}
+
+Image& Image::operator=(Image other) {
+	swap(*this, other);
+	return *this;
 }
 
 } // namespace aoe

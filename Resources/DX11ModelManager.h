@@ -20,10 +20,13 @@ struct DX11ModelResources {
 
 class DX11ModelManager : public IModelManager {
 public:
+	static constexpr ModelId kDefault = 0;
+
 	DX11ModelManager();
 
-	virtual ModelId Load(const std::string& path) override;
-	virtual ModelId Upload(Model model) override;
+	ModelId Load(const std::string& path) override;
+	ModelId Upload(Model model) override;
+	ModelId GetDefault() override;
 	const Model& GetModel(ModelId model_id) override;
 	const DX11ModelResources& GetMeshResources(ModelId mesh_id);
 

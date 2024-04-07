@@ -102,6 +102,34 @@ enum class GPUSamplerBorderColor {
     kOpaqueWhite,
 };
 
+enum class GPUBlend {
+    kZero = 1,
+    kOne = 2,
+    kSrcColor = 3,
+    kInvSrcColor = 4,
+    kSrcAlpha = 5,
+    kInvSrcAlpha = 6,
+    kDestAlpha = 7,
+    kInvDestAlpha = 8,
+    kDestColor = 9,
+    kInvDestColor = 10,
+    kSrcAlphaSat = 11,
+    kBlendFactor = 14,
+    kInvBlendFactor = 15,
+    kSrc1Color = 16,
+    kInvSrc1Color = 17,
+    kSrc1Alpha = 18,
+    kInvSrc1Alpha = 19,
+};
+
+enum class GPUBlendOperation {
+    kAdd = 1,
+    kSubstract = 2,
+    kRevSubstract = 3,
+    kMin = 4,
+    kMax = 5,
+};
+
 } // namespace aoe
 
 AOE_DECLARE_ENUM_OPERATORS(aoe::GPUTextureFlags)

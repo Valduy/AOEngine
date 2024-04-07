@@ -17,8 +17,8 @@ public:
 	IDXGISwapChain* GetNative() const;
 	const DX11GPUTextureView& GetRenderTargetView() const;
 
-	bool Resize(uint32_t width, uint32_t height);
-	void Present();
+	bool Resize(uint32_t width, uint32_t height) const;
+	void Present() const;
 
 private:
 	const Window& window_;

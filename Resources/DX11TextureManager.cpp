@@ -8,7 +8,10 @@ DX11TextureManager::DX11TextureManager()
 	: path_to_texture_id_()
 	, images_()
 	, textures_resources_()
-{}
+{
+	uint8_t data[] = {0xFF, 0xFF, 0xFF, 0xFF};
+	Upload(Image(data, 1, 1, 4));
+}
 
 TextureId DX11TextureManager::Load(const std::string& path, uint32_t desired_channels) {
 	auto it = path_to_texture_id_.find(path);
@@ -38,6 +41,10 @@ TextureId DX11TextureManager::Upload(Image image) {
 	images_.emplace_back(std::move(image));
 	textures_resources_.emplace_back(CreateTexture(images_.back()));
 	return static_cast<TextureId>(images_.size() - 1);
+}
+
+TextureId DX11TextureManager::GetDefault() {
+	return kDefault;
 }
 
 const Image& DX11TextureManager::GetTexture(TextureId texture_id) {

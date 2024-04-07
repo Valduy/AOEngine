@@ -142,19 +142,18 @@
     <ProjectReference Include="..\Application\Application.vcxproj">
       <Project>{2028b554-285a-476c-a959-d9b928c94832}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Game\Game.vcxproj">
+      <Project>{91de6050-f73f-4324-b97a-b2135eb788e5}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Graphics\Graphics.vcxproj">
       <Project>{92f2c751-e610-422d-85ea-37060a158884}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Renderer\Renderer.vcxproj">
+      <Project>{43a2202e-8452-4d66-a6c3-2ec96219ec3c}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Resources\Resources.vcxproj">
       <Project>{4c8e6e3d-ed0d-4f8b-9ccf-4bd66a38ab73}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="IECSSystem.h" />
-    <ClInclude Include="Relationeer.h" />
-    <ClInclude Include="SystemsPool.h" />
-    <ClInclude Include="TransformComponent.h" />
-    <ClInclude Include="TransformUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,9 @@
 #pragma once
 
+#include "../ECS/World.h"
+
+namespace aoe {
+
 template<typename TComponent>
 class Relationeer {
 public:
@@ -9,13 +13,13 @@ public:
 
 	public:
 		RelationsComponent()
-			: parent(aoe::Entity::Null())
+			: parent(Entity::Null())
 			, children()
 		{}
 
 	private:
-		aoe::Entity parent;
-		std::vector<aoe::Entity> children;
+		Entity parent;
+		std::vector<Entity> children;
 	};
 
 	Relationeer(aoe::World& world)
@@ -34,25 +38,25 @@ public:
 			*this, &Relationeer<TComponent>::OnRelationsComponentRemoved);
 	}
 
-	bool HasRelations(aoe::Entity entity) const {
+	bool HasRelations(Entity entity) const {
 		return world_.Has<RelationsComponent>(entity);
 	}
 
-	void BreakRelations(aoe::Entity entity) {
+	void BreakRelations(Entity entity) {
 		world_.Remove<RelationsComponent>(entity);
 	}
 
-	aoe::Entity GetParent(aoe::Entity child) const {
+	Entity GetParent(Entity child) const {
 		auto relations = world_.Get<RelationsComponent>(child);
 		return relations->parent;
 	}
 
-	void SetParent(aoe::Entity child, aoe::Entity parent) {
+	void SetParent(Entity child, Entity parent) {
 		AssertHasComponent(child);
 		AssertHasComponent(parent);
 
-		aoe::ComponentHandler<RelationsComponent> child_relations = GetOrCreateRelations(child);
-		aoe::ComponentHandler<RelationsComponent> parent_relations = GetOrCreateRelations(parent);
+		auto child_relations = GetOrCreateRelations(child);
+		auto parent_relations = GetOrCreateRelations(parent);
 
 		AOE_ASSERT_MSG(child.GetId() != parent.GetId(), "Entity can't be parent for itself.");
 		AOE_ASSERT_MSG(!IsChildrenOf(parent, child), "Parent doesn't have to be a child.");
@@ -62,27 +66,27 @@ public:
 		parent_relations->children.push_back(child);
 	}
 
-	void MakeRoot(aoe::Entity child) {
+	void MakeRoot(Entity child) {
 		auto child_relations = world_.Get<RelationsComponent>(child);
-		aoe::Entity parent = child_relations->parent;
+		Entity parent = child_relations->parent;
 
 		if (parent.IsNull()) {
 			return;
 		}
 
 		auto parent_relations = world_.Get<RelationsComponent>(parent);
-		std::vector<aoe::Entity>& children = parent_relations->children;
+		std::vector<Entity>& children = parent_relations->children;
 
 		auto it = std::find(children.begin(), children.end(), child);
 		children.erase(it);
 	}
 
-	const std::vector<aoe::Entity>& GetChildren(aoe::Entity entity) const {
+	const std::vector<Entity>& GetChildren(Entity entity) const {
 		auto relations = world_.Get<RelationsComponent>(entity);
 		return relations->children;
 	}
 
-	bool IsChildrenOf(aoe::Entity child, aoe::Entity parent) const {
+	bool IsChildrenOf(Entity child, Entity parent) const {
 		auto temp = world_.Get<RelationsComponent>(child);
 
 		do {
@@ -99,17 +103,17 @@ public:
 	}
 
 private:
-	aoe::World& world_;
+	World& world_;
 
-	void AssertHasComponent(aoe::Entity entity) const {
+	void AssertHasComponent(Entity entity) const {
 		AOE_ASSERT_MSG(world_.Has<TComponent>(entity), "Entity doesn't contain relaited component.");
 	}
 
-	void AssertHasRelations(aoe::Entity entity) const {
+	void AssertHasRelations(Entity entity) const {
 		AOE_ASSERT_MSG(HasRelations(entity), "Entity hasn't relations.");
 	}
 
-	aoe::ComponentHandler<RelationsComponent> GetOrCreateRelations(aoe::Entity entity) const {
+	auto GetOrCreateRelations(Entity entity) const {
 		if (!HasRelations(entity)) {
 			world_.Add<RelationsComponent>(entity);
 		}
@@ -117,20 +121,20 @@ private:
 		return world_.Get<RelationsComponent>(entity);
 	}
 
-	void OnRelatedComponentRemoved(aoe::Entity entity) {
+	void OnRelatedComponentRemoved(Entity entity) {
 		BreakRelations(entity);
 	}
 
-	void OnRelationsComponentRemoved(aoe::Entity entity) {
+	void OnRelationsComponentRemoved(Entity entity) {
 		BreakHierarchy(entity);
 	}
 
-	void BreakHierarchy(aoe::Entity entity) {
+	void BreakHierarchy(Entity entity) {
 		auto relations = world_.Get<RelationsComponent>(entity);
 
-		for (aoe::Entity child : relations->children) {
+		for (Entity child : relations->children) {
 			auto child_relations = world_.Get<RelationsComponent>(child);
-			child_relations->parent = aoe::Entity::Null();
+			child_relations->parent = Entity::Null();
 		}
 
 		if (relations->parent.IsNull()) {
@@ -144,3 +148,5 @@ private:
 			entity));
 	}
 };
+
+} // namespace aoe

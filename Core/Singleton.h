@@ -9,9 +9,9 @@ class Singleton {
 AOE_NON_COPYABLE_AND_NON_MOVABLE_CLASS(Singleton<T>)
 
 public:
-	static T* Instance() {
+	static T& Instance() {
 		static T instance;
-		return &instance;
+		return instance;
 	}
 
 protected:

@@ -18,11 +18,16 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{92f2c751-e610-422d-85ea-37060a158884}</ProjectGuid>
-    <RootNamespace>Graphics</RootNamespace>
+    <ProjectGuid>{43a2202e-8452-4d66-a6c3-2ec96219ec3c}</ProjectGuid>
+    <RootNamespace>Renderer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -59,15 +64,19 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Core\AOECore.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Core\AOECore.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Core\AOECore.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Core\AOECore.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -140,43 +149,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DX11GPUBlendState.h" />
-    <ClInclude Include="DX11GPURenderTargets.h" />
-    <ClInclude Include="DX11GPUTextureView.h" />
-    <ClInclude Include="DX11GPUByteCode.h" />
-    <ClInclude Include="DX11Headers.h" />
-    <ClInclude Include="DX11Helper.h" />
+    <ClInclude Include="DX11GBuffer.h" />
+    <ClInclude Include="DX11MaterialData.h" />
+    <ClInclude Include="DX11RenderContext.h" />
+    <ClInclude Include="DX11RenderState.h" />
+    <ClInclude Include="DX11RenderSystem.h" />
+    <ClInclude Include="DX11TextureScaler.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="DX11GPUContext.h" />
-    <ClInclude Include="DX11GPUDepthState.h" />
-    <ClInclude Include="DX11GPUDevice.h" />
-    <ClInclude Include="DX11GPURasterizerState.h" />
-    <ClInclude Include="DX11GPUSampler.h" />
-    <ClInclude Include="DX11GPUPixelShader.h" />
-    <ClInclude Include="DX11GPUShadersCompiler.h" />
-    <ClInclude Include="DX11GPUSwapChain.h" />
-    <ClInclude Include="DX11GPUTexture2D.h" />
-    <ClInclude Include="GPUEnums.h" />
-    <ClInclude Include="DX11GPUBuffer.h" />
-    <ClInclude Include="DX11GPUVertexShader.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="GPUPixelFormat.h" />
-    <ClInclude Include="Viewport.h" />
+    <ClInclude Include="RenderComponent.h" />
+    <ClInclude Include="DX11RenderDataUpdateSystem.h" />
+    <ClInclude Include="DX11RenderDataComponent.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DX11GPUBlendState.cpp" />
-    <ClCompile Include="DX11GPUBuffer.cpp" />
-    <ClCompile Include="DX11GPUByteCode.cpp" />
-    <ClCompile Include="DX11GPUContext.cpp" />
-    <ClCompile Include="DX11GPUDepthState.cpp" />
-    <ClCompile Include="DX11GPUDevice.cpp" />
-    <ClCompile Include="DX11GPUShadersCompiler.cpp" />
-    <ClCompile Include="DX11GPUPixelShader.cpp" />
-    <ClCompile Include="DX11GPURasterizerState.cpp" />
-    <ClCompile Include="DX11GPUSampler.cpp" />
-    <ClCompile Include="DX11GPUSwapChain.cpp" />
-    <ClCompile Include="DX11GPUTexture2D.cpp" />
-    <ClCompile Include="DX11GPUVertexShader.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -191,6 +177,17 @@
     <ProjectReference Include="..\Core\Core.vcxproj">
       <Project>{5c846270-14fb-4ed6-86ba-e9b9c2ab0c44}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Graphics\Graphics.vcxproj">
+      <Project>{92f2c751-e610-422d-85ea-37060a158884}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Resources\Resources.vcxproj">
+      <Project>{4c8e6e3d-ed0d-4f8b-9ccf-4bd66a38ab73}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Content\GeometryPass.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

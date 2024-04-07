@@ -11,7 +11,7 @@ DX11GPUVertexShader::DX11GPUVertexShader(const DX11GPUByteCode& byte_code)
 {
     HRESULT hr = S_OK;
 
-    hr = DX11GPUDevice::Instance()->GetNative()->CreateVertexShader(
+    hr = DX11GPUDevice::Instance().GetNative()->CreateVertexShader(
         byte_code.GetBufferPointer(),
         byte_code.GetBufferSize(),
         nullptr,
@@ -21,7 +21,7 @@ DX11GPUVertexShader::DX11GPUVertexShader(const DX11GPUByteCode& byte_code)
 
     std::vector<D3D11_INPUT_ELEMENT_DESC> layout_desc = CreateInputLayoutDescriptor(byte_code.GetNative());
 
-    hr = DX11GPUDevice::Instance()->GetNative()->CreateInputLayout(
+    hr = DX11GPUDevice::Instance().GetNative()->CreateInputLayout(
         layout_desc.data(),
         static_cast<uint32_t>(layout_desc.size()),
         byte_code.GetBufferPointer(),

@@ -2,6 +2,8 @@
 
 #include "../Core/Math.h"
 
+namespace aoe {
+
 class TransformComponent {
 public:
 	aoe::Vector3 position;
@@ -14,7 +16,7 @@ public:
 		, scale(aoe::Math::kV3Ones)
 	{}
 
-	aoe::Matrix4 GetModelMatrix() const {
+	aoe::Matrix4 GetWorldMatrix() const {
 		aoe::Matrix4 model = aoe::Matrix4::Identity();
 		model *= aoe::Matrix4::FromTranslationVector(position);
 		model *= rotation.ToMatrix4();
@@ -22,3 +24,5 @@ public:
 		return model;
 	}
 };
+
+} // namespace aoe

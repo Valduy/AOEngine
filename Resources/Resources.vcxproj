@@ -158,6 +158,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Resources.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Vertex.h" />

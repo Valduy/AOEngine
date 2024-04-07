@@ -1,16 +1,18 @@
 #include <functional>
 
 #include "../Application/Application.h"
-
 #include "../Core/Math.h"
 #include "../ECS/World.h"
 #include "../Resources/ModelLoader.h"
-
-#include "TransformComponent.h"
-#include "Relationeer.h"
-#include "TransformUtils.h"
-#include "IECSSystem.h"
-#include "SystemsPool.h"
+#include "../Game/TransformComponent.h"
+#include "../Game/Relationeer.h"
+#include "../Game/TransformUtils.h"
+#include "../Game/IECSSystem.h"
+#include "../Game/SystemsPool.h"
+#include "../Renderer/DX11RenderDataUpdateSystem.h"
+#include "../Renderer/DX11RenderSystem.h"
+#include "../Resources/DX11ModelManager.h"
+#include "../Resources/DX11TextureManager.h"
 
 class SolarSystemScene : public aoe::IScene {
 public:
@@ -18,20 +20,22 @@ public:
 		: window_(window)
 		, world_()
 		, relationeer_(world_)
+		, service_provider_()
 	{}
 
 	void Initialize() override {
+		// experiments begin
 		world_.EntityCreated.Attach(*this, &SolarSystemScene::TestEntityCreated);
 		world_.EntityDestroyed.Attach(*this, &SolarSystemScene::TestEntityDestroyed);
 
 		aoe::Entity parent = world_.Create();
 		aoe::Entity child = world_.Create();
 
-		world_.Add<TransformComponent>(parent);
-		world_.Add<TransformComponent>(child);
+		world_.Add<aoe::TransformComponent>(parent);
+		world_.Add<aoe::TransformComponent>(child);
 
-		auto parent_transform = world_.Get<TransformComponent>(parent);
-		auto child_transform = world_.Get<TransformComponent>(child);
+		auto parent_transform = world_.Get<aoe::TransformComponent>(parent);
+		auto child_transform = world_.Get<aoe::TransformComponent>(child);
 
 		parent_transform->position = { 0.0f, 0.0f, 1.0f };
 		parent_transform->rotation = aoe::Quaternion::FromEulerAngles({ 0.0f, 0.0f, aoe::Math::kPi / 4 });
@@ -44,36 +48,65 @@ public:
 		bool isChildChild = relationeer_.IsChildrenOf(child, parent);
 		bool isParentChild = relationeer_.IsChildrenOf(parent, child);
 
-		auto test0 = TransformUtils::GetGlobalPosition(world_, relationeer_, parent);
-		auto test1 = TransformUtils::GetGlobalPosition(world_, relationeer_, child);
+		auto test0 = aoe::TransformUtils::GetGlobalPosition(world_, relationeer_, parent);
+		auto test1 = aoe::TransformUtils::GetGlobalPosition(world_, relationeer_, child);
 
-		auto test3 = TransformUtils::GetGlobalRotation(world_, relationeer_, parent).ToEulerAngles();
-		auto test4 = TransformUtils::GetGlobalRotation(world_, relationeer_, child).ToEulerAngles();
+		auto test3 = aoe::TransformUtils::GetGlobalRotation(world_, relationeer_, parent).ToEulerAngles();
+		auto test4 = aoe::TransformUtils::GetGlobalRotation(world_, relationeer_, child).ToEulerAngles();
 
-		TransformUtils::SetGlobalPosition(world_, relationeer_, child, { 0.0f, 0.0f, 2.0f });
+		aoe::TransformUtils::SetGlobalPosition(world_, relationeer_, child, { 0.0f, 0.0f, 2.0f });
 		auto test5 = child_transform->position;
 
 		auto quat = aoe::Quaternion::FromEulerAngles({ 0.0f, 0.0f, aoe::Math::kPi / 2 });
-		TransformUtils::SetGlobalRotation(world_, relationeer_, child, quat);
+		aoe::TransformUtils::SetGlobalRotation(world_, relationeer_, child, quat);
 		auto test6 = child_transform->rotation.ToEulerAngles();
 
 		world_.Destroy(parent);
 		world_.Destroy(child);
-
 		world_.Validate();
+		//experiments end
+		
+		aoe::Entity entity = world_.Create();
+		world_.Add<aoe::TransformComponent>(entity);
+
+		aoe::Material material;
+		material.ambient = { 0.1f, 0.1f, 0.1f };
+		material.diffuse = { 1.0f, 0.3f, 0.3f };
+		material.specular = { 0.1f, 0.1f, 0.1f };
+		material.shininess = 32.0f;
+		world_.Add<aoe::RenderComponent>(entity, model_manager_.GetDefault(), texture_manager_.GetDefault(), material);
+
+		service_provider_.AddService(&world_);
+		service_provider_.AddService(&relationeer_);
+
+		systems_pool_.PushSystem<aoe::DX11RenderDataUpdateSystem>(window_, service_provider_);
+		systems_pool_.PushSystem<aoe::DX11RenderSystem>(window_, service_provider_);
+		systems_pool_.Initialize();
 	};
 
-	void Terminate() override {};
+	void Terminate() override {
+		systems_pool_.Terminate();
+	};
 
-	void PerTickUpdate(float dt) override {}
+	void PerTickUpdate(float dt) override {
+		systems_pool_.PerTickUpdate(dt);
+	}
 
-	void PerFrameUpdate(float dt) override {}
+	void PerFrameUpdate(float dt) override {
+		systems_pool_.PerFrameUpdate(dt);
+	}
 
 private:
 	const aoe::Window& window_;
 
 	aoe::World world_;
-	Relationeer<TransformComponent> relationeer_;
+	aoe::Relationeer<aoe::TransformComponent> relationeer_;
+
+	aoe::DX11ModelManager model_manager_;
+	aoe::DX11TextureManager texture_manager_;
+
+	aoe::ServiceProvider service_provider_;
+	aoe::SystemsPool systems_pool_;
 
 	void TestEntityCreated(aoe::Entity entity) {
 		int test = 0;

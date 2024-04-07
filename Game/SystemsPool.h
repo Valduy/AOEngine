@@ -4,6 +4,8 @@
 
 #include "IECSSystem.h"
 
+namespace aoe {
+
 class SystemsPool {
 public:
 	~SystemsPool() {
@@ -15,8 +17,8 @@ public:
 	}
 
 	template<typename TSystem, typename...TParams>
-	void PushSystem(TParams... params) {
-		systems_.push_back(new TSystem(params...));
+	void PushSystem(TParams&&... params) {
+		systems_.push_back(new TSystem(std::forward<TParams>(params)...));
 	}
 
 	void Initialize() {
@@ -46,3 +48,5 @@ public:
 private:
 	std::vector<IECSSystem*> systems_;
 };
+
+} // namespace aoe

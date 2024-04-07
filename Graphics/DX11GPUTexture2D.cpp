@@ -37,10 +37,10 @@ DX11GPUTexture2D::DX11GPUTexture2D(
 		subresource_data.SysMemPitch = description_.width * stride;
 		subresource_data.SysMemSlicePitch = description_.height * description_.width * stride;
 
-		hr = DX11GPUDevice::Instance()->GetNative()->CreateTexture2D(&texture_desc, &subresource_data, texture_.GetAddressOf());
+		hr = DX11GPUDevice::Instance().GetNative()->CreateTexture2D(&texture_desc, &subresource_data, texture_.GetAddressOf());
 	}
 	else {
-		hr = DX11GPUDevice::Instance()->GetNative()->CreateTexture2D(&texture_desc, nullptr, texture_.GetAddressOf());
+		hr = DX11GPUDevice::Instance().GetNative()->CreateTexture2D(&texture_desc, nullptr, texture_.GetAddressOf());
 	}
 
 	AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create texture.");
@@ -151,28 +151,28 @@ void DX11GPUTexture2D::CreateTextureViews() {
 
 	if (IsShaderResource()) {
 		ID3D11ShaderResourceView* shader_resource_view;
-		hr = DX11GPUDevice::Instance()->GetNative()->CreateShaderResourceView(texture_.Get(), nullptr, &shader_resource_view);
+		hr = DX11GPUDevice::Instance().GetNative()->CreateShaderResourceView(texture_.Get(), nullptr, &shader_resource_view);
 		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create shader resource view.");
 		texture_view_.Attach(shader_resource_view);
 	}
 
 	if (IsDepthStencil()) {
 		ID3D11DepthStencilView* depth_stencil_view;
-		hr = DX11GPUDevice::Instance()->GetNative()->CreateDepthStencilView(texture_.Get(), nullptr, &depth_stencil_view);
+		hr = DX11GPUDevice::Instance().GetNative()->CreateDepthStencilView(texture_.Get(), nullptr, &depth_stencil_view);
 		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create depth stencil view.");
 		texture_view_.Attach(depth_stencil_view);
 	}
 
 	if (IsRenderTarget()) {
 		ID3D11RenderTargetView* render_target_view;
-		hr = DX11GPUDevice::Instance()->GetNative()->CreateRenderTargetView(texture_.Get(), nullptr, &render_target_view);
+		hr = DX11GPUDevice::Instance().GetNative()->CreateRenderTargetView(texture_.Get(), nullptr, &render_target_view);
 		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create render target view.");
 		texture_view_.Attach(render_target_view);
 	}
 
 	if (IsUnorderedAccess()) {
 		ID3D11UnorderedAccessView* unordered_access_view;
-		hr = DX11GPUDevice::Instance()->GetNative()->CreateUnorderedAccessView(texture_.Get(), nullptr, &unordered_access_view);
+		hr = DX11GPUDevice::Instance().GetNative()->CreateUnorderedAccessView(texture_.Get(), nullptr, &unordered_access_view);
 		AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create unordered access view.");
 		texture_view_.Attach(unordered_access_view);
 	}

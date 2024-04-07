@@ -17,7 +17,7 @@ DX11GPUByteCode DX11GPUShadersCompiler::CompileShader(const GPUShaderProgramDesc
 		byte_code = CompileByteCode(description.path, description.entry_point, kPsTarget);
 		break;
 	default:
-		AOE_ASSERT_MSG(false, "Unexpected shader type");
+		AOE_ASSERT_MSG(false, "Unexpected shader type.");
 	}
 
 	return { byte_code };

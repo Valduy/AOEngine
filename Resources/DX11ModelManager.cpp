@@ -30,6 +30,10 @@ ModelId DX11ModelManager::Upload(Model model) {
 	return static_cast<ModelId>(models_.size() - 1);
 }
 
+ModelId DX11ModelManager::GetDefault() {
+	return kDefault;
+}
+
 const Model& DX11ModelManager::GetModel(ModelId model_id) {
 	return models_[model_id];
 }

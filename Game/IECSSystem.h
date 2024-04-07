@@ -1,5 +1,7 @@
 #pragma once
 
+namespace aoe {
+
 class IECSSystem {
 public:
 	virtual void Initialize() = 0;
@@ -7,3 +9,5 @@ public:
 	virtual void PerTickUpdate(float dt) = 0;
 	virtual void PerFrameUpdate(float dt) = 0;
 };
+
+} // namespace aoe
