@@ -16,6 +16,8 @@ using Quaternion = mathfu::Quaternion<float>;
 class Math {
 public:
 	static constexpr float kPi = mathfu::kPi;
+	static constexpr float kRH = 1.0f;
+	static constexpr float kLH = -1.0f;
 
 	static const Vector2 kV2Zero;
 	static const Vector2 kV2Ones;
@@ -27,6 +29,12 @@ public:
 	static const Vector3 kV3AxisX;
 	static const Vector3 kV3AxisY;
 	static const Vector3 kV3AxisZ;
+	static const Vector3 kRight;
+	static const Vector3 kLeft;
+	static const Vector3 kUp;
+	static const Vector3 kDown;
+	static const Vector3 kForward;
+	static const Vector3 kBackward;
 
 	static const Vector4 kV4Zero;
 	static const Vector4 kV4Ones;

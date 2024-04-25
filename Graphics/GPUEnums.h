@@ -130,6 +130,14 @@ enum class GPUBlendOperation {
     kMax = 5,
 };
 
+enum class GPUColorWriteMask {
+    kRed = 1,
+    kGreen = 2,
+    kBlue = 4,
+    kAlpha = 8,
+    kAll = kRed | kGreen | kBlue | kAlpha,
+};
+
 } // namespace aoe
 
 AOE_DECLARE_ENUM_OPERATORS(aoe::GPUTextureFlags)

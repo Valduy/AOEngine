@@ -12,10 +12,17 @@ public:
 	// TODO: handle window resize and update resources
 
 	DX11RenderContext(const Window& window)
-		: swap_chain_(window)
+		: window_(window)
+		, swap_chain_(window)
 		, depth_buffer_(GPUTexture2DDescription::DepthStencilBuffer(window.GetWidth(), window.GetHeight()))
 		, gbuffer_(window.GetWidth(), window.GetHeight())
 	{}
+
+	Viewport GetViewport() const {
+		float width = static_cast<float>(window_.GetWidth());
+		float height = static_cast<float>(window_.GetHeight());
+		return { 0, 0, width, height, 0, 1 };
+	}
 
 	const DX11GPUTextureView& GetRenderTargetView() {
 		return swap_chain_.GetRenderTargetView();
@@ -29,6 +36,10 @@ public:
 		return gbuffer_.GetDiffuseTexture()->GetTextureView();
 	}
 
+	const DX11GPUTextureView& GetSpecularTextureView() {
+		return gbuffer_.GetSpecularTexture()->GetTextureView();
+	}
+
 	const DX11GPUTextureView& GetNormalTextureView() {
 		return gbuffer_.GetNormalTexture()->GetTextureView();
 	}
@@ -37,8 +48,8 @@ public:
 		return gbuffer_.GetPositionTexture()->GetTextureView();
 	}
 
-	const DX11GPUTextureView& GetOutputTextureView() {
-		return gbuffer_.GetOutputTexture()->GetTextureView();
+	const DX11GPUTextureView& GetAccumulatorTextureView() {
+		return gbuffer_.GetAccumulatorTexture()->GetTextureView();
 	}
 
 	const void PresentFrame() const {
@@ -46,6 +57,8 @@ public:
 	}
 
 private:
+	const Window& window_;
+
 	DX11GPUSwapChain swap_chain_;
 	DX11TextureScaler depth_buffer_;
 	DX11GBuffer gbuffer_;

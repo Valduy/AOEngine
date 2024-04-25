@@ -19,6 +19,12 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{b87deada-9d0b-46a0-ba8d-d4b241de75b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Components">
+      <UniqueIdentifier>{6fdb202e-f372-4778-947b-4030f190c9f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DX11\RenderPasses">
+      <UniqueIdentifier>{c2353d62-4f70-4547-8be2-06c8020e6b8f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -45,17 +51,26 @@
     <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DX11MaterialData.h">
-      <Filter>Header Files\DX11</Filter>
-    </ClInclude>
     <ClInclude Include="RenderComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DX11RenderDataComponent.h">
+    <ClInclude Include="DX11RenderDataComponents.h">
       <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="DX11RenderDataUpdateSystem.h">
       <Filter>Header Files\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="AmbientLightComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionLightComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraUtils.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -65,6 +80,21 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\GeometryPass.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Content\TonePass.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Content\AmbientLightPass.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Content\GBuffer.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Content\DirectionLightPass.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Content\MaterialData.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

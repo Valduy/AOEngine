@@ -56,8 +56,7 @@ public:
 		}
 
 		Entity parent = relationeer.GetParent(entity);
-		auto parent_transform = world.Get<TransformComponent>(parent);
-		return transform->rotation * parent_transform->rotation;
+		return GetGlobalRotation(world, relationeer, parent) * transform->rotation;
 	}
 
 	static void SetGlobalRotation(
@@ -73,8 +72,8 @@ public:
 		}
 
 		Entity parent = relationeer.GetParent(entity);
-		auto parent_transform = world.Get<TransformComponent>(parent);
-		transform->rotation = parent_transform->rotation.Inverse() * rotation;
+		Quaternion parent_rotation = GetGlobalRotation(world, relationeer, parent);
+		transform->rotation = parent_rotation.Inverse() * rotation;
 	}
 
 	static Matrix4 GetGlobalWorldMatrix(
@@ -92,6 +91,60 @@ public:
 		Entity parent = relationeer.GetParent(entity);
 		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
 		return world_matrix * model_matrix;
+	}
+
+	static Vector3 GetGlobalRight(
+		World& world,
+		Relationeer<TransformComponent>& relationeer,
+		Entity entity) 
+	{
+		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		return world_matrix * Math::kRight;
+	}
+
+	static Vector3 GetGlobalLeft(
+		World& world,
+		Relationeer<TransformComponent>& relationeer,
+		Entity entity) 
+	{
+		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		return world_matrix * Math::kLeft;
+	}
+
+	static Vector3 GetGlobalUp(
+		World& world,
+		Relationeer<TransformComponent>& relationeer,
+		Entity entity) 
+	{
+		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		return world_matrix * Math::kUp;
+	}
+
+	static Vector3 GetGlobalDown(
+		World& world,
+		Relationeer<TransformComponent>& relationeer,
+		Entity entity) 
+	{
+		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		return world_matrix * Math::kDown;
+	}
+
+	static Vector3 GetGlobalForward(
+		World& world,
+		Relationeer<TransformComponent>& relationeer,
+		Entity entity) 
+	{
+		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		return world_matrix * Math::kForward;
+	}
+
+	static Vector3 GetGlobalBackward(
+		World& world,
+		Relationeer<TransformComponent>& relationeer,
+		Entity entity) 
+	{
+		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		return world_matrix * Math::kBackward;
 	}
 
 private:

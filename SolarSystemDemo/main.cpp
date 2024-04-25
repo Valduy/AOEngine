@@ -64,20 +64,64 @@ public:
 		world_.Destroy(parent);
 		world_.Destroy(child);
 		world_.Validate();
-		//experiments end
+		// experiments end
 		
-		aoe::Entity entity = world_.Create();
-		world_.Add<aoe::TransformComponent>(entity);
+		// TODO: may be use it on loading level
+		std::wstring root_directory = aoe::Platform::GetExecutableDirectory();
+		std::string root(root_directory.begin(), root_directory.end());
+
+		aoe::Entity entity0 = world_.Create();
+		world_.Add<aoe::TransformComponent>(entity0);
+		auto transform_component0 = world_.Get<aoe::TransformComponent>(entity0);
+		transform_component0->position = {0.0f, 0.0f, 4.0f};
+
+		aoe::ModelId model_id = model_manager_.Load(root + "/Content/Dice_d4.fbx");
+		aoe::TextureId texture_id = texture_manager_.LoadRGBA(root + "/Content/Dice_d4_Albedo.png");
 
 		aoe::Material material;
-		material.ambient = { 0.1f, 0.1f, 0.1f };
-		material.diffuse = { 1.0f, 0.3f, 0.3f };
+		material.diffuse = { 1.0f, 1.0f, 1.0f };
 		material.specular = { 0.1f, 0.1f, 0.1f };
 		material.shininess = 32.0f;
-		world_.Add<aoe::RenderComponent>(entity, model_manager_.GetDefault(), texture_manager_.GetDefault(), material);
+		world_.Add<aoe::RenderComponent>(entity0, model_id, texture_id, material);
+
+		aoe::Entity entity1 = world_.Create();
+		world_.Add<aoe::TransformComponent>(entity1);
+		auto transform_component1 = world_.Get<aoe::TransformComponent>(entity1);
+		transform_component1->position = { 1.3f, 0.0f, 5.0f };
+
+		auto other_material = material;
+		other_material.diffuse = { 0.3, 1, 0.3 };
+		world_.Add<aoe::RenderComponent>(entity1, model_id, texture_id, other_material);
+
+		aoe::Entity ambient_light = world_.Create();
+		world_.Add<aoe::AmbientLightComponent>(ambient_light);
+		auto ambient_light_component = world_.Get<aoe::AmbientLightComponent>(ambient_light);
+		ambient_light_component->color = { 1.0f, 1.0f, 1.0f };
+		ambient_light_component->intensity = 0.25f;
+
+		aoe::Entity direction_light = world_.Create();
+		world_.Add<aoe::TransformComponent>(direction_light);
+		world_.Add<aoe::DirectionLightComponent>(direction_light);
+		auto direction_transform_component = world_.Get<aoe::TransformComponent>(direction_light);
+		auto direction_light_component = world_.Get<aoe::DirectionLightComponent>(direction_light);
+		direction_light_component->color = { 1.0f, 1.0f, 1.0f };
+
+		aoe::Entity camera = world_.Create();
+		world_.Add<aoe::TransformComponent>(camera);
+		world_.Add<aoe::CameraComponent>(camera);
+		auto camera_transform_component = world_.Get<aoe::TransformComponent>(camera);
+		auto camera_component = world_.Get<aoe::CameraComponent>(camera);
+		camera_component->projection = aoe::Projection::kPerspective;
+		camera_component->width = window_.GetWidth();
+		camera_component->height = window_.GetHeight();
+		camera_component->near_plain = 0.1f;
+		camera_component->far_plain = 100.0f;
+		camera_component->field_of_view = aoe::Math::kPi / 2;
 
 		service_provider_.AddService(&world_);
 		service_provider_.AddService(&relationeer_);
+		service_provider_.AddService(&model_manager_);
+		service_provider_.AddService(&texture_manager_);
 
 		systems_pool_.PushSystem<aoe::DX11RenderDataUpdateSystem>(window_, service_provider_);
 		systems_pool_.PushSystem<aoe::DX11RenderSystem>(window_, service_provider_);
@@ -90,10 +134,12 @@ public:
 
 	void PerTickUpdate(float dt) override {
 		systems_pool_.PerTickUpdate(dt);
+		world_.Validate();
 	}
 
 	void PerFrameUpdate(float dt) override {
 		systems_pool_.PerFrameUpdate(dt);
+		world_.Validate();
 	}
 
 private:

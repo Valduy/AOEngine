@@ -1,16 +1,25 @@
 struct TransformData {
-    matrix world;
-    matrix world_view_projection;
-    matrix inverse_transpose_world;
+    float4x4 world;
+    float4x4 world_view_projection;
+    float4x4 inverse_transpose_world;
+};
+
+struct MaterialData {
+    float3 diffuse;
+    float dummy0;
+    float3 specular;
+    float shininess;
 };
 
 cbuffer TransformBuffer : register(b0) {
     TransformData Transform;
 };
 
-Texture2D DiffuseMap : register(t0);
-Texture2D NormalMap  : register(t1);
+cbuffer MaterialBuffer : register(b1) {
+    MaterialData Material;
+};
 
+Texture2D DiffuseMap : register(t0);
 SamplerState Sampler : register(s0);
 
 struct VertexIn {
@@ -21,15 +30,16 @@ struct VertexIn {
 
 struct PixelIn {
     float4 position       : SV_POSITION0;
-    float4 normal         : NORMAL;
+    float4 normal         : NORMAL0;
     float2 uv             : TEXCOORD0;
     float4 world_position : TEXCOORD1;
 };
 
 struct PixelOut {
-    float4 diffuse  : SV_Target0;
-    float4 normal   : SV_Target1;
-    float4 position : SV_Target2;
+    float4 diffuse  : SV_TARGET0;
+    float4 specular : SV_TARGET1;
+    float4 normal   : SV_TARGET2;
+    float4 position : SV_TARGET3;
 };
 
 PixelIn VertexMain(VertexIn input) {
@@ -45,11 +55,16 @@ PixelIn VertexMain(VertexIn input) {
     return output;
 }
 
+[earlydepthstencil]
 PixelOut PixelMain(PixelIn input) {
+    float4 diffuse = float4(Material.diffuse, 1.0);
+    
     PixelOut output;
-    output.diffuse = DiffuseMap.Sample(Sampler, input.uv);
+    output.diffuse = DiffuseMap.Sample(Sampler, input.uv) * diffuse;
+    output.specular.rgb = Material.specular;
+    output.specular.a = Material.shininess;
     output.normal = input.normal;
-    output.position = input.position;
+    output.position = input.world_position;
     
     return output;
 }

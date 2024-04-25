@@ -10,8 +10,8 @@
 namespace aoe {
 
 struct DX11MeshResources {
-	const aoe::DX11GPUBuffer vertex_buffer;
-	const aoe::DX11GPUBuffer index_buffer;
+	const DX11GPUBuffer vertex_buffer;
+	const DX11GPUBuffer index_buffer;
 };
 
 struct DX11ModelResources {
@@ -28,7 +28,7 @@ public:
 	ModelId Upload(Model model) override;
 	ModelId GetDefault() override;
 	const Model& GetModel(ModelId model_id) override;
-	const DX11ModelResources& GetMeshResources(ModelId mesh_id);
+	const DX11ModelResources& GetModelResources(ModelId mesh_id);
 
 private:
 	std::unordered_map<std::string, ModelId> path_to_model_id_;

@@ -149,8 +149,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AmbientLightComponent.h" />
+    <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="CameraUtils.h" />
+    <ClInclude Include="DirectionLightComponent.h" />
     <ClInclude Include="DX11GBuffer.h" />
-    <ClInclude Include="DX11MaterialData.h" />
     <ClInclude Include="DX11RenderContext.h" />
     <ClInclude Include="DX11RenderState.h" />
     <ClInclude Include="DX11RenderSystem.h" />
@@ -160,7 +163,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="DX11RenderDataUpdateSystem.h" />
-    <ClInclude Include="DX11RenderDataComponent.h" />
+    <ClInclude Include="DX11RenderDataComponents.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -185,7 +188,22 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Content\AmbientLightPass.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Content\DirectionLightPass.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Content\GBuffer.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Content\GeometryPass.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Content\MaterialData.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Content\TonePass.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>

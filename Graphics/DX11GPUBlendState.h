@@ -13,7 +13,7 @@ struct GPURenderTargetBlendStateDesc {
 	GPUBlend source_blend_alpha;
 	GPUBlend destination_blend_alpha;
 	GPUBlendOperation blend_operation_alpha;
-	uint8_t render_target_write_mask;
+	GPUColorWriteMask color_write_mask;
 
 	GPURenderTargetBlendStateDesc()
 		: is_blend_enable(false)
@@ -23,7 +23,7 @@ struct GPURenderTargetBlendStateDesc {
 		, source_blend_alpha(GPUBlend::kZero)
 		, destination_blend_alpha(GPUBlend::kZero)
 		, blend_operation_alpha(GPUBlendOperation::kAdd)
-		, render_target_write_mask(0)
+		, color_write_mask(GPUColorWriteMask::kAll)
 	{}
 };
 
@@ -52,6 +52,7 @@ private:
 
 	static D3D11_BLEND ToDXBlend(const GPUBlend value);
 	static D3D11_BLEND_OP ToDXBlendOperation(const GPUBlendOperation value);
+	static uint8_t ToDXColorWriteMask(const GPUColorWriteMask value);
 };
 
 } // namespace aoe

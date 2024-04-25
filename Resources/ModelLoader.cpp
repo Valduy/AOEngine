@@ -8,8 +8,8 @@ Model ModelLoader::Load(const std::string& path) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path,
 		aiProcess_Triangulate |
-		aiProcess_FlipUVs |
-		aiProcess_FlipWindingOrder);
+		aiProcess_FlipUVs /*|
+		aiProcess_FlipWindingOrder*/);
 
 	if (scene == nullptr) {
 		throw std::runtime_error("Exception during model loading: scene == nullptr.");

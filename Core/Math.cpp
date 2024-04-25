@@ -14,6 +14,12 @@ const Vector3 Math::kV3Ones = mathfu::kOnes3f;
 const Vector3 Math::kV3AxisX = mathfu::kAxisX3f;
 const Vector3 Math::kV3AxisY = mathfu::kAxisY3f;
 const Vector3 Math::kV3AxisZ = mathfu::kAxisZ3f;
+const Vector3 Math::kRight = kV3AxisX;
+const Vector3 Math::kLeft = -kRight;
+const Vector3 Math::kUp = kV3AxisY;
+const Vector3 Math::kDown = -kUp;
+const Vector3 Math::kForward = kV3AxisZ;
+const Vector3 Math::kBackward = -kForward;
 
 const Vector4 Math::kV4Zero = mathfu::kZeros4f;
 const Vector4 Math::kV4Ones = mathfu::kOnes4f;

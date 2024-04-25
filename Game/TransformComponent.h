@@ -6,22 +6,52 @@ namespace aoe {
 
 class TransformComponent {
 public:
-	aoe::Vector3 position;
-	aoe::Quaternion rotation;
-	aoe::Vector3 scale;
+	Vector3 position;
+	Quaternion rotation;
+	Vector3 scale;
 
 	TransformComponent()
-		: position(aoe::Math::kV3Zero)
-		, rotation(aoe::Math::kQIdentity)
-		, scale(aoe::Math::kV3Ones)
+		: position(Math::kV3Zero)
+		, rotation(Math::kQIdentity)
+		, scale(Math::kV3Ones)
 	{}
 
-	aoe::Matrix4 GetWorldMatrix() const {
-		aoe::Matrix4 model = aoe::Matrix4::Identity();
-		model *= aoe::Matrix4::FromTranslationVector(position);
-		model *= rotation.ToMatrix4();
-		model *= aoe::Matrix4::FromScaleVector(scale);
-		return model;
+	Matrix4 GetWorldMatrix() const {
+		Matrix4 world_matrix = Matrix4::Identity();
+		world_matrix *= Matrix4::FromTranslationVector(position);
+		world_matrix *= rotation.ToMatrix4();
+		world_matrix *= Matrix4::FromScaleVector(scale);
+		return world_matrix;
+	}
+
+	Vector3 GetRight() const {
+		Matrix4 world_matrix = GetWorldMatrix();
+		return world_matrix * Math::kRight;
+	}
+
+	Vector3 GetLeft() const {
+		Matrix4 world_matrix = GetWorldMatrix();
+		return world_matrix * Math::kLeft;
+	}
+
+	Vector3 GetUp() const {
+		Matrix4 world_matrix = GetWorldMatrix();
+		return world_matrix * Math::kUp;
+	}
+
+	Vector3 GetDown() const {
+		Matrix4 world_matrix = GetWorldMatrix();
+		return world_matrix * Math::kDown;
+	}
+
+	Vector3 GetForward() const {
+		Matrix4 world_matrix = GetWorldMatrix();
+		return world_matrix * Math::kForward;
+	}
+
+	Vector3 GetBackward() const {
+		Matrix4 world_matrix = GetWorldMatrix();
+		return world_matrix * Math::kBackward;
 	}
 };
 

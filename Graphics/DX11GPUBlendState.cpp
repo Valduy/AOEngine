@@ -21,7 +21,7 @@ aoe::DX11GPUBlendState::DX11GPUBlendState(const GPUBlendStateDescription descrip
 		blend_state_desc.RenderTarget[i].SrcBlendAlpha = ToDXBlend(description_.render_targets[i].source_blend_alpha);
 		blend_state_desc.RenderTarget[i].DestBlendAlpha = ToDXBlend(description_.render_targets[i].destination_blend_alpha);
 		blend_state_desc.RenderTarget[i].BlendOpAlpha = ToDXBlendOperation(description_.render_targets[i].blend_operation_alpha);
-		blend_state_desc.RenderTarget[i].RenderTargetWriteMask = description_.render_targets[i].render_target_write_mask;
+		blend_state_desc.RenderTarget[i].RenderTargetWriteMask = ToDXColorWriteMask(description_.render_targets[i].color_write_mask);
 	}
 
 	const HRESULT hr = DX11GPUDevice::Instance().GetNative()->CreateBlendState(&blend_state_desc, blend_state_.GetAddressOf());
@@ -42,6 +42,10 @@ D3D11_BLEND DX11GPUBlendState::ToDXBlend(const GPUBlend value) {
 
 D3D11_BLEND_OP DX11GPUBlendState::ToDXBlendOperation(const GPUBlendOperation value) {
 	return static_cast<D3D11_BLEND_OP>(value);
+}
+
+uint8_t DX11GPUBlendState::ToDXColorWriteMask(const GPUColorWriteMask value) {
+	return static_cast<uint8_t>(value);
 }
 
 } // namespace aoe

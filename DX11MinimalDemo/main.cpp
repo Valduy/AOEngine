@@ -13,7 +13,7 @@
 
 struct ModelData {
     aoe::Matrix4 world_view_projection;
-    aoe::Matrix4 normal_matrix;
+    aoe::Matrix4 inverse_transpose_world;
 };
 
 struct LightData {
@@ -65,8 +65,8 @@ public:
         , index_buffer_(CreateIndexBuffer(model_.GetMeshes().back()))
         , model_buffer_(aoe::DX11GPUBuffer::Create<ModelData>(kConstBufferDesc))
         , light_buffer_(aoe::DX11GPUBuffer::Create<LightData>(kConstBufferDesc))
-        , vertex_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kVertex, L"Content/shaders.hlsl", "vs_main"}))
-        , pixel_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kPixel, L"Content/shaders.hlsl", "ps_main"}))
+        , vertex_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kVertex, L"Content/shaders.hlsl", "VertexMain"}))
+        , pixel_shader_(aoe::DX11GPUShadersCompiler::CompileShader({aoe::GPUShaderType::kPixel, L"Content/shaders.hlsl", "PixelMain"}))
         , sampler_(kSamplerDesc)
         , texture_(CreateTexture(image_))
     {}
@@ -84,24 +84,25 @@ public:
         context.ClearRenderTarget(swap_chain_.GetRenderTargetView(), background_color);
         context.ClearDepth(depth_stencil_buffer_.GetTextureView(), 1.0f);
 
+        context.SetRenderTarget(swap_chain_.GetRenderTargetView(), depth_stencil_buffer_.GetTextureView());
+        context.SetDepthState(depth_state_);
+
         context.SetVertexBuffer(vertex_buffer_);
         context.SetIndexBuffer(index_buffer_);
 
-        context.SetPrimitiveTopology(aoe::GPUPrimitiveTopology::kTriangleList);
         context.SetVertexShader(vertex_shader_);
+        context.SetPixelShader(pixel_shader_);
+
         context.SetConstantBuffer(aoe::GPUShaderType::kVertex, model_buffer_, 0);
         context.SetConstantBuffer(aoe::GPUShaderType::kPixel, light_buffer_, 1);
 
         context.SetViewport(viewport_);
         context.SetRasterizerState(rasterized_state_);
         
-        context.SetPixelShader(pixel_shader_);
         context.SetShaderResource(aoe::GPUShaderType::kPixel, texture_.GetTextureView(), 0);
         context.SetSampler(aoe::GPUShaderType::kPixel, sampler_);
 
-        context.SetRenderTarget(swap_chain_.GetRenderTargetView(), depth_stencil_buffer_.GetTextureView());
-        context.SetDepthState(depth_state_);
-
+        context.SetPrimitiveTopology(aoe::GPUPrimitiveTopology::kTriangleList);
         context.DrawIndexed(index_buffer_.GetElementsCount());
 
         swap_chain_.Present();
@@ -122,7 +123,7 @@ public:
         rotation_.y += 0.9f * dt;
         rotation_.z += 0.1f * dt;
 
-        const float fov = aoe::Math::kPi / 3;
+        const float fov = aoe::Math::kPi / 2;
         const float near_plain = 0.1f;
         const float far_plain = 100.0f;
         const float handedness = -1.0f;
@@ -134,12 +135,12 @@ public:
 
         ModelData model_data{};
         model_data.world_view_projection = world_view_projection.Transpose();
-        model_data.normal_matrix = world.Transpose().Inverse().Transpose();
+        model_data.inverse_transpose_world = world.Inverse();
         context.UpdateBuffer<ModelData>(model_buffer_, &model_data, 1);
 
         LightData light_data{};
         light_data.view_position = aoe::Math::kV3Zero;
-        light_data.direction = -aoe::Math::kV3AxisZ;
+        light_data.direction = aoe::Math::kV3AxisZ;
         context.UpdateBuffer<LightData>(light_buffer_, &light_data, 1);
     };
 
