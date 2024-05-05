@@ -1,16 +1,24 @@
 #include "pch.h"
 
+#include "../Core/FileHelper.h"
+#include "../Application/Platform.h"
+
 #include "ModelLoader.h"
 
 namespace aoe {
 
-Model ModelLoader::Load(const std::string& path) {
+Model ModelLoader::Load(const std::wstring& path, ModelLoaderOptions options) {
+	std::wstring full_path = std::format(L"{}/{}", Platform::GetExecutableDirectory(), path);
+	std::vector<char> buffer = FileHelper::ReadAllFile(full_path);
+	std::string extension = FileHelper::GetExtension(full_path, ExtensionOption::kWithoutDot);
+	
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path,
-		aiProcess_Triangulate |
-		aiProcess_FlipUVs /*|
-		aiProcess_FlipWindingOrder*/);
-
+	const aiScene* scene = importer.ReadFileFromMemory(
+		buffer.data(), 
+		buffer.size(), 
+		static_cast<uint32_t>(options), 
+		extension.c_str());
+	
 	if (scene == nullptr) {
 		throw std::runtime_error("Exception during model loading: scene == nullptr.");
 	}

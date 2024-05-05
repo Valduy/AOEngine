@@ -11,7 +11,7 @@
 
 #include "RenderComponent.h"
 #include "AmbientLightComponent.h"
-#include "DirectionLightComponent.h"
+#include "DirectionalLightComponent.h"
 #include "DX11RenderDataComponents.h"
 #include "CameraUtils.h"
 
@@ -81,9 +81,9 @@ private:
 	}
 
 	void InitializeDirectionLightData() {
-		world_->ForEach<DirectionLightComponent>(
+		world_->ForEach<DirectionalLightComponent>(
 		[this](auto entity, auto ambient_light_component) {
-			world_->Add<DX11DirectionLightDataComponent>(entity);
+			world_->Add<DX11DirectionalLightDataComponent>(entity);
 		});
 	}
 
@@ -91,24 +91,24 @@ private:
 		world_->ComponentAdded<TransformComponent>().Attach(*this, &DX11RenderDataUpdateSystem::OnTransformComponentAdded);
 		world_->ComponentAdded<RenderComponent>().Attach(*this, &DX11RenderDataUpdateSystem::OnRenderComponentAdded);
 		world_->ComponentAdded<AmbientLightComponent>().Attach(*this, &DX11RenderDataUpdateSystem::OnAmbientLightComponentAdded);
-		world_->ComponentAdded<DirectionLightComponent>().Attach(*this, &DX11RenderDataUpdateSystem::OnDirectionLightComponentAdded);
+		world_->ComponentAdded<DirectionalLightComponent>().Attach(*this, &DX11RenderDataUpdateSystem::OnDirectionLightComponentAdded);
 
 		world_->ComponentRemoved<TransformComponent>().Attach(*this, &DX11RenderDataUpdateSystem::OnTransformComponentRemoved);
 		world_->ComponentRemoved<RenderComponent>().Attach(*this, &DX11RenderDataUpdateSystem::OnRenderComponentRemoved);	
 		world_->ComponentRemoved<AmbientLightComponent>().Attach(*this, &DX11RenderDataUpdateSystem::OnAmbientLightComponentRemoved);
-		world_->ComponentRemoved<DirectionLightComponent>().Attach(*this, &DX11RenderDataUpdateSystem::OnDirectionLightComponentRemoved);
+		world_->ComponentRemoved<DirectionalLightComponent>().Attach(*this, &DX11RenderDataUpdateSystem::OnDirectionLightComponentRemoved);
 	}
 
 	void UnsibscribeFromComponents() {
 		world_->ComponentAdded<TransformComponent>().Detach(*this, &DX11RenderDataUpdateSystem::OnTransformComponentAdded);
 		world_->ComponentAdded<RenderComponent>().Detach(*this, &DX11RenderDataUpdateSystem::OnRenderComponentAdded);
 		world_->ComponentAdded<AmbientLightComponent>().Detach(*this, &DX11RenderDataUpdateSystem::OnAmbientLightComponentAdded);
-		world_->ComponentAdded<DirectionLightComponent>().Detach(*this, &DX11RenderDataUpdateSystem::OnDirectionLightComponentAdded);
+		world_->ComponentAdded<DirectionalLightComponent>().Detach(*this, &DX11RenderDataUpdateSystem::OnDirectionLightComponentAdded);
 
 		world_->ComponentRemoved<TransformComponent>().Detach(*this, &DX11RenderDataUpdateSystem::OnTransformComponentRemoved);
 		world_->ComponentRemoved<RenderComponent>().Detach(*this, &DX11RenderDataUpdateSystem::OnRenderComponentRemoved);
 		world_->ComponentRemoved<AmbientLightComponent>().Detach(*this, &DX11RenderDataUpdateSystem::OnAmbientLightComponentRemoved);
-		world_->ComponentRemoved<DirectionLightComponent>().Detach(*this, &DX11RenderDataUpdateSystem::OnDirectionLightComponentRemoved);
+		world_->ComponentRemoved<DirectionalLightComponent>().Detach(*this, &DX11RenderDataUpdateSystem::OnDirectionLightComponentRemoved);
 	}
 
 	void OnTransformComponentAdded(Entity entity) {
@@ -130,7 +130,7 @@ private:
 	}
 
 	void OnDirectionLightComponentAdded(Entity entity) {
-		world_->Add<DX11DirectionLightDataComponent>(entity);
+		world_->Add<DX11DirectionalLightDataComponent>(entity);
 	}
 
 	void OnTransformComponentRemoved(Entity entity) {
@@ -147,7 +147,7 @@ private:
 	}
 
 	void OnDirectionLightComponentRemoved(Entity entity) {
-		world_->Remove<DX11DirectionLightDataComponent>(entity);
+		world_->Remove<DX11DirectionalLightDataComponent>(entity);
 	}
 
 	void UpdateGeometryData(Entity camera) {
@@ -187,9 +187,9 @@ private:
 	void UpdateDirectionLightData(Entity camera) {
 		auto transform_component = world_->Get<TransformComponent>(camera);
 
-		world_->ForEach<TransformComponent, DirectionLightComponent, DX11DirectionLightDataComponent>(
+		world_->ForEach<TransformComponent, DirectionalLightComponent, DX11DirectionalLightDataComponent>(
 		[&, this](auto entity, auto transform_component, auto direction_light_component, auto direction_light_data_component) {
-			DirectionLightData data{};
+			DirectionalLightData data{};
 			data.view_position = transform_component->position;
 			data.direction = TransformUtils::GetGlobalForward(*world_, *relationeer_, entity);
 			data.color = direction_light_component->color;

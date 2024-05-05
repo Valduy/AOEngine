@@ -26,7 +26,7 @@ struct AmbientLightData {
 	Vector3 dummy1;
 };
 
-struct DirectionLightData {
+struct DirectionalLightData {
 	Vector3 view_position;
 	float dummy0;
 	Vector3 direction;
@@ -53,6 +53,6 @@ public:
 using DX11TransformDataComponent = DX11RenderDataComponent<TransformData>;
 using DX11MaterialDataComponent = DX11RenderDataComponent<MaterialData>;
 using DX11AmbientLightDataComponent = DX11RenderDataComponent<AmbientLightData>;
-using DX11DirectionLightDataComponent = DX11RenderDataComponent<DirectionLightData>;
+using DX11DirectionalLightDataComponent = DX11RenderDataComponent<DirectionalLightData>;
 
 } // namespace aoe

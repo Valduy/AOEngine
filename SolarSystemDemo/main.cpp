@@ -20,7 +20,11 @@ public:
 		: window_(window)
 		, world_()
 		, relationeer_(world_)
+		, render_context_(window_)
+		, model_manager_()
+		, texture_manager_()
 		, service_provider_()
+		, systems_pool_()
 	{}
 
 	void Initialize() override {
@@ -67,16 +71,14 @@ public:
 		// experiments end
 		
 		// TODO: may be use it on loading level
-		std::wstring root_directory = aoe::Platform::GetExecutableDirectory();
-		std::string root(root_directory.begin(), root_directory.end());
-
+		
 		aoe::Entity entity0 = world_.Create();
 		world_.Add<aoe::TransformComponent>(entity0);
 		auto transform_component0 = world_.Get<aoe::TransformComponent>(entity0);
 		transform_component0->position = {0.0f, 0.0f, 4.0f};
 
-		aoe::ModelId model_id = model_manager_.Load(root + "/Content/Dice_d4.fbx");
-		aoe::TextureId texture_id = texture_manager_.LoadRGBA(root + "/Content/Dice_d4_Albedo.png");
+		aoe::ModelId model_id = model_manager_.Load(L"/Content/Dice_d4.fbx", aoe::ModelLoaderOptions::kFlipUVs);
+		aoe::TextureId texture_id = texture_manager_.LoadRGBA(L"/Content/Dice_d4_Albedo.png");
 
 		aoe::Material material;
 		material.diffuse = { 1.0f, 1.0f, 1.0f };
@@ -101,9 +103,9 @@ public:
 
 		aoe::Entity direction_light = world_.Create();
 		world_.Add<aoe::TransformComponent>(direction_light);
-		world_.Add<aoe::DirectionLightComponent>(direction_light);
+		world_.Add<aoe::DirectionalLightComponent>(direction_light);
 		auto direction_transform_component = world_.Get<aoe::TransformComponent>(direction_light);
-		auto direction_light_component = world_.Get<aoe::DirectionLightComponent>(direction_light);
+		auto direction_light_component = world_.Get<aoe::DirectionalLightComponent>(direction_light);
 		direction_light_component->color = { 1.0f, 1.0f, 1.0f };
 
 		aoe::Entity camera = world_.Create();
@@ -120,6 +122,7 @@ public:
 
 		service_provider_.AddService(&world_);
 		service_provider_.AddService(&relationeer_);
+		service_provider_.AddService(&render_context_);
 		service_provider_.AddService(&model_manager_);
 		service_provider_.AddService(&texture_manager_);
 
@@ -148,6 +151,7 @@ private:
 	aoe::World world_;
 	aoe::Relationeer<aoe::TransformComponent> relationeer_;
 
+	aoe::DX11RenderContext render_context_;
 	aoe::DX11ModelManager model_manager_;
 	aoe::DX11TextureManager texture_manager_;
 

@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "../Application/Platform.h"
+
 #include "DX11ModelManager.h"
 
 namespace aoe {
@@ -12,14 +14,14 @@ DX11ModelManager::DX11ModelManager()
 	Upload(Model());
 }
 
-ModelId DX11ModelManager::Load(const std::string& path) {
+ModelId DX11ModelManager::Load(const std::wstring& path, ModelLoaderOptions options) {
 	auto it = path_to_model_id_.find(path);
 
 	if (it != path_to_model_id_.end()) {
 		return it->second;
 	}
 
-	ModelId id = Upload(ModelLoader::Load(path));
+	ModelId id = Upload(ModelLoader::Load(path, options));
 	path_to_model_id_[path] = id;
 	return id;
 }

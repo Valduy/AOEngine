@@ -157,6 +157,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="ModelLoaderOptions.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resources.h" />
     <ClInclude Include="stb_image.h" />
@@ -177,6 +178,9 @@
     <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Application\Application.vcxproj">
+      <Project>{2028b554-285a-476c-a959-d9b928c94832}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Core\Core.vcxproj">
       <Project>{5c846270-14fb-4ed6-86ba-e9b9c2ab0c44}</Project>
     </ProjectReference>

@@ -13,7 +13,7 @@ class TextureLoader {
 public:
 	TextureLoader() = delete;
 
-	static Image Load(const std::string& path, uint32_t desired_channels = 0);
+	static Image Load(const std::wstring& path, uint32_t desired_channels = 0);
 };
 
 } // namespace aoe

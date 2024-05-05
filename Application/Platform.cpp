@@ -14,11 +14,16 @@ void aoe::Platform::Fatal(const char* msg) {
 	Exit(-1);
 }
 
-void aoe::Platform::Exit(std::int32_t exit_code) {
+void aoe::Platform::Exit(int32_t exit_code) {
 	exit(exit_code);
 }
 
 std::wstring Platform::GetExecutableDirectory() {
+	static std::wstring executable_directory = GetExecutableDirectoryInternal();
+	return executable_directory;
+}
+
+std::wstring Platform::GetExecutableDirectoryInternal() {
 	TCHAR buffer[MAX_PATH] = { 0 };
 	GetModuleFileName(NULL, buffer, MAX_PATH);
 

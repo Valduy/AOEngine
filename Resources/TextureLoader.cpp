@@ -3,17 +3,22 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "../Core/FileHelper.h"
+#include "../Application/Platform.h"
+
 #include "TextureLoader.h"
 
 namespace aoe {
 
-Image TextureLoader::Load(const std::string& path, uint32_t desired_channels) {
-	int32_t x;
-	int32_t y;
-	int32_t comp;
-	int32_t req_comp = static_cast<int32_t>(desired_channels);
+Image TextureLoader::Load(const std::wstring& path, uint32_t desired_channels) {
+	std::wstring full_path = std::format(L"{}/{}", Platform::GetExecutableDirectory(), path);
+	std::vector<char> buffer = FileHelper::ReadAllFile(full_path);
 
-	stbi_uc* data = stbi_load(path.c_str(), &x, &y, &comp, req_comp);
+	int32_t x, y, comp;
+	stbi_uc* data = stbi_load_from_memory(
+		reinterpret_cast<stbi_uc*>(buffer.data()),
+		buffer.size(), &x, &y, &comp, 
+		static_cast<int32_t>(desired_channels));
 
 	if (data == nullptr) {
 		throw new std::runtime_error("Failed to load image.");

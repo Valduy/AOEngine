@@ -5,11 +5,11 @@
 namespace aoe {
 
 enum class GPUTextureFlags {
-    kNone = 0x0000,
-    kShaderResource = 0x0001,
-    kRenderTarget = 0x0002,
-    kDepthStencil = 0x0004,
-    kUnorderedAccess = 0x0008,
+    kNone = 0x0,
+    kShaderResource = 0x1,
+    kRenderTarget = 0x2,
+    kDepthStencil = 0x4,
+    kUnorderedAccess = 0x8,
 };
 
 enum class GPUBufferType {

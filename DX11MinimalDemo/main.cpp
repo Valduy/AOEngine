@@ -55,8 +55,8 @@ class DX11MinimalScene : public aoe::IScene {
 public:
     DX11MinimalScene(const aoe::Window& window)
         : window_(window)
-        , model_(aoe::ModelLoader::Load("Content/Dice_d4.fbx"))
-        , image_(aoe::TextureLoader::Load("Content/Dice_d4_Albedo.png", 4))
+        , model_(aoe::ModelLoader::Load(L"Content/Dice_d4.fbx", aoe::ModelLoaderOptions::kFlipUVs))
+        , image_(aoe::TextureLoader::Load(L"Content/Dice_d4_Albedo.png", 4))
         , swap_chain_(window)
         , depth_stencil_buffer_(aoe::GPUTexture2DDescription::DepthStencilBuffer(window_.GetWidth(), window_.GetHeight()))
         , depth_state_(kDepthStateDesc)

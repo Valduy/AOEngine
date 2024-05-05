@@ -1,6 +1,8 @@
 #include "pch.h"
 
 #include "../Core/Logger.h"
+#include "../Core/StringHelper.h"
+#include "../Application/Platform.h"
 
 #include "DX11GPUShadersCompiler.h"
 
@@ -24,10 +26,12 @@ DX11GPUByteCode DX11GPUShadersCompiler::CompileShader(const GPUShaderProgramDesc
 }
 
 ID3DBlob* DX11GPUShadersCompiler::CompileByteCode(const std::wstring& path, const std::string& entry_point, const std::string& target) {
+	std::wstring full_path = std::format(L"{}/{}", Platform::GetExecutableDirectory(), path);
+	
 	ID3DBlob* byte_code = nullptr;
 	ID3DBlob* error_message = nullptr;
 	HRESULT hr = D3DCompileFromFile(
-		path.c_str(),
+		full_path.c_str(),
 		nullptr,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		entry_point.c_str(),

@@ -7,6 +7,7 @@
 #include <assimp/postprocess.h>
 
 #include "Model.h"
+#include "ModelLoaderOptions.h"
 
 namespace aoe {
 
@@ -14,7 +15,7 @@ class ModelLoader {
 public:
 	ModelLoader() = delete;
 
-	static Model Load(const std::string& path);
+	static Model Load(const std::wstring& path, ModelLoaderOptions options);
 
 private:
 	static void ProcessNode(std::vector<Mesh>& meshes, const aiScene* scene, const aiNode* node);

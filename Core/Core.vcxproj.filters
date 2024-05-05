@@ -16,6 +16,9 @@
     <Filter Include="Header Files\Events">
       <UniqueIdentifier>{687b328b-f116-4de6-b080-6c0396cc568a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Helpers">
+      <UniqueIdentifier>{1c566b26-00cf-42d0-b64f-92bccd122f01}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -31,12 +34,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Debug.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnumHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ClassHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Singleton.h">
@@ -56,6 +53,18 @@
     </ClInclude>
     <ClInclude Include="Event.h">
       <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="ClassHelper.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="StringHelper.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumHelper.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="FileHelper.h">
+      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

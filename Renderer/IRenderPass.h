@@ -2,12 +2,11 @@
 
 namespace aoe {
 
-class IECSSystem {
+class IRenderPass {
 public:
 	virtual void Initialize() {}
 	virtual void Terminate() {}
-	virtual void PerTickUpdate(float dt) {};
-	virtual void PerFrameUpdate(float dt) {};
+	virtual void Render() = 0;
 };
 
 } // namespace aoe

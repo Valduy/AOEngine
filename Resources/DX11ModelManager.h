@@ -24,15 +24,14 @@ public:
 
 	DX11ModelManager();
 
-	ModelId Load(const std::string& path) override;
+	ModelId Load(const std::wstring& path, ModelLoaderOptions options) override;
 	ModelId Upload(Model model) override;
 	ModelId GetDefault() override;
 	const Model& GetModel(ModelId model_id) override;
 	const DX11ModelResources& GetModelResources(ModelId mesh_id);
 
 private:
-	std::unordered_map<std::string, ModelId> path_to_model_id_;
-
+	std::unordered_map<std::wstring, ModelId> path_to_model_id_;
 	std::vector<Model> models_;
 	std::vector<DX11ModelResources> models_resources_;
 

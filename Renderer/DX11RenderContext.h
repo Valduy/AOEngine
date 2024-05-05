@@ -4,6 +4,8 @@
 #include "../Graphics/DX11GPUSwapChain.h"
 
 #include "DX11GBuffer.h"
+#include "DX11RasterizerStates.h"
+#include "DX11DepthStates.h"
 
 namespace aoe {
 
@@ -52,6 +54,26 @@ public:
 		return gbuffer_.GetAccumulatorTexture()->GetTextureView();
 	}
 
+	const DX11GPURasterizerState& GetRasterizerState(GPUCullMode cull_mode, GPUFillMode fill_mode) const {
+		return rasterizer_states_.Get(cull_mode, fill_mode);
+	}
+
+	const DX11GPURasterizerState& GetRasterizerState(DX11RasterizerStateID id) const {
+		return rasterizer_states_.Get(id);
+	}
+
+	const DX11GPUDepthState& GetDepthState(
+		bool is_depth_enabled,
+		GPUDepthWriteMask write_mask,
+		GPUComparsionFunction comparsion_function) const 
+	{
+		return depth_states_.Get(is_depth_enabled, write_mask, comparsion_function);
+	}
+
+	const DX11GPUDepthState& GetDepthState(DX11DepthStateID id) const {
+		return depth_states_.Get(id);
+	}
+
 	const void PresentFrame() const {
 		swap_chain_.Present();
 	}
@@ -62,6 +84,8 @@ private:
 	DX11GPUSwapChain swap_chain_;
 	DX11TextureScaler depth_buffer_;
 	DX11GBuffer gbuffer_;
+	DX11RasterizerStates rasterizer_states_;
+	DX11DepthStates depth_states_;
 };
 
 } // namespace aoe

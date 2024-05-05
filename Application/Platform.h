@@ -10,9 +10,14 @@ namespace aoe {
 
 class Platform {
 public:
+	Platform() = delete;
+
 	static void Fatal(const char* msg);
-	static void Exit(std::int32_t exit_code);
+	static void Exit(int32_t exit_code);
 	static std::wstring GetExecutableDirectory();
+
+private:
+	static std::wstring GetExecutableDirectoryInternal();
 };
 
 } // namespace aoe

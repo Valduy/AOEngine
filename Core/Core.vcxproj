@@ -151,6 +151,7 @@
     <ClInclude Include="EnumHelper.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventHandler.h" />
+    <ClInclude Include="FileHelper.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Identifier.h" />
     <ClInclude Include="IEventHandler.h" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Math.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="StringHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Math.cpp" />

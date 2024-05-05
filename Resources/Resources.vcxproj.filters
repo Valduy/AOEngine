@@ -66,6 +66,9 @@
     <ClInclude Include="Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ModelLoaderOptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

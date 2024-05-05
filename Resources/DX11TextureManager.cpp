@@ -13,7 +13,7 @@ DX11TextureManager::DX11TextureManager()
 	Upload(Image(data, 1, 1, 4));
 }
 
-TextureId DX11TextureManager::Load(const std::string& path, uint32_t desired_channels) {
+TextureId DX11TextureManager::Load(const std::wstring& path, uint32_t desired_channels) {
 	auto it = path_to_texture_id_.find(path);
 
 	if (it != path_to_texture_id_.end()) {
@@ -25,15 +25,15 @@ TextureId DX11TextureManager::Load(const std::string& path, uint32_t desired_cha
 	return id;
 }
 
-TextureId DX11TextureManager::LoadR(const std::string& path) {
+TextureId DX11TextureManager::LoadR(const std::wstring& path) {
 	return Load(path, 1);
 }
 
-TextureId DX11TextureManager::LoadRG(const std::string& path) {
+TextureId DX11TextureManager::LoadRG(const std::wstring& path) {
 	return Load(path, 2);
 }
 
-TextureId DX11TextureManager::LoadRGBA(const std::string& path) {
+TextureId DX11TextureManager::LoadRGBA(const std::wstring& path) {
 	return Load(path, 4);
 }
 
