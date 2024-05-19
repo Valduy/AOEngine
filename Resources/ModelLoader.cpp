@@ -55,10 +55,10 @@ Mesh ModelLoader::ProcessMesh(const aiScene* scene, const aiMesh* mesh) {
 	std::vector<Index> indices;
 
 	for (size_t i = 0; i < mesh->mNumVertices; ++i) {
-		const Vector3 position = ToVector3(mesh->mVertices[i]);
+		const Vector3f position = ToVector3(mesh->mVertices[i]);
 
-		Vector3 normal = Math::kV3Zero;
-		Vector2 uv = Math::kV2Zero;
+		Vector3f normal = Math::kZeros3f;
+		Vector2f uv = Math::kZeros2f;
 
 		if (mesh->HasNormals()) {
 			normal = ToVector3(mesh->mNormals[i]);
@@ -82,11 +82,11 @@ Mesh ModelLoader::ProcessMesh(const aiScene* scene, const aiMesh* mesh) {
 	return { vertices, indices };
 }
 
-Vector2 ModelLoader::ToVector2(aiVector3D vector) {
+Vector2f ModelLoader::ToVector2(aiVector3D vector) {
 	return { vector.x, vector.y };
 }
 
-Vector3 ModelLoader::ToVector3(aiVector3D vector) {
+Vector3f ModelLoader::ToVector3(aiVector3D vector) {
 	return { vector.x, vector.y, vector.z };
 }
 

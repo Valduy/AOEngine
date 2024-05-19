@@ -11,7 +11,7 @@ class TransformUtils {
 public:
 	TransformUtils() = delete;
 
-	static Vector3 GetGlobalPosition(
+	static Vector3f GetGlobalPosition(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity)
@@ -23,7 +23,7 @@ public:
 		}
 
 		Entity parent = relationeer.GetParent(entity);
-		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
+		Matrix4f world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
 		return world_matrix * transform->position;
 	}
 
@@ -31,7 +31,7 @@ public:
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity,
-		Vector3 position)
+		Vector3f position)
 	{
 		auto transform = world.Get<TransformComponent>(entity);
 
@@ -40,7 +40,7 @@ public:
 		}
 
 		Entity parent = relationeer.GetParent(entity);
-		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
+		Matrix4f world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
 		transform->position = world_matrix.Inverse() * position;
 	}
 
@@ -76,74 +76,74 @@ public:
 		transform->rotation = parent_rotation.Inverse() * rotation;
 	}
 
-	static Matrix4 GetGlobalWorldMatrix(
+	static Matrix4f GetGlobalWorldMatrix(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity)
 	{
 		auto transform = world.Get<TransformComponent>(entity);
-		Matrix4 model_matrix = transform->GetWorldMatrix();
+		Matrix4f model_matrix = transform->GetWorldMatrix();
 
 		if (IsRoot(world, relationeer, entity)) {
 			return model_matrix;
 		}
 
 		Entity parent = relationeer.GetParent(entity);
-		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
+		Matrix4f world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
 		return world_matrix * model_matrix;
 	}
 
-	static Vector3 GetGlobalRight(
+	static Vector3f GetGlobalRight(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity) 
 	{
-		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		Matrix4f world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
 		return world_matrix * Math::kRight;
 	}
 
-	static Vector3 GetGlobalLeft(
+	static Vector3f GetGlobalLeft(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity) 
 	{
-		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		Matrix4f world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
 		return world_matrix * Math::kLeft;
 	}
 
-	static Vector3 GetGlobalUp(
+	static Vector3f GetGlobalUp(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity) 
 	{
-		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		Matrix4f world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
 		return world_matrix * Math::kUp;
 	}
 
-	static Vector3 GetGlobalDown(
+	static Vector3f GetGlobalDown(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity) 
 	{
-		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		Matrix4f world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
 		return world_matrix * Math::kDown;
 	}
 
-	static Vector3 GetGlobalForward(
+	static Vector3f GetGlobalForward(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity) 
 	{
-		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		Matrix4f world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
 		return world_matrix * Math::kForward;
 	}
 
-	static Vector3 GetGlobalBackward(
+	static Vector3f GetGlobalBackward(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity) 
 	{
-		Matrix4 world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
+		Matrix4f world_matrix = GetGlobalWorldMatrix(world, relationeer, entity);
 		return world_matrix * Math::kBackward;
 	}
 

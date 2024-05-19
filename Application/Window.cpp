@@ -1,54 +1,79 @@
 #include "pch.h"
 
 #include "Window.h"
+#include "Platform.h"
 
 namespace aoe {
 
 Window::Window(HINSTANCE hinstance, const std::wstring& window_name, int32_t width, int32_t height)
-	: handler_(0)
+	: handle_(0)
+	, mouse_mode_(MouseMode::kRelative)
+	, input_collector_()
 {
 	if (!RegisterWindowClass(hinstance, window_name)) {
 		Platform::Fatal("Failed register window class.");
 	}
 
-	handler_ = CreateWindowInstance(hinstance, window_name, width, height);
+	handle_ = CreateWindowInstance(hinstance, window_name, width, height);
 
-	if (handler_ == 0) {
+	if (handle_ == 0) {
 		Platform::Fatal("Failed to create window.");
+	}
+
+	if (!input_collector_.Register(handle_)) {
+		Platform::Fatal("Failed to register InputCollector.");
 	}
 }
 
 Window::~Window() {
-	if (handler_ != 0) {
-		if (DestroyWindow(handler_) == 0) {
+	if (handle_ != 0) {
+		if (DestroyWindow(handle_) == 0) {
 			AOE_LOG_ERROR("DestroyWindow failed! Error: {}", GetLastError());
 		}
 
-		handler_ = 0;
+		handle_ = 0;
 	}
 }
 
-HWND Window::GetHandler() const {
-	return handler_;
+HWND Window::GetHandle() const {
+	return handle_;
+}
+
+const IInput& Window::GetInput() const {
+	return input_collector_;
+}
+
+void Window::Tick() {
+	input_collector_.ResetReleasedKeys();
+}
+
+void* Window::GetNative() const {
+	return handle_;
 }
 
 int32_t Window::GetWidth() const {
 	RECT rect;
-	GetWindowRect(handler_, &rect);
+	GetWindowRect(handle_, &rect);
 	return static_cast<int32_t>(rect.right - rect.left);
 }
 
 int32_t Window::GetHeight() const {
 	RECT rect;
-	GetWindowRect(handler_, &rect);
+	GetWindowRect(handle_, &rect);
 	return static_cast<int32_t>(rect.bottom - rect.top);
 }
 
-void Window::Show() {
-	ShowWindow(handler_, SW_SHOW);
-	//SetForegroundWindow(handler_);
-	//SetFocus(handler_);
-	//ShowCursor(false);
+MouseMode Window::GetMouseMode() const {
+	return mouse_mode_;
+}
+
+void Window::SetMouseMode(MouseMode value) {
+	mouse_mode_ = value;
+	UpdateMouseMode();
+}
+
+void Window::ShowWindow(bool is_shown) {
+	::ShowWindow(handle_, is_shown ? SW_SHOW : SW_HIDE);
 }
 
 LRESULT Window::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -64,10 +89,34 @@ LRESULT Window::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	}
 
 	switch (msg) {
-	case WM_DESTROY:
-		// TODO: handle
-	case WM_CLOSE:
-		// TODO: handle
+	case WM_DESTROY: {
+		window->FireDestroying();
+		PostQuitMessage(0);
+		return 0;
+	}
+	case WM_CLOSE: {
+		window->FireClosing();
+		return 0;
+	}	
+	case WM_EXITSIZEMOVE: {
+		if (window->mouse_mode_ == MouseMode::kRelative) {
+			window->ClipToWindow();
+		}
+		return 0;
+	}
+	case WM_ACTIVATEAPP: {
+		if (wparam) {
+			window->UpdateMouseMode();
+		} else {
+			window->SetupAbsoluteMouseMode();
+		}
+		
+		return 0;
+	}
+	case WM_INPUT: {
+		window->input_collector_.ProcessWndMessage(lparam);
+		return 0;
+	}
 	default:
 		return DefWindowProc(hwnd, msg, wparam, lparam);
 	}
@@ -106,7 +155,7 @@ HWND Window::CreateWindowInstance(HINSTANCE hinstance, const std::wstring& windo
 		WS_EX_APPWINDOW,
 		window_name.data(),
 		window_name.data(),
-		WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_THICKFRAME,
+		WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX /*| WS_THICKFRAME*/,
 		window_position_x,
 		window_position_y,
 		window_width,
@@ -115,6 +164,57 @@ HWND Window::CreateWindowInstance(HINSTANCE hinstance, const std::wstring& windo
 		nullptr,
 		hinstance,
 		this);
+}
+
+void Window::UpdateMouseMode() {
+	switch (mouse_mode_) {
+	case MouseMode::kAbsolute:
+		SetupAbsoluteMouseMode();
+		break;
+	case MouseMode::kRelative:
+		SetupRelativeMouseMode();
+		break;
+	default:
+		AOE_ASSERT_MSG(false, "Unknown MouseMode.");
+	}
+}
+
+void Window::SetupAbsoluteMouseMode() {
+	ShowCursor(true);
+	UnclipFromWindow();
+}
+
+void Window::SetupRelativeMouseMode() {
+	ShowCursor(false);
+	ClipToWindow();
+}
+
+void Window::ClipToWindow() {
+	RECT rect;
+	GetClientRect(handle_, &rect);
+
+	POINT lt;
+	lt.x = rect.left;
+	lt.y = rect.top;
+
+	POINT rb;
+	rb.x = rect.right;
+	rb.y = rect.bottom;
+
+	MapWindowPoints(handle_, nullptr, &lt, 1);
+	MapWindowPoints(handle_, nullptr, &rb, 1);
+
+	rect.left = lt.x;
+	rect.top = lt.y;
+
+	rect.right = rb.x;
+	rect.bottom = rb.y;
+
+	ClipCursor(&rect);
+}
+
+void Window::UnclipFromWindow() {
+	ClipCursor(nullptr);
 }
 
 } // namespace aoe

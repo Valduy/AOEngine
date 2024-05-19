@@ -18,17 +18,17 @@ public:
 	float near_plain;
 	float field_of_view;
 
-	Matrix4 GetProjectionMatrix() {
+	Matrix4f GetProjectionMatrix() {
 		switch (projection) {
 		case Projection::kPerspective:
-			return Matrix4::Perspective(field_of_view, width / height, near_plain, far_plain, Math::kLH);
+			return Matrix4f::Perspective(field_of_view, width / height, near_plain, far_plain, Math::kLH);
 		case Projection::kOrthographic:
-			return Matrix4::Ortho(0, width, height, 0, near_plain, far_plain, Math::kLH);
+			return Matrix4f::Ortho(0, width, height, 0, near_plain, far_plain, Math::kLH);
 		default:
 			AOE_ASSERT_MSG(false, "Not supported projection.");
 		}
 
-		return Matrix4::Identity();
+		return Matrix4f::Identity();
 	}
 };
 

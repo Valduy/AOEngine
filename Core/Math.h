@@ -4,12 +4,16 @@
 
 namespace aoe {
 
-using Vector2 = mathfu::Vector<float, 2>;
-using Vector3 = mathfu::Vector<float, 3>;
-using Vector4 = mathfu::Vector<float, 4>;
+using Vector2f = mathfu::Vector<float, 2>;
+using Vector3f = mathfu::Vector<float, 3>;
+using Vector4f = mathfu::Vector<float, 4>;
 
-using Matrix3 = mathfu::Matrix<float, 3, 3>;
-using Matrix4 = mathfu::Matrix<float, 4, 4>;
+using Vector2i = mathfu::Vector<int, 2>;
+using Vector3i = mathfu::Vector<int, 3>;
+using Vector4i = mathfu::Vector<int, 4>;
+
+using Matrix3f = mathfu::Matrix<float, 3, 3>;
+using Matrix4f = mathfu::Matrix<float, 4, 4>;
 
 using Quaternion = mathfu::Quaternion<float>;
 
@@ -19,29 +23,47 @@ public:
 	static constexpr float kRH = 1.0f;
 	static constexpr float kLH = -1.0f;
 
-	static const Vector2 kV2Zero;
-	static const Vector2 kV2Ones;
-	static const Vector2 kV2AxisX;
-	static const Vector2 kV2AxisY;
+	static const Vector2f kZeros2f;
+	static const Vector2f kOnes2f;
+	static const Vector2f kAxisX2f;
+	static const Vector2f kAxisY2f;
 
-	static const Vector3 kV3Zero;
-	static const Vector3 kV3Ones;
-	static const Vector3 kV3AxisX;
-	static const Vector3 kV3AxisY;
-	static const Vector3 kV3AxisZ;
-	static const Vector3 kRight;
-	static const Vector3 kLeft;
-	static const Vector3 kUp;
-	static const Vector3 kDown;
-	static const Vector3 kForward;
-	static const Vector3 kBackward;
+	static const Vector3f kZeros3f;
+	static const Vector3f kOnes3f;
+	static const Vector3f kAxisX3f;
+	static const Vector3f kAxisY3f;
+	static const Vector3f kAxisZ3f;
+	static const Vector3f kRight;
+	static const Vector3f kLeft;
+	static const Vector3f kUp;
+	static const Vector3f kDown;
+	static const Vector3f kForward;
+	static const Vector3f kBackward;
 
-	static const Vector4 kV4Zero;
-	static const Vector4 kV4Ones;
-	static const Vector4 kV4AxisX;
-	static const Vector4 kV4AxisY;
-	static const Vector4 kV4AxisZ;
-	static const Vector4 kV4AxisW;
+	static const Vector4f kZeros4f;
+	static const Vector4f kOnes4f;
+	static const Vector4f kAxisX4f;
+	static const Vector4f kAxisY4f;
+	static const Vector4f kAxisZ4f;
+	static const Vector4f kAxisW4f;
+
+	static const Vector2i kZeros2i;
+	static const Vector2i kOnes2i;
+	static const Vector2i kAxisX2i;
+	static const Vector2i kAxisY2i;
+
+	static const Vector3i kZeros3i;
+	static const Vector3i kOnes3i;
+	static const Vector3i kAxisX3i;
+	static const Vector3i kAxisY3i;
+	static const Vector3i kAxisZ3i;
+
+	static const Vector4i kZeros4i;
+	static const Vector4i kOnes4i;
+	static const Vector4i kAxisX4i;
+	static const Vector4i kAxisY4i;
+	static const Vector4i kAxisZ4i;
+	static const Vector4i kAxisW4i;
 
 	static const Quaternion kQIdentity;
 

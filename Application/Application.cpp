@@ -9,11 +9,22 @@ Application::Application(const std::wstring& window_name, int32_t width, int32_t
 	, window_(hinstance_, window_name, width, height)
 	, is_stoping_(false)
 {
-	window_.Show();
+	window_.Closing.Attach(*this, &Application::OnWindowClosing);
+	window_.Destroying.Attach(*this, &Application::OnWindowDestroying);
+	window_.ShowWindow(true);
 }
 
-const Window& Application::GetWindow() const {
+Application::~Application() {
+	window_.Closing.Detach(*this, &Application::OnWindowClosing);
+	window_.Destroying.Detach(*this, &Application::OnWindowDestroying);
+}
+
+IWindow& Application::GetWindow() {
 	return window_;
+}
+
+const IInput& Application::GetInput() const {
+	return window_.GetInput();
 }
 
 void Application::Start(IScene& scene) {
@@ -32,12 +43,21 @@ void Application::Start(IScene& scene) {
 			}
 		}
 
+		window_.Tick();
 		executor.Tick();
 	}
 }
 
 void Application::Stop() {
 	is_stoping_ = true;
+}
+
+void Application::OnWindowClosing() {
+	Stop();
+}
+
+void Application::OnWindowDestroying() {
+	Stop();
 }
 
 } // namespace aoe

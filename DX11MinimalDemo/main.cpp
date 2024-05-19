@@ -12,14 +12,14 @@
 #include "../Graphics/DX11GPUSampler.h"
 
 struct ModelData {
-    aoe::Matrix4 world_view_projection;
-    aoe::Matrix4 inverse_transpose_world;
+    aoe::Matrix4f world_view_projection;
+    aoe::Matrix4f inverse_transpose_world;
 };
 
 struct LightData {
-    aoe::Vector3 view_position;
+    aoe::Vector3f view_position;
     float dummy0;
-    aoe::Vector3 direction;
+    aoe::Vector3f direction;
     float dummy1;
 };
 
@@ -53,7 +53,7 @@ static const aoe::GPUSamplerDescription kSamplerDesc = {};
 
 class DX11MinimalScene : public aoe::IScene {
 public:
-    DX11MinimalScene(const aoe::Window& window)
+    DX11MinimalScene(aoe::IWindow& window)
         : window_(window)
         , model_(aoe::ModelLoader::Load(L"Content/Dice_d4.fbx", aoe::ModelLoaderOptions::kFlipUVs))
         , image_(aoe::TextureLoader::Load(L"Content/Dice_d4_Albedo.png", 4))
@@ -114,10 +114,10 @@ public:
         const float aspect = viewport_.width / viewport_.height;
         auto context = aoe::DX11GPUDevice::Instance().GetContext();
 
-        aoe::Matrix4 world = aoe::Matrix4::Identity();
-        world *= aoe::Matrix4::FromTranslationVector(translation_);
+        aoe::Matrix4f world = aoe::Matrix4f::Identity();
+        world *= aoe::Matrix4f::FromTranslationVector(translation_);
         world *= aoe::Quaternion::FromEulerAngles(rotation_).ToMatrix4();
-        world *= aoe::Matrix4::FromScaleVector(scale_);
+        world *= aoe::Matrix4f::FromScaleVector(scale_);
         
         rotation_.x += 0.5f * dt;
         rotation_.y += 0.9f * dt;
@@ -128,10 +128,10 @@ public:
         const float far_plain = 100.0f;
         const float handedness = -1.0f;
 
-        aoe::Matrix4 projection_matrix = aoe::Matrix4::Perspective(
+        aoe::Matrix4f projection_matrix = aoe::Matrix4f::Perspective(
             fov, aspect, near_plain, far_plain, handedness);
 
-        aoe::Matrix4 world_view_projection = projection_matrix * world;
+        aoe::Matrix4f world_view_projection = projection_matrix * world;
 
         ModelData model_data{};
         model_data.world_view_projection = world_view_projection.Transpose();
@@ -139,13 +139,13 @@ public:
         context.UpdateBuffer<ModelData>(model_buffer_, &model_data, 1);
 
         LightData light_data{};
-        light_data.view_position = aoe::Math::kV3Zero;
-        light_data.direction = aoe::Math::kV3AxisZ;
+        light_data.view_position = aoe::Math::kZeros3f;
+        light_data.direction = aoe::Math::kAxisZ3f;
         context.UpdateBuffer<LightData>(light_buffer_, &light_data, 1);
     };
 
 private:
-    const aoe::Window& window_;
+    aoe::IWindow& window_;
 
     aoe::Model model_;
     aoe::Image image_;
@@ -169,9 +169,9 @@ private:
 
     aoe::Viewport viewport_;
 
-    aoe::Vector3 rotation_ = { 0.0f, 0.0f, 0.0f };
-    aoe::Vector3 scale_ = { 1.0f, 1.0f, 1.0f };
-    aoe::Vector3 translation_ = { 0.0f, 0.0f, 4.0f };
+    aoe::Vector3f rotation_ = { 0.0f, 0.0f, 0.0f };
+    aoe::Vector3f scale_ = { 1.0f, 1.0f, 1.0f };
+    aoe::Vector3f translation_ = { 0.0f, 0.0f, 4.0f };
 
     static aoe::DX11GPUBuffer CreateVertexBuffer(const aoe::Mesh& mesh) {
         const std::vector<aoe::Vertex>& vertices = mesh.GetVertices();

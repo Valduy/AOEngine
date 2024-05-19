@@ -19,9 +19,8 @@ namespace aoe {
 
 class DX11RenderDataUpdateSystem : public IECSSystem {
 public:
-	DX11RenderDataUpdateSystem(const Window& window, const aoe::ServiceProvider& service_provider)
-		: window_(window)
-		, service_provider_(service_provider)
+	DX11RenderDataUpdateSystem(const aoe::ServiceProvider& service_provider)
+		: service_provider_(service_provider)
 		, world_(nullptr)
 		, relationeer_(nullptr)
 	{}
@@ -59,7 +58,6 @@ public:
 	}
 
 private:
-	const Window& window_;
 	const ServiceProvider& service_provider_;
 
 	World* world_;
@@ -151,12 +149,12 @@ private:
 	}
 
 	void UpdateGeometryData(Entity camera) {
-		Matrix4 camera_matrix = CameraUtils::GetCameraMatrix(*world_, camera);
+		Matrix4f camera_matrix = CameraUtils::GetCameraMatrix(*world_, camera);
 
 		world_->ForEach<TransformComponent, RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>(
 		[&, this](auto entity, auto transform_component, auto render_component, auto transform_data_component, auto render_data_component) {
-			Matrix4 world = TransformUtils::GetGlobalWorldMatrix(*world_, *relationeer_, entity);
-			Matrix4 world_view_projection = camera_matrix * world;
+			Matrix4f world = TransformUtils::GetGlobalWorldMatrix(*world_, *relationeer_, entity);
+			Matrix4f world_view_projection = camera_matrix * world;
 
 			TransformData transform_data{};
 			transform_data.world = world.Transpose();

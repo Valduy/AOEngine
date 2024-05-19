@@ -2,12 +2,20 @@
 
 #include "../Core/Event.h"
 
-class Subject {
+class ISubject {
 public:
-	aoe::Event<Subject,size_t> ActionHappened;
+	aoe::Event<ISubject, size_t> ActionHappened;
 
-	void Foo() {
+protected:
+	void NotifyActionHappened() {
 		ActionHappened.Notify(1);
+	}
+};
+
+class Subject : public ISubject {
+public:
+	void Foo() {
+		NotifyActionHappened();
 	}
 };
 

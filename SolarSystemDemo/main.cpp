@@ -16,11 +16,11 @@
 
 class SolarSystemScene : public aoe::IScene {
 public:
-	SolarSystemScene(const aoe::Window& window)
-		: window_(window)
+	SolarSystemScene(aoe::Application& application)
+		: application_(application)
 		, world_()
 		, relationeer_(world_)
-		, render_context_(window_)
+		, render_context_(application.GetWindow())
 		, model_manager_()
 		, texture_manager_()
 		, service_provider_()
@@ -114,20 +114,21 @@ public:
 		auto camera_transform_component = world_.Get<aoe::TransformComponent>(camera);
 		auto camera_component = world_.Get<aoe::CameraComponent>(camera);
 		camera_component->projection = aoe::Projection::kPerspective;
-		camera_component->width = window_.GetWidth();
-		camera_component->height = window_.GetHeight();
+		camera_component->width = application_.GetWindow().GetWidth();
+		camera_component->height = application_.GetWindow().GetHeight();
 		camera_component->near_plain = 0.1f;
 		camera_component->far_plain = 100.0f;
 		camera_component->field_of_view = aoe::Math::kPi / 2;
 
+		service_provider_.AddService(&application_);
 		service_provider_.AddService(&world_);
 		service_provider_.AddService(&relationeer_);
 		service_provider_.AddService(&render_context_);
 		service_provider_.AddService(&model_manager_);
 		service_provider_.AddService(&texture_manager_);
 
-		systems_pool_.PushSystem<aoe::DX11RenderDataUpdateSystem>(window_, service_provider_);
-		systems_pool_.PushSystem<aoe::DX11RenderSystem>(window_, service_provider_);
+		systems_pool_.PushSystem<aoe::DX11RenderDataUpdateSystem>(service_provider_);
+		systems_pool_.PushSystem<aoe::DX11RenderSystem>(service_provider_);
 		systems_pool_.Initialize();
 	};
 
@@ -146,7 +147,7 @@ public:
 	}
 
 private:
-	const aoe::Window& window_;
+	aoe::Application& application_;
 
 	aoe::World world_;
 	aoe::Relationeer<aoe::TransformComponent> relationeer_;
@@ -170,7 +171,7 @@ private:
 int main() {
 	aoe::Application application(L"Game", 800, 600);
 
-	SolarSystemScene scene(application.GetWindow());
+	SolarSystemScene scene(application);
 	application.Start(scene);
 
 	return 0;

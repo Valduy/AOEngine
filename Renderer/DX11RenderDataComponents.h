@@ -7,31 +7,31 @@
 namespace aoe {
 
 struct TransformData {
-	Matrix4 world;
-	Matrix4 world_view_projection;
-	Matrix4 inverse_transpose_world;
+	Matrix4f world;
+	Matrix4f world_view_projection;
+	Matrix4f inverse_transpose_world;
 };
 
 struct MaterialData {
-	Vector3 diffuse;
+	Vector3f diffuse;
 	float dummy0;
-	Vector3 specular;
+	Vector3f specular;
 	float shininess;
 };
 
 struct AmbientLightData {
-	Vector3 color;
+	Vector3f color;
 	float dummy0;
 	float intensity;
-	Vector3 dummy1;
+	Vector3f dummy1;
 };
 
 struct DirectionalLightData {
-	Vector3 view_position;
+	Vector3f view_position;
 	float dummy0;
-	Vector3 direction;
+	Vector3f direction;
 	float dummy1;
-	Vector3 color;
+	Vector3f color;
 	float dummy2;
 };
 

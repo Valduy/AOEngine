@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "../Application/Window.h"
+#include "../Application/IWindow.h"
 
 #include "DX11GPUDevice.h"
 #include "DX11GPUTexture2D.h"
@@ -11,7 +11,7 @@ namespace aoe {
 
 class DX11GPUSwapChain {
 public:
-	DX11GPUSwapChain(const Window& window);
+	DX11GPUSwapChain(IWindow& window);
 	~DX11GPUSwapChain();
 
 	IDXGISwapChain* GetNative() const;
@@ -21,7 +21,7 @@ public:
 	void Present() const;
 
 private:
-	const Window& window_;
+	IWindow& window_;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory> dxgi_factory_;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swap_chain_;

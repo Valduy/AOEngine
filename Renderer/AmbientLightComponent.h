@@ -5,7 +5,7 @@
 namespace aoe {
 
 struct AmbientLightComponent {
-	Vector3 color;
+	Vector3f color;
 	float intensity;
 };
 

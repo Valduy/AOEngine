@@ -4,10 +4,10 @@ namespace aoe {
 
 class IECSSystem {
 public:
-	virtual void Initialize() {}
-	virtual void Terminate() {}
-	virtual void PerTickUpdate(float dt) {};
-	virtual void PerFrameUpdate(float dt) {};
+	virtual void Initialize() = 0;
+	virtual void Terminate() = 0;
+	virtual void PerTickUpdate(float dt) = 0;
+	virtual void PerFrameUpdate(float dt) = 0;
 };
 
 } // namespace aoe

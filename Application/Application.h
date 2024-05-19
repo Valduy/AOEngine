@@ -10,8 +10,10 @@ namespace aoe {
 class Application {
 public:
 	Application(const std::wstring& window_name, int32_t width, int32_t height);
+	~Application();
 
-	const Window& GetWindow() const;
+	IWindow& GetWindow();
+	const IInput& GetInput() const;
 
 	void Start(IScene& game);
 	void Stop();
@@ -21,6 +23,9 @@ private:
 	Window window_;
 
 	bool is_stoping_;
+
+	void OnWindowClosing();
+	void OnWindowDestroying();
 };
 
 } // namespace aoe

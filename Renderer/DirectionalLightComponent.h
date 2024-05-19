@@ -5,7 +5,7 @@
 namespace aoe {
 
 struct DirectionalLightComponent {
-	Vector3 color;
+	Vector3f color;
 };
 
 } // namespace aoe

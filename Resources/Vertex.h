@@ -5,20 +5,20 @@
 namespace aoe {
 
 struct Vertex {
-	const Vector3 position;
-	const Vector3 normal;
-	const Vector2 uv;
+	const Vector3f position;
+	const Vector3f normal;
+	const Vector2f uv;
 
-	Vertex(Vector3 position, Vector3 normal, Vector2 uv)
+	Vertex(Vector3f position, Vector3f normal, Vector2f uv)
 		: position(position)
 		, normal(normal)
 		, uv(uv)
 	{}
 
 	Vertex()
-		: position(Math::kV3Zero)
-		, normal(Math::kV3Zero)
-		, uv(Math::kV2Zero)
+		: position(Math::kZeros3f)
+		, normal(Math::kZeros3f)
+		, uv(Math::kZeros2f)
 	{}
 };
 

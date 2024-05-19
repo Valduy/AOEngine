@@ -11,7 +11,7 @@ namespace aoe {
 
 class DX11RenderSystem : public IECSSystem {
 public:
-	DX11RenderSystem(const Window& window, const aoe::ServiceProvider& service_provider)
+	DX11RenderSystem(const aoe::ServiceProvider& service_provider)
 		: service_provider_(service_provider)
 		, geometry_pass_(service_provider)
 		, light_pass_(service_provider)
@@ -30,23 +30,20 @@ public:
 
 		render_context_ = service_provider_.GetService<DX11RenderContext>();
 		AOE_ASSERT_MSG(world_ != nullptr, "There is no DX11RenderContext service.");
-
 	}
 
-	void PerTickUpdate(float dt) override {
-		PrepareContext();
+	void Terminate() override {}
 
+	void PerTickUpdate(float dt) override {
 		// TODO: may be use it for viewport setup
-		// TODO: check camera deletation in run time
 		Entity camera = CameraUtils::GetActualCamera(*world_);
 
-		if (camera.IsNull()) {
-			return;
+		PrepareRenderContext();
+
+		if (!camera.IsNull()) {
+			Render();
 		}
 
-		geometry_pass_.Render();
-		light_pass_.Render();
-		tone_pass_.Render();
 		PresentFrame();
 	}
 
@@ -62,7 +59,7 @@ private:
 	World* world_;
 	DX11RenderContext* render_context_;
 
-	void PrepareContext() {
+	void PrepareRenderContext() {
 		const float background_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 		aoe::DX11GPUContext context = aoe::DX11GPUDevice::Instance().GetContext();
@@ -74,6 +71,12 @@ private:
 		context.ClearDepth(render_context_->GetDepthBufferView(), 1.0f);
 		context.ClearState();
 		context.SetViewport(render_context_->GetViewport());
+	}
+
+	void Render() {
+		geometry_pass_.Render();
+		light_pass_.Render();
+		tone_pass_.Render();
 	}
 
 	void PresentFrame() {

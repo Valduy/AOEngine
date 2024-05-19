@@ -30,22 +30,9 @@ public:
 	}
 
 	void Render() override {
-		DX11RasterizerStateID rs_id{ GPUCullMode::kBack, GPUFillMode::kSolid };
-		const DX11GPURasterizerState& rasterizer_state = render_context_->GetRasterizerState(rs_id);
-
-		DX11DepthStateID ds_id{ false, GPUDepthWriteMask::kWriteNone, GPUComparsionFunction::kNever };
-		const DX11GPUDepthState& depth_state = render_context_->GetDepthState(ds_id);
+		PrepareRenderContext();
 
 		DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-		context.SetRasterizerState(rasterizer_state);
-		context.SetBlendState(blend_state_, 0xffffffff);
-		context.SetDepthState(depth_state);
-		context.SetVertexShader(vertex_shader_);
-		context.SetPixelShader(pixel_shader_);
-		context.SetRenderTargets(render_targets_);
-		context.SetShaderResource(GPUShaderType::kPixel, render_context_->GetAccumulatorTextureView(), 0);
-		context.SetSampler(GPUShaderType::kPixel, sampler_, 0);
-		context.SetPrimitiveTopology(GPUPrimitiveTopology::kTriangleStrip);
 		context.Draw(4);
 	}
 
@@ -83,6 +70,25 @@ private:
 	void InitializeRenderTargets() {
 		render_targets_.render_target_views[0] = &render_context_->GetRenderTargetView();
 		render_targets_.depth_stencil_view = &render_context_->GetDepthBufferView();
+	}
+
+	void PrepareRenderContext() {
+		DX11RasterizerStateID rs_id{ GPUCullMode::kBack, GPUFillMode::kSolid };
+		const DX11GPURasterizerState& rasterizer_state = render_context_->GetRasterizerState(rs_id);
+
+		DX11DepthStateID ds_id{ false, GPUDepthWriteMask::kWriteNone, GPUComparsionFunction::kNever };
+		const DX11GPUDepthState& depth_state = render_context_->GetDepthState(ds_id);
+
+		DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
+		context.SetRasterizerState(rasterizer_state);
+		context.SetBlendState(blend_state_, 0xffffffff);
+		context.SetDepthState(depth_state);
+		context.SetVertexShader(vertex_shader_);
+		context.SetPixelShader(pixel_shader_);
+		context.SetRenderTargets(render_targets_);
+		context.SetShaderResource(GPUShaderType::kPixel, render_context_->GetAccumulatorTextureView(), 0);
+		context.SetSampler(GPUShaderType::kPixel, sampler_, 0);
+		context.SetPrimitiveTopology(GPUPrimitiveTopology::kTriangleStrip);
 	}
 };
 

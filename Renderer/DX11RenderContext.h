@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Application/Window.h"
 #include "../Graphics/DX11GPUSwapChain.h"
 
 #include "DX11GBuffer.h"
@@ -13,7 +12,7 @@ class DX11RenderContext {
 public:
 	// TODO: handle window resize and update resources
 
-	DX11RenderContext(const Window& window)
+	DX11RenderContext(IWindow& window)
 		: window_(window)
 		, swap_chain_(window)
 		, depth_buffer_(GPUTexture2DDescription::DepthStencilBuffer(window.GetWidth(), window.GetHeight()))
@@ -79,7 +78,7 @@ public:
 	}
 
 private:
-	const Window& window_;
+	IWindow& window_;
 
 	DX11GPUSwapChain swap_chain_;
 	DX11TextureScaler depth_buffer_;

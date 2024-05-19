@@ -21,8 +21,8 @@ private:
 	static void ProcessNode(std::vector<Mesh>& meshes, const aiScene* scene, const aiNode* node);
 	static Mesh ProcessMesh(const aiScene* scene, const aiMesh* mesh);
 
-	static Vector2 ToVector2(aiVector3D vector);
-	static Vector3 ToVector3(aiVector3D vector);
+	static Vector2f ToVector2(aiVector3D vector);
+	static Vector3f ToVector3(aiVector3D vector);
 };
 
 } // namespace aoe

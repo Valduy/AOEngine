@@ -7,7 +7,7 @@
 
 namespace aoe {
 
-DX11GPUSwapChain::DX11GPUSwapChain(const Window& window)
+DX11GPUSwapChain::DX11GPUSwapChain(IWindow& window)
 	: window_(window)
 	, dxgi_factory_(nullptr)
 	, swap_chain_(nullptr)
@@ -25,7 +25,7 @@ DX11GPUSwapChain::DX11GPUSwapChain(const Window& window)
 	swap_chain_desc.SampleDesc.Quality = 0;
 	swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swap_chain_desc.BufferCount = 2;
-	swap_chain_desc.OutputWindow = window_.GetHandler();
+	swap_chain_desc.OutputWindow = static_cast<HWND>(window_.GetNative());
 	swap_chain_desc.Windowed = true;
 	swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
