@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Graphics/DX11GPUSwapChain.h"
+#include "../Graphics/Viewport.h"
 
 #include "DX11GBuffer.h"
 #include "DX11RasterizerStates.h"
@@ -10,72 +11,29 @@ namespace aoe {
 
 class DX11RenderContext {
 public:
-	// TODO: handle window resize and update resources
+	DX11RenderContext(IWindow& window);
 
-	DX11RenderContext(IWindow& window)
-		: window_(window)
-		, swap_chain_(window)
-		, depth_buffer_(GPUTexture2DDescription::DepthStencilBuffer(window.GetWidth(), window.GetHeight()))
-		, gbuffer_(window.GetWidth(), window.GetHeight())
-	{}
+	Viewport GetViewport() const;
 
-	Viewport GetViewport() const {
-		float width = static_cast<float>(window_.GetWidth());
-		float height = static_cast<float>(window_.GetHeight());
-		return { 0, 0, width, height, 0, 1 };
-	}
+	const DX11GPUTextureView& GetRenderTargetView();
+	const DX11GPUTextureView& GetDepthBufferView();
+	const DX11GPUTextureView& GetDiffuseTextureView();
+	const DX11GPUTextureView& GetSpecularTextureView();
+	const DX11GPUTextureView& GetNormalTextureView();
+	const DX11GPUTextureView& GetPositionTextureView();
+	const DX11GPUTextureView& GetAccumulatorTextureView();
 
-	const DX11GPUTextureView& GetRenderTargetView() {
-		return swap_chain_.GetRenderTargetView();
-	}
-
-	const DX11GPUTextureView& GetDepthBufferView() {
-		return depth_buffer_.GetTexture()->GetTextureView();
-	}
-
-	const DX11GPUTextureView& GetDiffuseTextureView() {
-		return gbuffer_.GetDiffuseTexture()->GetTextureView();
-	}
-
-	const DX11GPUTextureView& GetSpecularTextureView() {
-		return gbuffer_.GetSpecularTexture()->GetTextureView();
-	}
-
-	const DX11GPUTextureView& GetNormalTextureView() {
-		return gbuffer_.GetNormalTexture()->GetTextureView();
-	}
-
-	const DX11GPUTextureView& GetPositionTextureView() {
-		return gbuffer_.GetPositionTexture()->GetTextureView();
-	}
-
-	const DX11GPUTextureView& GetAccumulatorTextureView() {
-		return gbuffer_.GetAccumulatorTexture()->GetTextureView();
-	}
-
-	const DX11GPURasterizerState& GetRasterizerState(GPUCullMode cull_mode, GPUFillMode fill_mode) const {
-		return rasterizer_states_.Get(cull_mode, fill_mode);
-	}
-
-	const DX11GPURasterizerState& GetRasterizerState(DX11RasterizerStateID id) const {
-		return rasterizer_states_.Get(id);
-	}
+	const DX11GPURasterizerState& GetRasterizerState(GPUCullMode cull_mode, GPUFillMode fill_mode) const;
+	const DX11GPURasterizerState& GetRasterizerState(DX11RasterizerStateID id) const;
 
 	const DX11GPUDepthState& GetDepthState(
 		bool is_depth_enabled,
 		GPUDepthWriteMask write_mask,
-		GPUComparsionFunction comparsion_function) const 
-	{
-		return depth_states_.Get(is_depth_enabled, write_mask, comparsion_function);
-	}
+		GPUComparsionFunction comparsion_function) const;
 
-	const DX11GPUDepthState& GetDepthState(DX11DepthStateID id) const {
-		return depth_states_.Get(id);
-	}
+	const DX11GPUDepthState& GetDepthState(DX11DepthStateID id) const;
 
-	const void PresentFrame() const {
-		swap_chain_.Present();
-	}
+	const void PresentFrame() const;
 
 private:
 	IWindow& window_;

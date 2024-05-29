@@ -8,7 +8,7 @@
       <AdditionalDependencies>$(SolutionDir)dependencies\assimp\lib\$(Configuration)\assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\dependencies\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
       <Command>XCOPY $(SolutionDir)dependencies\assimp\lib\$(Configuration)\assimp-vc143-mtd.dll $(TargetDir) /D /K /Y</Command>

@@ -13,6 +13,7 @@ class IWindow {
 public:
 	Event<IWindow> Closing;
 	Event<IWindow> Destroying;
+	Event<IWindow, int32_t, int32_t> SizeChanged;
 
 	virtual ~IWindow() = default;
 	virtual void* GetNative() const = 0;
@@ -32,6 +33,10 @@ protected:
 
 	void FireDestroying() {
 		Destroying.Notify();
+	}
+
+	void FireSizeChanged(int32_t width, int32_t height) {
+		SizeChanged.Notify(width, height);
 	}
 };
 

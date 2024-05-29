@@ -6,51 +6,19 @@ namespace aoe {
 
 class DX11TextureScaler {
 public:
-	DX11TextureScaler(const GPUTexture2DDescription& description)
-		: description_(description)
-		, texture_(nullptr)
-	{
-		Resize(description.width, description.height);
-	}
+	DX11TextureScaler(const GPUTexture2DDescription& description);
+	DX11TextureScaler(DX11TextureScaler&& other) noexcept;
 
-	DX11TextureScaler(DX11TextureScaler&& other) noexcept
-		: description_(other.description_)
-		, texture_(nullptr)
-	{
-		swap(*this, other);
-	}
+	~DX11TextureScaler();
 
-	~DX11TextureScaler() {
-		delete texture_;
-	}
+	bool IsCollapsed();
+	const DX11GPUTexture2D* GetTexture();
 
-	bool IsCollapsed() {
-		return description_.width == 0 || description_.height == 0;
-	}
+	void Resize(uint32_t width, uint32_t height);
 
-	const DX11GPUTexture2D* GetTexture() {
-		return texture_;
-	}
+	friend void swap(DX11TextureScaler& first, DX11TextureScaler& second);
 
-	void Resize(uint32_t width, uint32_t height) {
-		description_.width = width;
-		description_.height = height;
-
-		delete texture_;
-		texture_ = IsCollapsed() ? nullptr : new DX11GPUTexture2D(description_);
-	}
-
-	friend void swap(DX11TextureScaler& first, DX11TextureScaler& second) {
-		using std::swap;
-
-		swap(first.description_, second.description_);
-		swap(first.texture_, second.texture_);
-	}
-
-	DX11TextureScaler& operator=(DX11TextureScaler other) {
-		swap(*this, other);
-		return *this;
-	}
+	DX11TextureScaler& operator=(DX11TextureScaler other);
 
 private:
 	GPUTexture2DDescription description_;

@@ -11,6 +11,9 @@
 #include "../Game/SystemsPool.h"
 #include "../Renderer/DX11RenderDataUpdateSystem.h"
 #include "../Renderer/DX11RenderSystem.h"
+#include "../Renderer/AmbientLightComponent.h"
+#include "../Renderer/DirectionalLightComponent.h"
+#include "../Renderer/CameraComponent.h"
 #include "../Resources/DX11ModelManager.h"
 #include "../Resources/DX11TextureManager.h"
 
@@ -137,6 +140,9 @@ public:
 	};
 
 	void PerTickUpdate(float dt) override {
+		//bool is_held = application_.GetInput().IsKeyHeld(aoe::Key::kW);
+		//AOE_LOG_INFO("Is W held: {}", is_held);
+
 		systems_pool_.PerTickUpdate(dt);
 		world_.Validate();
 	}

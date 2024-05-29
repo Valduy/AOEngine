@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <cstring>
-#include <algorithm>
 
 namespace aoe {
 

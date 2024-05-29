@@ -5,49 +5,18 @@
 #include "DX11GeometryPass.h"
 #include "DX11LightPass.h"
 #include "DX11TonePass.h"
-#include "CameraUtils.h"
 
 namespace aoe {
 
 class DX11RenderSystem : public IECSSystem {
 public:
-	DX11RenderSystem(const aoe::ServiceProvider& service_provider)
-		: service_provider_(service_provider)
-		, geometry_pass_(service_provider)
-		, light_pass_(service_provider)
-		, tone_pass_(service_provider)
-		, world_(nullptr)
-		, render_context_(nullptr)
-	{}
+	DX11RenderSystem(const aoe::ServiceProvider& service_provider);
 
-	void Initialize() override {
-		geometry_pass_.Initialize();
-		light_pass_.Initialize();
-		tone_pass_.Initialize();
+	void Initialize() override;
+	void Terminate() override;
 
-		world_ = service_provider_.GetService<World>();
-		AOE_ASSERT_MSG(world_ != nullptr, "There is no World service.");
-
-		render_context_ = service_provider_.GetService<DX11RenderContext>();
-		AOE_ASSERT_MSG(world_ != nullptr, "There is no DX11RenderContext service.");
-	}
-
-	void Terminate() override {}
-
-	void PerTickUpdate(float dt) override {
-		// TODO: may be use it for viewport setup
-		Entity camera = CameraUtils::GetActualCamera(*world_);
-
-		PrepareRenderContext();
-
-		if (!camera.IsNull()) {
-			Render();
-		}
-
-		PresentFrame();
-	}
-
-	void PerFrameUpdate(float dt) override {}
+	void PerTickUpdate(float dt) override;
+	void PerFrameUpdate(float dt) override;
 
 private:
 	const ServiceProvider& service_provider_;
@@ -59,29 +28,9 @@ private:
 	World* world_;
 	DX11RenderContext* render_context_;
 
-	void PrepareRenderContext() {
-		const float background_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-		aoe::DX11GPUContext context = aoe::DX11GPUDevice::Instance().GetContext();
-		context.ClearRenderTarget(render_context_->GetRenderTargetView(), background_color);
-		context.ClearRenderTarget(render_context_->GetDiffuseTextureView(), background_color);
-		context.ClearRenderTarget(render_context_->GetNormalTextureView(), background_color);
-		context.ClearRenderTarget(render_context_->GetPositionTextureView(), background_color);
-		context.ClearRenderTarget(render_context_->GetAccumulatorTextureView(), background_color);
-		context.ClearDepth(render_context_->GetDepthBufferView(), 1.0f);
-		context.ClearState();
-		context.SetViewport(render_context_->GetViewport());
-	}
-
-	void Render() {
-		geometry_pass_.Render();
-		light_pass_.Render();
-		tone_pass_.Render();
-	}
-
-	void PresentFrame() {
-		render_context_->PresentFrame();
-	}
+	void PrepareRenderContext();
+	void Render();
+	void PresentFrame();
 };
 
 } // namespace aoe

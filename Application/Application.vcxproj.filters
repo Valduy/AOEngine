@@ -19,6 +19,9 @@
     <Filter Include="Header Files\Window">
       <UniqueIdentifier>{23952ab8-b85b-4b2a-84a4-d8665adeb1c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Input">
+      <UniqueIdentifier>{135f06d7-4916-4196-a7ec-7a401085ca0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -73,6 +76,9 @@
     </ClCompile>
     <ClCompile Include="Window.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputCollector.cpp">
+      <Filter>Source Files\Input</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

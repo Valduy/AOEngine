@@ -74,8 +74,7 @@ public:
     }
 
 private:
-    static constexpr char kAssertFormat[] = 
-        "\nAssert failed: {}\nExpected: {}\nSource: {}, line {}";
+    static constexpr char kAssertFormat[] = "\nAssert failed: {}\nExpected: {}\nSource: {}, line {}";
 };
 
 } // namespace aoe

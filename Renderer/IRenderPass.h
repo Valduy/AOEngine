@@ -4,8 +4,8 @@ namespace aoe {
 
 class IRenderPass {
 public:
-	virtual void Initialize() {}
-	virtual void Terminate() {}
+	virtual void Initialize() = 0;
+	virtual void Terminate() = 0;
 	virtual void Render() = 0;
 };
 

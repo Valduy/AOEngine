@@ -102,6 +102,8 @@ LRESULT Window::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 		if (window->mouse_mode_ == MouseMode::kRelative) {
 			window->ClipToWindow();
 		}
+
+		window->FireSizeChanged(window->GetWidth(), window->GetHeight());
 		return 0;
 	}
 	case WM_ACTIVATEAPP: {
@@ -155,7 +157,7 @@ HWND Window::CreateWindowInstance(HINSTANCE hinstance, const std::wstring& windo
 		WS_EX_APPWINDOW,
 		window_name.data(),
 		window_name.data(),
-		WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX /*| WS_THICKFRAME*/,
+		WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_THICKFRAME,
 		window_position_x,
 		window_position_y,
 		window_width,

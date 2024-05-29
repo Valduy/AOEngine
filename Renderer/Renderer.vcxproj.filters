@@ -28,6 +28,15 @@
     <Filter Include="Header Files\DX11\RenderPasses\Light">
       <UniqueIdentifier>{58d0208c-7bca-4e91-93f3-b3dac95c28e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\DX11">
+      <UniqueIdentifier>{76ac7d6c-7247-4e6c-8ddc-8c49c054cc17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DX11\RenderPasses">
+      <UniqueIdentifier>{093dce17-be03-4586-a2fb-6b54f8e659ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DX11\RenderPasses\Light">
+      <UniqueIdentifier>{2770d066-e108-42cd-92ff-9a9e9c629236}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -45,16 +54,10 @@
     <ClInclude Include="DX11GBuffer.h">
       <Filter>Header Files\DX11</Filter>
     </ClInclude>
-    <ClInclude Include="DX11RenderState.h">
-      <Filter>Header Files\DX11</Filter>
-    </ClInclude>
     <ClInclude Include="DX11TextureScaler.h">
       <Filter>Header Files\DX11</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DX11RenderDataComponents.h">
@@ -68,9 +71,6 @@
     </ClInclude>
     <ClInclude Include="DirectionalLightComponent.h">
       <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraComponent.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CameraUtils.h">
       <Filter>Header Files</Filter>
@@ -102,10 +102,58 @@
     <ClInclude Include="DX11TonePass.h">
       <Filter>Header Files\DX11\RenderPasses</Filter>
     </ClInclude>
+    <ClInclude Include="CameraComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11DepthStates.cpp">
+      <Filter>Source Files\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GBuffer.cpp">
+      <Filter>Source Files\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11RasterizerStates.cpp">
+      <Filter>Source Files\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11RenderContext.cpp">
+      <Filter>Source Files\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11RenderDataUpdateSystem.cpp">
+      <Filter>Source Files\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11RenderSystem.cpp">
+      <Filter>Source Files\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11ShaderHelper.cpp">
+      <Filter>Source Files\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11TextureScaler.cpp">
+      <Filter>Source Files\DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11GeometryPass.cpp">
+      <Filter>Source Files\DX11\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11TonePass.cpp">
+      <Filter>Source Files\DX11\RenderPasses</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11LightPass.cpp">
+      <Filter>Source Files\DX11\RenderPasses\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11DirectionalLightPass.cpp">
+      <Filter>Source Files\DX11\RenderPasses\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11AmbientLightPass.cpp">
+      <Filter>Source Files\DX11\RenderPasses\Light</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

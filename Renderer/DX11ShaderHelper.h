@@ -10,22 +10,11 @@ class DX11ShaderHelper {
 public:
 	DX11ShaderHelper() = delete;
 
-	static DX11GPUVertexShader CreateVertexShader(std::wstring path, std::string entry_point = "VertexMain") {
-		return { CompileByteCode(GPUShaderType::kVertex, path, entry_point) };
-	}
-
-	static DX11GPUPixelShader CreatePixelShader(std::wstring path, std::string entry_point = "PixelMain") {
-		return { CompileByteCode(GPUShaderType::kPixel, path, entry_point) };
-	}
+	static DX11GPUVertexShader CreateVertexShader(std::wstring path, std::string entry_point = "VertexMain");
+	static DX11GPUPixelShader CreatePixelShader(std::wstring path, std::string entry_point = "PixelMain");
 
 private:
-	static DX11GPUByteCode CompileByteCode(GPUShaderType shader_type, std::wstring path, std::string entry_point) {
-		GPUShaderProgramDescription shader_program_desc{
-			shader_type, path, entry_point,
-		};
-
-		return DX11GPUShadersCompiler::CompileShader(shader_program_desc);
-	}
+	static DX11GPUByteCode CompileByteCode(GPUShaderType shader_type, std::wstring path, std::string entry_point);
 };
 
 } // namespace aoe

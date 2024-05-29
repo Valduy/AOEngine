@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <algorithm>
+
 #include "Image.h"
 
 namespace aoe {

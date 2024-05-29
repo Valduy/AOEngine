@@ -65,18 +65,22 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Core\AOECore.props" />
+    <Import Project="..\Resources\AOEResources.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Core\AOECore.props" />
+    <Import Project="..\Resources\AOEResources.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Core\AOECore.props" />
+    <Import Project="..\Resources\AOEResources.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\Core\AOECore.props" />
+    <Import Project="..\Resources\AOEResources.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -160,7 +164,6 @@
     <ClInclude Include="DX11RasterizerStates.h" />
     <ClInclude Include="DX11GBuffer.h" />
     <ClInclude Include="DX11RenderContext.h" />
-    <ClInclude Include="DX11RenderState.h" />
     <ClInclude Include="DX11RenderSystem.h" />
     <ClInclude Include="DX11ShaderHelper.h" />
     <ClInclude Include="DX11TextureScaler.h" />
@@ -175,6 +178,20 @@
     <ClInclude Include="DX11RenderDataComponents.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CameraUtils.cpp" />
+    <ClCompile Include="DX11AmbientLightPass.cpp" />
+    <ClCompile Include="DX11DepthStates.cpp" />
+    <ClCompile Include="DX11DirectionalLightPass.cpp" />
+    <ClCompile Include="DX11GBuffer.cpp" />
+    <ClCompile Include="DX11GeometryPass.cpp" />
+    <ClCompile Include="DX11LightPass.cpp" />
+    <ClCompile Include="DX11RasterizerStates.cpp" />
+    <ClCompile Include="DX11RenderContext.cpp" />
+    <ClCompile Include="DX11RenderDataUpdateSystem.cpp" />
+    <ClCompile Include="DX11RenderSystem.cpp" />
+    <ClCompile Include="DX11ShaderHelper.cpp" />
+    <ClCompile Include="DX11TextureScaler.cpp" />
+    <ClCompile Include="DX11TonePass.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
