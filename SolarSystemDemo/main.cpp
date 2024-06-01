@@ -16,6 +16,7 @@
 #include "../Renderer/CameraComponent.h"
 #include "../Resources/DX11ModelManager.h"
 #include "../Resources/DX11TextureManager.h"
+#include "../Common/FlyCameraSystem.h"
 
 class SolarSystemScene : public aoe::IScene {
 public:
@@ -114,6 +115,7 @@ public:
 		aoe::Entity camera = world_.Create();
 		world_.Add<aoe::TransformComponent>(camera);
 		world_.Add<aoe::CameraComponent>(camera);
+		world_.Add<aoe::FlyCameraComponent>(camera);
 		auto camera_transform_component = world_.Get<aoe::TransformComponent>(camera);
 		auto camera_component = world_.Get<aoe::CameraComponent>(camera);
 		camera_component->projection = aoe::Projection::kPerspective;
@@ -122,6 +124,9 @@ public:
 		camera_component->near_plain = 0.1f;
 		camera_component->far_plain = 100.0f;
 		camera_component->field_of_view = aoe::Math::kPi / 2;
+		auto fly_camera_component = world_.Get<aoe::FlyCameraComponent>(camera);
+		fly_camera_component->speed = 6.0f;
+		fly_camera_component->sensitivity = 0.002f;
 
 		service_provider_.AddService(&application_);
 		service_provider_.AddService(&world_);
@@ -130,6 +135,7 @@ public:
 		service_provider_.AddService(&model_manager_);
 		service_provider_.AddService(&texture_manager_);
 
+		systems_pool_.PushSystem<aoe::FlyCameraSystem>(service_provider_);
 		systems_pool_.PushSystem<aoe::DX11RenderDataUpdateSystem>(service_provider_);
 		systems_pool_.PushSystem<aoe::DX11RenderSystem>(service_provider_);
 		systems_pool_.Initialize();
@@ -140,9 +146,6 @@ public:
 	};
 
 	void PerTickUpdate(float dt) override {
-		//bool is_held = application_.GetInput().IsKeyHeld(aoe::Key::kW);
-		//AOE_LOG_INFO("Is W held: {}", is_held);
-
 		systems_pool_.PerTickUpdate(dt);
 		world_.Validate();
 	}

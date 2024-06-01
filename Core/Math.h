@@ -19,9 +19,15 @@ using Quaternion = mathfu::Quaternion<float>;
 
 class Math {
 public:
-	static constexpr float kPi = mathfu::kPi;
+	static constexpr float kPi = 3.141592654f;
+	static constexpr float k2Pi = 6.283185307f;
+	static constexpr float kPiDiv2 = 1.570796327f;
+	static constexpr float kPiDiv4 = 0.785398163f;
+
 	static constexpr float kRH = 1.0f;
 	static constexpr float kLH = -1.0f;
+
+	static constexpr float kEpsilon = std::numeric_limits<float>::epsilon();
 
 	static const Vector2f kZeros2f;
 	static const Vector2f kOnes2f;
@@ -68,6 +74,18 @@ public:
 	static const Quaternion kQIdentity;
 
 	Math() = delete;
+
+	template<typename T>
+	static T Clamp(T value, T min, T max) {
+		if (value < min) {
+			return min;
+		}
+		if (value > max) {
+			return max;
+		}
+
+		return value;
+	}
 };
 
 } // namespace aoe

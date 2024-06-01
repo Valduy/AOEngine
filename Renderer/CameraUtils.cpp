@@ -25,7 +25,7 @@ Matrix4f CameraUtils::GetViewMatrix(World& world, Entity camera) {
 	Vector3f forward = transform_component->GetForward();
 	Vector3f position = transform_component->position;
 
-	return Matrix4f::LookAt(forward, position, Math::kUp, Math::kLH);
+	return Matrix4f::LookAt(position + forward, position, Math::kUp, Math::kLH);
 }
 
 Matrix4f CameraUtils::GetCameraMatrix(World& world, Entity camera) {

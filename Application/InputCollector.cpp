@@ -17,7 +17,7 @@ bool InputCollector::IsKeyDown(Key key) const {
 
 bool InputCollector::IsKeyHeld(Key key) const {
 	KeyState state = GetKeyState(key);
-	return state == KeyState::kHeld;
+	return state == KeyState::kDown || state == KeyState::kHeld;
 }
 
 bool InputCollector::IsKeyUp(Key key) const {
@@ -46,12 +46,13 @@ bool InputCollector::Register(HWND handle) {
 	return RegisterRawInputDevices(raw_input_device, devices_count, sizeof(RAWINPUTDEVICE));
 }
 
-void InputCollector::ResetReleasedKeys() {
+void InputCollector::Reset() {
 	for (Key key : released_keys_) {
 		SetKeyState(key, KeyState::kIdle);
 	}
 
 	released_keys_.clear();
+	mouse_delta_ = Math::kZeros2i;
 }
 
 void InputCollector::ProcessWndMessage(LPARAM lparam) {

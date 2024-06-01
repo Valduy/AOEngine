@@ -20,7 +20,7 @@ public:
 	Vector2i GetMouseDelta() const override;
 
 	bool Register(HWND handle);
-	void ResetReleasedKeys();
+	void Reset();
 	void ProcessWndMessage(LPARAM lparam);
 
 private:

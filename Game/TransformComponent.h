@@ -25,33 +25,27 @@ public:
 	}
 
 	Vector3f GetRight() const {
-		Matrix4f world_matrix = GetWorldMatrix();
-		return world_matrix * Math::kRight;
+		return rotation * Math::kRight;
 	}
 
 	Vector3f GetLeft() const {
-		Matrix4f world_matrix = GetWorldMatrix();
-		return world_matrix * Math::kLeft;
+		return rotation * Math::kLeft;
 	}
 
 	Vector3f GetUp() const {
-		Matrix4f world_matrix = GetWorldMatrix();
-		return world_matrix * Math::kUp;
+		return rotation * Math::kUp;
 	}
 
 	Vector3f GetDown() const {
-		Matrix4f world_matrix = GetWorldMatrix();
-		return world_matrix * Math::kDown;
+		return rotation * Math::kDown;
 	}
 
 	Vector3f GetForward() const {
-		Matrix4f world_matrix = GetWorldMatrix();
-		return world_matrix * Math::kForward;
+		return rotation * Math::kForward;
 	}
 
 	Vector3f GetBackward() const {
-		Matrix4f world_matrix = GetWorldMatrix();
-		return world_matrix * Math::kBackward;
+		return rotation * Math::kBackward;
 	}
 };
 

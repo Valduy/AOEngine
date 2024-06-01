@@ -21,27 +21,18 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ServiceProvider.h">
+    <ClInclude Include="FlyCameraSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Relationeer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SystemsPool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IECSSystem.h">
+    <ClInclude Include="FlyCameraComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FlyCameraSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

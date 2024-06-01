@@ -44,7 +44,7 @@ const IInput& Window::GetInput() const {
 }
 
 void Window::Tick() {
-	input_collector_.ResetReleasedKeys();
+	input_collector_.Reset();
 }
 
 void* Window::GetNative() const {

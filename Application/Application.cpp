@@ -43,8 +43,8 @@ void Application::Start(IScene& scene) {
 			}
 		}
 
-		window_.Tick();
 		executor.Tick();
+		window_.Tick();
 	}
 }
 
