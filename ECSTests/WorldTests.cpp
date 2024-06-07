@@ -13,14 +13,6 @@ struct TestComponentB {};
 
 struct TestComponentC {};
 
-struct EntityHashFuction {
-	size_t operator()(const aoe::Entity& entity) const {
-		aoe::Version version = entity.GetVersion();
-		aoe::EntityId id = entity.GetId();
-		return std::hash<aoe::Version>()(version) ^ std::hash<aoe::EntityId>()(id);
-	}
-};
-
 size_t SumOfAp(size_t a_1, size_t a_n, size_t n);
 
 TEST(WorldTests, Add_AddComponentToExistedEntity_EntityHasComponent) {
@@ -104,7 +96,7 @@ TEST(WorldTests, Destroy_CreateAndDestroyEntities_AllCreatedEntitiesAreUnique) {
 	size_t recreated_entities_count = SumOfAp(1, max_alive_entities_count, max_alive_entities_count);
 	size_t unique_entities_count = recreated_entities_count + max_alive_entities_count;
 
-	std::unordered_set<aoe::Entity, EntityHashFuction> unique_entities;
+	std::unordered_set<aoe::Entity> unique_entities;
 	std::vector<aoe::Entity> entities;
 	aoe::World world;
 
@@ -134,7 +126,7 @@ TEST(WorldTests, Destroy_CreateAndDestroyEntities_AllCreatedEntitiesAreUnique) {
 
 TEST(WorldTests, ForEach_IterateOverMatchedEntities_AllMatchedEntitiesIterated) {
 	size_t entities_count = 10;
-	std::unordered_set<aoe::Entity, EntityHashFuction> expected_entities;
+	std::unordered_set<aoe::Entity> expected_entities;
 	aoe::World world;
 
 	for (size_t count = 0; count < entities_count; ++count) {

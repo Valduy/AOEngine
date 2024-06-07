@@ -4,19 +4,18 @@
 
 namespace aoe {
 
-class TransformComponent {
-public:
+struct Transform {
 	Vector3f position;
 	Quaternion rotation;
 	Vector3f scale;
 
-	TransformComponent()
+	Transform()
 		: position(Math::kZeros3f)
 		, rotation(Math::kQIdentity)
 		, scale(Math::kOnes3f)
 	{}
 
-	TransformComponent(Vector3f position, Quaternion rotation, Vector3f scale)
+	Transform(Vector3f position, Quaternion rotation, Vector3f scale)
 		: position(position)
 		, rotation(rotation)
 		, scale(scale)

@@ -27,7 +27,15 @@ void DX11LightPass::Initialize() {
 	directional_light_pass_.Initialize();
 }
 
-void DX11LightPass::Terminate() {}
+void DX11LightPass::Terminate() {
+	ambient_light_pass_.Terminate();
+	directional_light_pass_.Terminate();
+}
+
+inline void DX11LightPass::Update() {
+	ambient_light_pass_.Update();
+	directional_light_pass_.Update();
+}
 
 void DX11LightPass::Render() {
 	PrepareRenderContext();

@@ -12,6 +12,7 @@ public:
 	void Initialize() override;
 	void Terminate() override;
 
+	void Update() override;
 	void Render() override;
 
 private:

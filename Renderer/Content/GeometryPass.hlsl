@@ -23,7 +23,7 @@ Texture2D DiffuseMap : register(t0);
 SamplerState Sampler : register(s0);
 
 struct VertexIn {
-    float3 position : POSITIONT0;
+    float3 position : POSITION0;
     float3 normal   : NORMAL0;
     float2 uv       : TEXCOORD0;
 };

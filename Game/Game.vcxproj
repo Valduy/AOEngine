@@ -149,6 +149,7 @@
     <ClInclude Include="Relationeer.h" />
     <ClInclude Include="ServiceProvider.h" />
     <ClInclude Include="SystemsPool.h" />
+    <ClInclude Include="Transform.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="TransformUtils.h" />
   </ItemGroup>

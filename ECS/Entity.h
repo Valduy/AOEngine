@@ -46,3 +46,16 @@ private:
 };
 
 } // namespace aoe
+
+namespace std {
+
+	template<>
+	struct hash<aoe::Entity> {
+		size_t operator()(const aoe::Entity& value) const noexcept {
+			size_t hash0 = hash<aoe::Version>()(value.GetVersion());
+			size_t hash1 = hash<aoe::EntityId>()(value.GetId());
+			return hash0 ^ hash1;
+		}
+	};
+
+} // namespace std

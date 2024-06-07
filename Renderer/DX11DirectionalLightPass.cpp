@@ -1,6 +1,8 @@
 #include "pch.h"
 
 #include "DX11DirectionalLightPass.h"
+#include "DirectionalLightComponent.h"
+#include "CameraUtils.h"
 
 namespace aoe {
 
@@ -10,6 +12,7 @@ DX11DirectionalLightPass::DX11DirectionalLightPass(const ServiceProvider& servic
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/DirectionalLightPass.hlsl"))
 	, world_(nullptr)
 	, render_context_(nullptr)
+	, relationeer_(nullptr)
 {}
 
 void DX11DirectionalLightPass::Initialize() {
@@ -18,9 +21,23 @@ void DX11DirectionalLightPass::Initialize() {
 
 	render_context_ = service_provider_.GetService<DX11RenderContext>();
 	AOE_ASSERT_MSG(render_context_ != nullptr, "There is no DX11RenderContext service.");
+
+	relationeer_ = service_provider_.GetService<Relationeer<TransformComponent>>();
+	AOE_ASSERT_MSG(relationeer_ != nullptr, "There is no Relationeer<TransformComponent> service.");
+
+	InitializeDirectionLightData();
+
+	SubscribeToComponents();
 }
 
-void DX11DirectionalLightPass::Terminate() {}
+void DX11DirectionalLightPass::Terminate() {
+	UnsibscribeFromComponents();
+}
+
+void DX11DirectionalLightPass::Update() {
+	Entity camera = CameraUtils::GetActualCamera(*world_);
+	UpdateDirectionLightData(camera);
+}
 
 void DX11DirectionalLightPass::Render() {
 	PrepareRenderContext();
@@ -31,6 +48,23 @@ void DX11DirectionalLightPass::Render() {
 		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_data_component->buffer, 0);
 		context.Draw(4);
 	});
+}
+
+void DX11DirectionalLightPass::InitializeDirectionLightData() {
+	world_->ForEach<DirectionalLightComponent>(
+	[this](auto entity, auto ambient_light_component) {
+		world_->Add<DX11DirectionalLightDataComponent>(entity);
+	});
+}
+
+void DX11DirectionalLightPass::SubscribeToComponents() {
+	world_->ComponentAdded<DirectionalLightComponent>().Attach(*this, &DX11DirectionalLightPass::OnDirectionLightComponentAdded);
+	world_->ComponentRemoved<DirectionalLightComponent>().Attach(*this, &DX11DirectionalLightPass::OnDirectionLightComponentRemoved);
+}
+
+void DX11DirectionalLightPass::UnsibscribeFromComponents() {
+	world_->ComponentAdded<DirectionalLightComponent>().Detach(*this, &DX11DirectionalLightPass::OnDirectionLightComponentAdded);
+	world_->ComponentRemoved<DirectionalLightComponent>().Detach(*this, &DX11DirectionalLightPass::OnDirectionLightComponentRemoved);
 }
 
 void DX11DirectionalLightPass::PrepareRenderContext() {
@@ -50,6 +84,28 @@ void DX11DirectionalLightPass::PrepareRenderContext() {
 	context.SetShaderResource(GPUShaderType::kPixel, render_context_->GetNormalTextureView(), 2);
 	context.SetShaderResource(GPUShaderType::kPixel, render_context_->GetPositionTextureView(), 3);
 	context.SetPrimitiveTopology(GPUPrimitiveTopology::kTriangleStrip);
+}
+
+void DX11DirectionalLightPass::UpdateDirectionLightData(Entity camera) {
+	auto transform_component = world_->Get<TransformComponent>(camera);
+
+	world_->ForEach<TransformComponent, DirectionalLightComponent, DX11DirectionalLightDataComponent>(
+	[&, this](auto entity, auto transform_component, auto direction_light_component, auto direction_light_data_component) {
+		DirectionalLightData data{};
+		data.view_position = transform_component->position;
+		data.direction = TransformUtils::GetGlobalForward(*world_, *relationeer_, entity);
+		data.color = direction_light_component->color;
+
+		direction_light_data_component->Update(&data);
+	});
+}
+
+void DX11DirectionalLightPass::OnDirectionLightComponentAdded(Entity entity) {
+	world_->Add<DX11DirectionalLightDataComponent>(entity);
+}
+
+void DX11DirectionalLightPass::OnDirectionLightComponentRemoved(Entity entity) {
+	world_->Remove<DX11DirectionalLightDataComponent>(entity);
 }
 
 } // namespace aoe

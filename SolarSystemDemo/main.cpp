@@ -9,11 +9,13 @@
 #include "../Game/TransformUtils.h"
 #include "../Game/IECSSystem.h"
 #include "../Game/SystemsPool.h"
-#include "../Renderer/DX11RenderDataUpdateSystem.h"
 #include "../Renderer/DX11RenderSystem.h"
 #include "../Renderer/AmbientLightComponent.h"
 #include "../Renderer/DirectionalLightComponent.h"
+#include "../Renderer/LineComponent.h"
 #include "../Renderer/CameraComponent.h"
+#include "../Renderer/Colors.h"
+#include "../Renderer/DebugUtils.h"
 #include "../Resources/DX11ModelManager.h"
 #include "../Resources/DX11TextureManager.h"
 #include "../Common/FlyCameraSystem.h"
@@ -32,54 +34,11 @@ public:
 	{}
 
 	void Initialize() override {
-		// experiments begin
-		world_.EntityCreated.Attach(*this, &SolarSystemScene::TestEntityCreated);
-		world_.EntityDestroyed.Attach(*this, &SolarSystemScene::TestEntityDestroyed);
-
-		aoe::Entity parent = world_.Create();
-		aoe::Entity child = world_.Create();
-
-		world_.Add<aoe::TransformComponent>(parent);
-		world_.Add<aoe::TransformComponent>(child);
-
-		auto parent_transform = world_.Get<aoe::TransformComponent>(parent);
-		auto child_transform = world_.Get<aoe::TransformComponent>(child);
-
-		parent_transform->position = { 0.0f, 0.0f, 1.0f };
-		parent_transform->rotation = aoe::Quaternion::FromEulerAngles({ 0.0f, 0.0f, aoe::Math::kPi / 4 });
-
-		child_transform->position = { 0.0f, 0.0f, 1.0f };
-		child_transform->rotation = aoe::Quaternion::FromEulerAngles({ 0.0f, 0.0f, aoe::Math::kPi / 4 });
-
-		relationeer_.SetParent(child, parent);
-
-		bool isChildChild = relationeer_.IsChildrenOf(child, parent);
-		bool isParentChild = relationeer_.IsChildrenOf(parent, child);
-
-		auto test0 = aoe::TransformUtils::GetGlobalPosition(world_, relationeer_, parent);
-		auto test1 = aoe::TransformUtils::GetGlobalPosition(world_, relationeer_, child);
-
-		auto test3 = aoe::TransformUtils::GetGlobalRotation(world_, relationeer_, parent).ToEulerAngles();
-		auto test4 = aoe::TransformUtils::GetGlobalRotation(world_, relationeer_, child).ToEulerAngles();
-
-		aoe::TransformUtils::SetGlobalPosition(world_, relationeer_, child, { 0.0f, 0.0f, 2.0f });
-		auto test5 = child_transform->position;
-
-		auto quat = aoe::Quaternion::FromEulerAngles({ 0.0f, 0.0f, aoe::Math::kPi / 2 });
-		aoe::TransformUtils::SetGlobalRotation(world_, relationeer_, child, quat);
-		auto test6 = child_transform->rotation.ToEulerAngles();
-
-		world_.Destroy(parent);
-		world_.Destroy(child);
-		world_.Validate();
-		// experiments end
-		
-		// TODO: may be use it on loading level
-		
 		aoe::Entity entity0 = world_.Create();
 		world_.Add<aoe::TransformComponent>(entity0);
 		auto transform_component0 = world_.Get<aoe::TransformComponent>(entity0);
-		transform_component0->position = {0.0f, 0.0f, 4.0f};
+		transform_component0->position = { 0.0f, 0.0f, 4.0f };
+		transform_component0->scale = { 1.0f, 2.0f, 0.5f };
 
 		aoe::ModelId model_id = model_manager_.Load(L"/Content/Dice_d4.fbx", aoe::ModelLoaderOptions::kFlipUVs);
 		aoe::TextureId texture_id = texture_manager_.LoadRGBA(L"/Content/Dice_d4_Albedo.png");
@@ -90,6 +49,16 @@ public:
 		material.shininess = 32.0f;
 		world_.Add<aoe::RenderComponent>(entity0, model_id, texture_id, material);
 
+		world_.Add<aoe::LineComponent>(entity0);
+		auto line_component_x = world_.Get<aoe::LineComponent>(entity0);
+		line_component_x->color = aoe::Colors::kRed;
+		line_component_x->points = { 
+			{0.0f, 0.0f, 0.0f}, 
+			{1.0f, 0.0f, 0.0f}, 
+			{1.0f, 1.0f, 0.0f}, 
+			{0.0f, 0.0f, 0.0f} 
+		};
+		
 		aoe::Entity entity1 = world_.Create();
 		world_.Add<aoe::TransformComponent>(entity1);
 		auto transform_component1 = world_.Get<aoe::TransformComponent>(entity1);
@@ -98,6 +67,11 @@ public:
 		auto other_material = material;
 		other_material.diffuse = { 0.3, 1, 0.3 };
 		world_.Add<aoe::RenderComponent>(entity1, model_id, texture_id, other_material);
+
+		aoe::AxisDescription axis_desc{};
+		axis_desc.scale = 3;
+		auto axis = aoe::DebugUtils::CreateAxis(world_, relationeer_, axis_desc);
+		relationeer_.SetParent(axis, entity1);
 
 		aoe::Entity ambient_light = world_.Create();
 		world_.Add<aoe::AmbientLightComponent>(ambient_light);
@@ -136,7 +110,6 @@ public:
 		service_provider_.AddService(&texture_manager_);
 
 		systems_pool_.PushSystem<aoe::FlyCameraSystem>(service_provider_);
-		systems_pool_.PushSystem<aoe::DX11RenderDataUpdateSystem>(service_provider_);
 		systems_pool_.PushSystem<aoe::DX11RenderSystem>(service_provider_);
 		systems_pool_.Initialize();
 	};

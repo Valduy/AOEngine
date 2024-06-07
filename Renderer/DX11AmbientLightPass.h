@@ -18,6 +18,7 @@ public:
 	void Initialize() override;
 	void Terminate() override;
 
+	void Update() override;
 	void Render() override;
 
 private:
@@ -29,7 +30,15 @@ private:
 	World* world_;
 	DX11RenderContext* render_context_;
 
+	void InitializeAmbientLightData();
+
+	void SubscribeToComponents();
+	void UnsibscribeFromComponents();
+
 	void PrepareRenderContext();
+
+	void OnAmbientLightComponentAdded(Entity entity);
+	void OnAmbientLightComponentRemoved(Entity entity);
 };
 
 } // namespace aoe

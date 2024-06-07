@@ -64,23 +64,23 @@ DX11ModelResources DX11ModelManager::CreateModelResources(const Model& model) {
 }
 
 DX11GPUBuffer DX11ModelManager::CreateVertexBuffer(const Mesh& mesh) {
-	const aoe::GPUBufferDescription vertex_buffer_desc{
-		aoe::GPUBufferType::kVertexBuffer,
-		aoe::GPUResourceUsage::kDefault
+	const GPUBufferDescription vertex_buffer_desc{
+		GPUBufferType::kVertexBuffer,
+		GPUResourceUsage::kDefault
 	};
 
 	const std::vector<Vertex>& vertices = mesh.GetVertices();
-	return aoe::DX11GPUBuffer::Create<Vertex>(vertex_buffer_desc, vertices.data(), vertices.size());
+	return DX11GPUBuffer::Create<Vertex>(vertex_buffer_desc, vertices.data(), vertices.size());
 }
 
 DX11GPUBuffer DX11ModelManager::CreateIndexBuffer(const Mesh& mesh) {
-	const aoe::GPUBufferDescription index_buffer_desc{
-		aoe::GPUBufferType::kIndexBuffer,
-		aoe::GPUResourceUsage::kDefault
+	const GPUBufferDescription index_buffer_desc{
+		GPUBufferType::kIndexBuffer,
+		GPUResourceUsage::kDefault
 	};
 
 	const std::vector<Index>& indices = mesh.GetIndices();
-	return aoe::DX11GPUBuffer::Create<Index>(index_buffer_desc, indices.data(), indices.size());
+	return DX11GPUBuffer::Create<Index>(index_buffer_desc, indices.data(), indices.size());
 }
 
 } // namespace aoe

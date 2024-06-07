@@ -35,6 +35,12 @@ struct DirectionalLightData {
 	float dummy2;
 };
 
+struct LineData {
+	Matrix4f world_view_projection;
+	Vector3f color;
+	float dummy;
+};
+
 template<typename TData>
 class DX11RenderDataComponent {
 public:
@@ -54,5 +60,6 @@ using DX11TransformDataComponent = DX11RenderDataComponent<TransformData>;
 using DX11MaterialDataComponent = DX11RenderDataComponent<MaterialData>;
 using DX11AmbientLightDataComponent = DX11RenderDataComponent<AmbientLightData>;
 using DX11DirectionalLightDataComponent = DX11RenderDataComponent<DirectionalLightData>;
+using DX11LineDataComponent = DX11RenderDataComponent<LineData>;
 
 } // namespace aoe

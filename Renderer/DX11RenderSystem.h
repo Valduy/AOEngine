@@ -5,6 +5,7 @@
 #include "DX11GeometryPass.h"
 #include "DX11LightPass.h"
 #include "DX11TonePass.h"
+#include "DX11DebugPass.h"
 
 namespace aoe {
 
@@ -24,6 +25,7 @@ private:
 	DX11GeometryPass geometry_pass_;
 	DX11LightPass light_pass_;
 	DX11TonePass tone_pass_;
+	DX11DebugPass debug_pass_;
 
 	World* world_;
 	DX11RenderContext* render_context_;
