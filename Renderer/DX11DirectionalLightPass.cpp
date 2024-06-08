@@ -92,7 +92,7 @@ void DX11DirectionalLightPass::UpdateDirectionLightData(Entity camera) {
 	world_->ForEach<TransformComponent, DirectionalLightComponent, DX11DirectionalLightDataComponent>(
 	[&, this](auto entity, auto transform_component, auto direction_light_component, auto direction_light_data_component) {
 		DirectionalLightData data{};
-		data.view_position = transform_component->position;
+		data.view_position = transform_component->transform.position;
 		data.direction = TransformUtils::GetGlobalForward(*world_, *relationeer_, entity);
 		data.color = direction_light_component->color;
 

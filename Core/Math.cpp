@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include <cmath>
+
 #include "Math.h"
 
 namespace aoe {
@@ -47,5 +49,13 @@ const Vector4i Math::kAxisZ4i = mathfu::kAxisZ4i;
 const Vector4i Math::kAxisW4i = mathfu::kAxisW4i;
 
 const Quaternion Math::kQIdentity = mathfu::kQuatIdentityf;
+
+float Math::Sin(float angle) {
+	return std::sin(angle);
+}
+
+float Math::Cos(float angle) {
+	return std::cos(angle);
+}
 
 } // namespace aoe

@@ -47,7 +47,7 @@ void FlyCameraSystem::PerTickUpdate(float dt) {
 
 	fly_camera_component->yaw = yaw;
 	fly_camera_component->pitch = pitch;
-	transform_component->rotation = Quaternion::FromEulerAngles(pitch, yaw, 0);
+	transform_component->transform.rotation = Quaternion::FromEulerAngles(pitch, yaw, 0);
 }
 
 void FlyCameraSystem::PerFrameUpdate(float dt) {
@@ -60,7 +60,7 @@ void FlyCameraSystem::PerFrameUpdate(float dt) {
 	auto transform_component = world_->Get<TransformComponent>(camera);
 	auto fly_camera_component = world_->Get<FlyCameraComponent>(camera);
 
-	transform_component->position += GetMovement(transform_component, fly_camera_component->speed, dt);
+	transform_component->transform.position += GetMovement(transform_component, fly_camera_component->speed, dt);
 }
 
 void FlyCameraSystem::CaptureInputs() {
@@ -76,22 +76,22 @@ Vector3f FlyCameraSystem::GetMovement(ComponentHandler<TransformComponent> trans
 	Vector3f movement = Math::kZeros3f;
 
 	if (is_forward_) {
-		movement += transform_component->GetForward();
+		movement += transform_component->transform.GetForward();
 	}
 	if (is_backward_) {
-		movement += transform_component->GetBackward();
+		movement += transform_component->transform.GetBackward();
 	}
 	if (is_left_) {
-		movement += transform_component->GetLeft();
+		movement += transform_component->transform.GetLeft();
 	}
 	if (is_right_) {
-		movement += transform_component->GetRight();
+		movement += transform_component->transform.GetRight();
 	}
 	if (is_up_) {
-		movement += transform_component->GetUp();
+		movement += transform_component->transform.GetUp();
 	}
 	if (is_down_) {
-		movement += transform_component->GetDown();
+		movement += transform_component->transform.GetDown();
 	}
 
 	return movement * speed * dt;

@@ -37,8 +37,8 @@ public:
 		aoe::Entity entity0 = world_.Create();
 		world_.Add<aoe::TransformComponent>(entity0);
 		auto transform_component0 = world_.Get<aoe::TransformComponent>(entity0);
-		transform_component0->position = { 0.0f, 0.0f, 4.0f };
-		transform_component0->scale = { 1.0f, 2.0f, 0.5f };
+		transform_component0->transform.position = { 0.0f, 0.0f, 4.0f };
+		transform_component0->transform.scale = { 1.0f, 2.0f, 0.5f };
 
 		aoe::ModelId model_id = model_manager_.Load(L"/Content/Dice_d4.fbx", aoe::ModelLoaderOptions::kFlipUVs);
 		aoe::TextureId texture_id = texture_manager_.LoadRGBA(L"/Content/Dice_d4_Albedo.png");
@@ -62,16 +62,26 @@ public:
 		aoe::Entity entity1 = world_.Create();
 		world_.Add<aoe::TransformComponent>(entity1);
 		auto transform_component1 = world_.Get<aoe::TransformComponent>(entity1);
-		transform_component1->position = { 1.3f, 0.0f, 5.0f };
+		transform_component1->transform.position = { 1.3f, 0.0f, 5.0f };
 
 		auto other_material = material;
 		other_material.diffuse = { 0.3, 1, 0.3 };
 		world_.Add<aoe::RenderComponent>(entity1, model_id, texture_id, other_material);
 
-		aoe::AxisDescription axis_desc{};
-		axis_desc.scale = 3;
-		auto axis = aoe::DebugUtils::CreateAxis(world_, relationeer_, axis_desc);
+		aoe::Transform axis_transform{};
+		axis_transform.scale = { 3.0f, 3.0f, 3.0f };
+		auto axis = aoe::DebugUtils::CreateAxis(world_, relationeer_, axis_transform);
 		relationeer_.SetParent(axis, entity1);
+
+		auto sphere = aoe::DebugUtils::CreateSphere(world_, relationeer_);
+		relationeer_.SetParent(sphere, entity0);
+
+		aoe::Transform transform;
+		transform.position = { 1.0f, 0.0f, 0.0f };
+		transform.rotation = aoe::Quaternion::FromEulerAngles(0.0f, aoe::Math::kPiDiv4, 0.0f);
+		aoe::DebugUtils::CreateCube(world_, relationeer_, transform);
+
+		aoe::DebugUtils::CreateGrid(world_, relationeer_, { 20, 0, 20 }, {}, aoe::Colors::kWhite);
 
 		aoe::Entity ambient_light = world_.Create();
 		world_.Add<aoe::AmbientLightComponent>(ambient_light);

@@ -24,6 +24,9 @@ public:
 	static constexpr float kPiDiv2 = 1.570796327f;
 	static constexpr float kPiDiv4 = 0.785398163f;
 
+	static constexpr float kDeg2Rad = kPi / 180.0f;
+	static constexpr float kRad2Deg = 180.0f / kPi;
+
 	static constexpr float kRH = 1.0f;
 	static constexpr float kLH = -1.0f;
 
@@ -76,16 +79,22 @@ public:
 	Math() = delete;
 
 	template<typename T>
-	static T Clamp(T value, T min, T max) {
-		if (value < min) {
-			return min;
-		}
-		if (value > max) {
-			return max;
-		}
+	static T Clamp(T value, T min, T max);
 
-		return value;
-	}
+	static float Sin(float angle);
+	static float Cos(float angle);
 };
+
+template<typename T>
+static T Math::Clamp(T value, T min, T max) {
+	if (value < min) {
+		return min;
+	}
+	if (value > max) {
+		return max;
+	}
+
+	return value;
+}
 
 } // namespace aoe

@@ -22,8 +22,8 @@ Matrix4f CameraUtils::GetProjectionMatrix(World& world, Entity camera) {
 
 Matrix4f CameraUtils::GetViewMatrix(World& world, Entity camera) {
 	auto transform_component = world.Get<TransformComponent>(camera);
-	Vector3f forward = transform_component->GetForward();
-	Vector3f position = transform_component->position;
+	Vector3f forward = transform_component->transform.GetForward();
+	Vector3f position = transform_component->transform.position;
 
 	return Matrix4f::LookAt(position + forward, position, Math::kUp, Math::kLH);
 }
