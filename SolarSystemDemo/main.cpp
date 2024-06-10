@@ -49,15 +49,15 @@ public:
 		material.shininess = 32.0f;
 		world_.Add<aoe::RenderComponent>(entity0, model_id, texture_id, material);
 
-		world_.Add<aoe::LineComponent>(entity0);
-		auto line_component_x = world_.Get<aoe::LineComponent>(entity0);
-		line_component_x->color = aoe::Colors::kRed;
-		line_component_x->points = { 
-			{0.0f, 0.0f, 0.0f}, 
-			{1.0f, 0.0f, 0.0f}, 
-			{1.0f, 1.0f, 0.0f}, 
-			{0.0f, 0.0f, 0.0f} 
-		};
+		//world_.Add<aoe::LineComponent>(entity0);
+		//auto line_component_x = world_.Get<aoe::LineComponent>(entity0);
+		//line_component_x->color = aoe::Colors::kRed;
+		//line_component_x->points = { 
+		//	{0.0f, 0.0f, 0.0f}, 
+		//	{1.0f, 0.0f, 0.0f}, 
+		//	{1.0f, 1.0f, 0.0f}, 
+		//	{0.0f, 0.0f, 0.0f} 
+		//};
 		
 		aoe::Entity entity1 = world_.Create();
 		world_.Add<aoe::TransformComponent>(entity1);
@@ -73,15 +73,16 @@ public:
 		auto axis = aoe::DebugUtils::CreateAxis(world_, relationeer_, axis_transform);
 		relationeer_.SetParent(axis, entity1);
 
-		auto sphere = aoe::DebugUtils::CreateSphere(world_, relationeer_);
+		auto sphere = aoe::DebugUtils::CreateSphere(world_);
 		relationeer_.SetParent(sphere, entity0);
 
 		aoe::Transform transform;
 		transform.position = { 1.0f, 0.0f, 0.0f };
 		transform.rotation = aoe::Quaternion::FromEulerAngles(0.0f, aoe::Math::kPiDiv4, 0.0f);
-		aoe::DebugUtils::CreateCube(world_, relationeer_, transform);
+		aoe::DebugUtils::CreateCube(world_, transform);
 
-		aoe::DebugUtils::CreateGrid(world_, relationeer_, { 20, 0, 20 }, {}, aoe::Colors::kWhite);
+		aoe::DebugUtils::CreateGrid(world_, { 20, 0, 20 }, {}, aoe::Colors::kWhite);
+		aoe::DebugUtils::CreateSphere(world_);
 
 		aoe::Entity ambient_light = world_.Create();
 		world_.Add<aoe::AmbientLightComponent>(ambient_light);
@@ -150,14 +151,6 @@ private:
 
 	aoe::ServiceProvider service_provider_;
 	aoe::SystemsPool systems_pool_;
-
-	void TestEntityCreated(aoe::Entity entity) {
-		int test = 0;
-	}
-
-	void TestEntityDestroyed(aoe::Entity entity) {
-		int test = 0;
-	}
 };
 
 int main() {

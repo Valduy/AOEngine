@@ -52,9 +52,14 @@ void DX11DebugPass::Render() {
 			return;
 		}
 		
-		context.SetVertexBuffer(it->second);
+		const DX11LineResources& line_resources = it->second;
+
 		context.SetConstantBuffer(GPUShaderType::kVertex, line_data_component->buffer);
-		context.Draw(line_component->points.size());
+
+		for (const DX11SegmentResources& segment_resources : line_resources.segments_resources) {
+			context.SetVertexBuffer(segment_resources.vertex_buffer);
+			context.Draw(segment_resources.vertex_buffer.GetElementsCount());
+		}
 	});
 }
 
@@ -62,16 +67,35 @@ void DX11DebugPass::InitializeLineData() {
 	world_->ForEach<TransformComponent, LineComponent>(
 	[this](auto entity, auto transform_component, auto line_component) {
 		world_->Add<DX11LineDataComponent>(entity);
-		vertex_buffers_.emplace(entity, CreateVertexBuffer(line_component->points));
+		vertex_buffers_.emplace(entity, CreateLineResources(line_component->GetLine()));
 	});
 }
 
-DX11GPUBuffer DX11DebugPass::CreateVertexBuffer(const std::vector<Vector3f>& points) {
+DX11LineResources DX11DebugPass::CreateLineResources(const Line& lines) {
+	std::vector<DX11SegmentResources> segments_resources;
+
+	for (const Segment& segment : lines.GetSegments()) {
+		DX11SegmentResources segment_resources{
+			CreateVertexBuffer(segment),
+		};
+
+		segments_resources.emplace_back(std::move(segment_resources));
+	}
+
+	DX11LineResources line_resources{
+		std::move(segments_resources),
+	};
+
+	return line_resources;
+}
+
+DX11GPUBuffer DX11DebugPass::CreateVertexBuffer(const Segment& segment) {
 	const aoe::GPUBufferDescription vertex_buffer_desc{
 		aoe::GPUBufferType::kVertexBuffer,
 		aoe::GPUResourceUsage::kDefault
 	};
 
+	const std::vector<Vector3f>& points = segment.GetPoints();
 	return DX11GPUBuffer::Create<Vector3f>(vertex_buffer_desc, points.data(), points.size());
 }
 
@@ -127,7 +151,7 @@ void DX11DebugPass::OnTransformComponentAdded(Entity entity) {
 		world_->Add<DX11LineDataComponent>(entity);
 
 		auto line_component = world_->Get<LineComponent>(entity);
-		vertex_buffers_.emplace(entity, CreateVertexBuffer(line_component->points));
+		vertex_buffers_.emplace(entity, CreateLineResources(line_component->GetLine()));
 	}
 }
 
@@ -143,7 +167,7 @@ void DX11DebugPass::OnLineComponentAdded(Entity entity) {
 		world_->Add<DX11LineDataComponent>(entity);
 
 		auto line_component = world_->Get<LineComponent>(entity);
-		vertex_buffers_.emplace(entity, CreateVertexBuffer(line_component->points));
+		vertex_buffers_.emplace(entity, CreateLineResources(line_component->GetLine()));
 	}
 }
 

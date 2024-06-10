@@ -2,25 +2,26 @@
 
 #include <vector>
 
-#include "../Core/Math.h"
-
 #include "Colors.h"
+#include "Line.h"
 
 namespace aoe {
 
-struct LineComponent {
+class LineComponent {
+public:
 	Vector3f color;
-	std::vector<Vector3f> points;
 
-	LineComponent()
-		: color(Colors::kWhite)
-		, points()
-	{}
-
-	LineComponent(Vector3f color, std::vector<Vector3f> points)
+	LineComponent(Vector3f color, Line line)
 		: color(color)
-		, points(std::move(points))
+		, line_(std::move(line))
 	{}
+
+	const Line& GetLine() const {
+		return line_;
+	}
+
+private:
+	Line line_;
 };
 
 } // namespace aoe

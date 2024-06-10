@@ -15,7 +15,7 @@ struct DX11MeshResources {
 };
 
 struct DX11ModelResources {
-	const std::vector<DX11MeshResources> mesh_resources;
+	const std::vector<DX11MeshResources> meshes_resources;
 };
 
 class DX11ModelManager : public IModelManager {

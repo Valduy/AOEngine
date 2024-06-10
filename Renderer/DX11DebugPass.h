@@ -16,6 +16,14 @@
 
 namespace aoe {
 
+struct DX11SegmentResources {
+	const DX11GPUBuffer vertex_buffer;
+};
+
+struct DX11LineResources {
+	const std::vector<DX11SegmentResources> segments_resources;
+};
+
 class DX11DebugPass : public IRenderPass {
 public:
 	DX11DebugPass(const ServiceProvider& service_provider);
@@ -31,14 +39,15 @@ private:
 
 	DX11GPUVertexShader vertex_shader_;
 	DX11GPUPixelShader pixel_shader_;
-	std::unordered_map<Entity, DX11GPUBuffer> vertex_buffers_;
+	std::unordered_map<Entity, DX11LineResources> vertex_buffers_;
 
 	World* world_;
 	DX11RenderContext* render_context_;
 	Relationeer<TransformComponent>* relationeer_;
 
 	void InitializeLineData();
-	DX11GPUBuffer CreateVertexBuffer(const std::vector<Vector3f>& points);
+	DX11LineResources CreateLineResources(const Line& lines);
+	DX11GPUBuffer CreateVertexBuffer(const Segment& segment);
 
 	void SubscribeToComponents();
 	void UnsibscribeFromComponents();

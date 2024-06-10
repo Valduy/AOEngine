@@ -62,7 +62,7 @@ void DX11GeometryPass::Render() {
 		context.SetConstantBuffer(GPUShaderType::kPixel, material_data_component->buffer, 1);
 		context.SetShaderResource(GPUShaderType::kPixel, texture_resources.GetTextureView(), 0);
 
-		for (const DX11MeshResources& mesh_resource : model_resources.mesh_resources) {
+		for (const DX11MeshResources& mesh_resource : model_resources.meshes_resources) {
 			context.SetVertexBuffer(mesh_resource.vertex_buffer);
 			context.SetIndexBuffer(mesh_resource.index_buffer);
 			context.DrawIndexed(mesh_resource.index_buffer.GetElementsCount());

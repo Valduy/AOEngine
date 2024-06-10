@@ -46,6 +46,7 @@ const DX11ModelResources& DX11ModelManager::GetModelResources(ModelId mesh_id) {
 
 DX11ModelResources DX11ModelManager::CreateModelResources(const Model& model) {
 	std::vector<DX11MeshResources> meshes_resources;
+	meshes_resources.reserve(model.GetMeshes().size());
 
 	for (const Mesh& mesh : model.GetMeshes()) {
 		DX11MeshResources mesh_resources{

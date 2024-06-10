@@ -175,6 +175,7 @@
     <ClInclude Include="DX11GeometryPass.h" />
     <ClInclude Include="IRenderPass.h" />
     <ClInclude Include="LineComponent.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="RenderComponent.h" />
@@ -183,6 +184,7 @@
   <ItemGroup>
     <ClCompile Include="CameraUtils.cpp" />
     <ClCompile Include="Colors.cpp" />
+    <ClCompile Include="DebugUtils.cpp" />
     <ClCompile Include="DX11AmbientLightPass.cpp" />
     <ClCompile Include="DX11DebugPass.cpp" />
     <ClCompile Include="DX11DepthStates.cpp" />
