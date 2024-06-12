@@ -4,10 +4,8 @@
 
 namespace aoe {
 
-FlyCameraSystem::FlyCameraSystem(const aoe::ServiceProvider& service_provider)
-	: service_provider_(service_provider)
-	, application_(nullptr)
-	, world_(nullptr)
+FlyCameraSystem::FlyCameraSystem()
+	: application_(nullptr)
 	, is_forward_(false)
 	, is_backward_(false)
 	, is_left_(false)
@@ -16,27 +14,24 @@ FlyCameraSystem::FlyCameraSystem(const aoe::ServiceProvider& service_provider)
 	, is_down_(false)
 {}
 
-void FlyCameraSystem::Initialize() {
-	application_ = service_provider_.GetService<Application>();
+void FlyCameraSystem::Initialize(const aoe::ServiceProvider& service_provider) {
+	ECSSystemBase::Initialize(service_provider);
+
+	application_ = service_provider.GetService<Application>();
 	AOE_ASSERT_MSG(application_ != nullptr, "There is no Application service.");
-
-	world_ = service_provider_.GetService<World>();
-	AOE_ASSERT_MSG(world_ != nullptr, "There is no World service.");
 }
-
-void FlyCameraSystem::Terminate() {}
 
 void FlyCameraSystem::PerTickUpdate(float dt) {
 	CaptureInputs();
 
-	Entity camera = CameraUtils::GetActualCamera(*world_);
+	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
 
-	if (camera.IsNull() || !world_->Has<FlyCameraComponent>(camera)) {
+	if (camera.IsNull() || !GetWorld()->Has<FlyCameraComponent>(camera)) {
 		return;
 	}
 
-	auto transform_component = world_->Get<TransformComponent>(camera);
-	auto fly_camera_component = world_->Get<FlyCameraComponent>(camera);
+	auto transform_component = GetWorld()->Get<TransformComponent>(camera);
+	auto fly_camera_component = GetWorld()->Get<FlyCameraComponent>(camera);
 
 	const int dx = application_->GetInput().GetMouseDelta().x;
 	const int dy = application_->GetInput().GetMouseDelta().y;
@@ -51,16 +46,17 @@ void FlyCameraSystem::PerTickUpdate(float dt) {
 }
 
 void FlyCameraSystem::PerFrameUpdate(float dt) {
-	Entity camera = CameraUtils::GetActualCamera(*world_);
+	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
 
 	if (camera.IsNull()) {
 		return;
 	}
 
-	auto transform_component = world_->Get<TransformComponent>(camera);
-	auto fly_camera_component = world_->Get<FlyCameraComponent>(camera);
+	auto transform_component = GetWorld()->Get<TransformComponent>(camera);
+	auto fly_camera_component = GetWorld()->Get<FlyCameraComponent>(camera);
 
-	transform_component->transform.position += GetMovement(transform_component, fly_camera_component->speed, dt);
+	Vector3f movement = GetMovement(transform_component->transform, fly_camera_component->speed, dt);
+	transform_component->transform.position += movement;
 }
 
 void FlyCameraSystem::CaptureInputs() {
@@ -72,26 +68,26 @@ void FlyCameraSystem::CaptureInputs() {
 	is_down_ = application_->GetInput().IsKeyHeld(Key::kShift);
 }
 
-Vector3f FlyCameraSystem::GetMovement(ComponentHandler<TransformComponent> transform_component, float speed, float dt) {
+Vector3f FlyCameraSystem::GetMovement(Transform transform, float speed, float dt) {
 	Vector3f movement = Math::kZeros3f;
 
 	if (is_forward_) {
-		movement += transform_component->transform.GetForward();
+		movement += transform.GetForward();
 	}
 	if (is_backward_) {
-		movement += transform_component->transform.GetBackward();
+		movement += transform.GetBackward();
 	}
 	if (is_left_) {
-		movement += transform_component->transform.GetLeft();
+		movement += transform.GetLeft();
 	}
 	if (is_right_) {
-		movement += transform_component->transform.GetRight();
+		movement += transform.GetRight();
 	}
 	if (is_up_) {
-		movement += transform_component->transform.GetUp();
+		movement += transform.GetUp();
 	}
 	if (is_down_) {
-		movement += transform_component->transform.GetDown();
+		movement += transform.GetDown();
 	}
 
 	return movement * speed * dt;

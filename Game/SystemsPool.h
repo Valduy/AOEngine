@@ -2,14 +2,14 @@
 
 #include <vector>
 
-#include "IECSSystem.h"
+#include "ECSSystemBase.h"
 
 namespace aoe {
 
 class SystemsPool {
 public:
 	~SystemsPool() {
-		for (const IECSSystem* system : systems_) {
+		for (const ECSSystemBase* system : systems_) {
 			delete system;
 		}
 
@@ -21,32 +21,32 @@ public:
 		systems_.push_back(new TSystem(std::forward<TParams>(params)...));
 	}
 
-	void Initialize() {
-		for (IECSSystem* system : systems_) {
-			system->Initialize();
+	void Initialize(const aoe::ServiceProvider& service_provider) {
+		for (ECSSystemBase* system : systems_) {
+			system->Initialize(service_provider);
 		}
 	}
 
 	void Terminate() {
-		for (IECSSystem* system : systems_) {
+		for (ECSSystemBase* system : systems_) {
 			system->Terminate();
 		}
 	}
 
 	void PerTickUpdate(float dt) {
-		for (IECSSystem* system : systems_) {
+		for (ECSSystemBase* system : systems_) {
 			system->PerTickUpdate(dt);
 		}
 	}
 
 	void PerFrameUpdate(float dt) {
-		for (IECSSystem* system : systems_) {
+		for (ECSSystemBase* system : systems_) {
 			system->PerFrameUpdate(dt);
 		}
 	}
 
 private:
-	std::vector<IECSSystem*> systems_;
+	std::vector<ECSSystemBase*> systems_;
 };
 
 } // namespace aoe

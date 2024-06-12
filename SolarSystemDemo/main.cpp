@@ -7,7 +7,6 @@
 #include "../Game/TransformComponent.h"
 #include "../Game/Relationeer.h"
 #include "../Game/TransformUtils.h"
-#include "../Game/IECSSystem.h"
 #include "../Game/SystemsPool.h"
 #include "../Renderer/DX11RenderSystem.h"
 #include "../Renderer/AmbientLightComponent.h"
@@ -135,9 +134,9 @@ public:
 		service_provider_.AddService(&model_manager_);
 		service_provider_.AddService(&texture_manager_);
 
-		systems_pool_.PushSystem<aoe::FlyCameraSystem>(service_provider_);
+		systems_pool_.PushSystem<aoe::FlyCameraSystem>();
 		systems_pool_.PushSystem<aoe::DX11RenderSystem>(service_provider_);
-		systems_pool_.Initialize();
+		systems_pool_.Initialize(service_provider_);
 	};
 
 	void Terminate() override {

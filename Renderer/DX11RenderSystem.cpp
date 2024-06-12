@@ -6,26 +6,23 @@
 namespace aoe {
 
 DX11RenderSystem::DX11RenderSystem(const aoe::ServiceProvider& service_provider)
-	: service_provider_(service_provider)
-	, geometry_pass_(service_provider)
+	: geometry_pass_(service_provider)
 	, light_pass_(service_provider)
 	, tone_pass_(service_provider)
 	, debug_pass_(service_provider)
-	, world_(nullptr)
 	, render_context_(nullptr)
 {}
 
-void DX11RenderSystem::Initialize() {
+void DX11RenderSystem::Initialize(const aoe::ServiceProvider& service_provider) {
+	ECSSystemBase::Initialize(service_provider);
+
 	geometry_pass_.Initialize();
 	light_pass_.Initialize();
 	tone_pass_.Initialize();
 	debug_pass_.Initialize();
 
-	world_ = service_provider_.GetService<World>();
-	AOE_ASSERT_MSG(world_ != nullptr, "There is no World service.");
-
-	render_context_ = service_provider_.GetService<DX11RenderContext>();
-	AOE_ASSERT_MSG(world_ != nullptr, "There is no DX11RenderContext service.");
+	render_context_ = service_provider.GetService<DX11RenderContext>();
+	AOE_ASSERT_MSG(render_context_ != nullptr, "There is no DX11RenderContext service.");
 }
 
 void DX11RenderSystem::Terminate() {
@@ -36,7 +33,7 @@ void DX11RenderSystem::Terminate() {
 }
 
 void DX11RenderSystem::PerTickUpdate(float dt) {
-	Entity camera = CameraUtils::GetActualCamera(*world_);
+	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
 
 	PrepareRenderContext();
 
@@ -48,7 +45,7 @@ void DX11RenderSystem::PerTickUpdate(float dt) {
 }
 
 void DX11RenderSystem::PerFrameUpdate(float dt) {
-	Entity camera = CameraUtils::GetActualCamera(*world_);
+	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
 
 	if (camera.IsNull()) {
 		return;

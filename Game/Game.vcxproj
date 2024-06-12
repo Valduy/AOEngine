@@ -144,7 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
-    <ClInclude Include="IECSSystem.h" />
+    <ClInclude Include="ECSSystemBase.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Relationeer.h" />
     <ClInclude Include="ServiceProvider.h" />
