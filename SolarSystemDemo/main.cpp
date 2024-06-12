@@ -33,56 +33,70 @@ public:
 		, systems_pool_()
 	{}
 
+	// TODO: make gpu data for lines part of line data component
 	void Initialize() override {
-		aoe::Entity entity0 = world_.Create();
-		world_.Add<aoe::TransformComponent>(entity0);
-		auto transform_component0 = world_.Get<aoe::TransformComponent>(entity0);
-		transform_component0->transform.position = { 0.0f, 0.0f, 4.0f };
-		transform_component0->transform.scale = { 1.0f, 2.0f, 0.5f };
+		aoe::ModelId dice_model_id = model_manager_.Load(L"/Content/Dice_d4.fbx", aoe::ModelLoaderOptions::kFlipUVs);
+		aoe::TextureId dice_texture_id = texture_manager_.LoadRGBA(L"/Content/Dice_d4_Albedo.png");
 
-		aoe::ModelId model_id = model_manager_.Load(L"/Content/Dice_d4.fbx", aoe::ModelLoaderOptions::kFlipUVs);
-		aoe::TextureId texture_id = texture_manager_.LoadRGBA(L"/Content/Dice_d4_Albedo.png");
+		aoe::Entity entity_dice_0 = world_.Create();
+		world_.Add<aoe::TransformComponent>(entity_dice_0);
+		auto dice_0_transform_component = world_.Get<aoe::TransformComponent>(entity_dice_0);
+		dice_0_transform_component->transform.position = { 0.0f, 0.0f, 4.0f };
+		dice_0_transform_component->transform.scale = { 1.0f, 1.0f, 1.0f };
 
 		aoe::Material material;
 		material.diffuse = { 1.0f, 1.0f, 1.0f };
 		material.specular = { 0.1f, 0.1f, 0.1f };
 		material.shininess = 32.0f;
-		world_.Add<aoe::RenderComponent>(entity0, model_id, texture_id, material);
+		world_.Add<aoe::RenderComponent>(entity_dice_0, dice_model_id, dice_texture_id, material);
 
-		//world_.Add<aoe::LineComponent>(entity0);
-		//auto line_component_x = world_.Get<aoe::LineComponent>(entity0);
-		//line_component_x->color = aoe::Colors::kRed;
-		//line_component_x->points = { 
-		//	{0.0f, 0.0f, 0.0f}, 
-		//	{1.0f, 0.0f, 0.0f}, 
-		//	{1.0f, 1.0f, 0.0f}, 
-		//	{0.0f, 0.0f, 0.0f} 
-		//};
-		
-		aoe::Entity entity1 = world_.Create();
-		world_.Add<aoe::TransformComponent>(entity1);
-		auto transform_component1 = world_.Get<aoe::TransformComponent>(entity1);
-		transform_component1->transform.position = { 1.3f, 0.0f, 5.0f };
+		aoe::Transform axis_0_transform{};
+		axis_0_transform.scale = { 3.0f, 3.0f, 3.0f };
+		auto axis_0 = aoe::DebugUtils::CreateAxis(world_, relationeer_, axis_0_transform);
+		relationeer_.SetParent(axis_0, entity_dice_0);
+
+		aoe::Entity entity_dice_1 = world_.Create();
+		world_.Add<aoe::TransformComponent>(entity_dice_1);
+		auto dice_1_transform_component = world_.Get<aoe::TransformComponent>(entity_dice_1);
+		dice_1_transform_component->transform.position = { 1.0f, 1.0f, 1.0f };
+		dice_1_transform_component->transform.rotation = aoe::Quaternion::FromEulerAngles(
+			0.0f * aoe::Math::kDeg2Rad,
+			0.0f * aoe::Math::kDeg2Rad,
+			45.0f * aoe::Math::kDeg2Rad
+		);
+		dice_1_transform_component->transform.scale = { 1.0f, 1.0f, 1.0f };
 
 		auto other_material = material;
 		other_material.diffuse = { 0.3, 1, 0.3 };
-		world_.Add<aoe::RenderComponent>(entity1, model_id, texture_id, other_material);
+		world_.Add<aoe::RenderComponent>(entity_dice_1, dice_model_id, dice_texture_id, other_material);
 
-		aoe::Transform axis_transform{};
-		axis_transform.scale = { 3.0f, 3.0f, 3.0f };
-		auto axis = aoe::DebugUtils::CreateAxis(world_, relationeer_, axis_transform);
-		relationeer_.SetParent(axis, entity1);
+		aoe::Transform axis_1_transform{};
+		axis_1_transform.scale = { 3.0f, 3.0f, 3.0f };
+		auto axis_1 = aoe::DebugUtils::CreateAxis(world_, relationeer_, axis_1_transform);
+		relationeer_.SetParent(axis_1, entity_dice_1);
+
+		relationeer_.SetParent(entity_dice_0, entity_dice_1);
+
+		aoe::TransformUtils::SetGlobalPosition(world_, relationeer_, entity_dice_0, { 0.0f, 0.0f, 0.0f });
+		aoe::TransformUtils::SetGlobalRotation(world_, relationeer_, entity_dice_0, aoe::Quaternion::FromEulerAngles(
+			0.0f * aoe::Math::kDeg2Rad,
+			-45.0f * aoe::Math::kDeg2Rad,
+			0.0f * aoe::Math::kDeg2Rad
+		));
 
 		auto sphere = aoe::DebugUtils::CreateSphere(world_);
-		relationeer_.SetParent(sphere, entity0);
+		relationeer_.SetParent(sphere, entity_dice_0);
+		relationeer_.SetParent(aoe::DebugUtils::CreateAxis(world_, relationeer_), sphere);
 
-		aoe::Transform transform;
-		transform.position = { 1.0f, 0.0f, 0.0f };
-		transform.rotation = aoe::Quaternion::FromEulerAngles(0.0f, aoe::Math::kPiDiv4, 0.0f);
-		aoe::DebugUtils::CreateCube(world_, transform);
+		aoe::TransformUtils::SetGlobalPosition(world_, relationeer_, sphere, { 1.0f, 0.0f, -1.0f });
+		aoe::TransformUtils::SetGlobalRotation(world_, relationeer_, sphere, aoe::Quaternion::FromEulerAngles(
+			0.0f * aoe::Math::kDeg2Rad,
+			45.0f * aoe::Math::kDeg2Rad,
+			0.0f * aoe::Math::kDeg2Rad
+		));
 
 		aoe::DebugUtils::CreateGrid(world_, { 20, 0, 20 }, {}, aoe::Colors::kWhite);
-		aoe::DebugUtils::CreateSphere(world_);
+		aoe::DebugUtils::CreateAxis(world_, relationeer_);
 
 		aoe::Entity ambient_light = world_.Create();
 		world_.Add<aoe::AmbientLightComponent>(ambient_light);
@@ -101,7 +115,7 @@ public:
 		world_.Add<aoe::TransformComponent>(camera);
 		world_.Add<aoe::CameraComponent>(camera);
 		world_.Add<aoe::FlyCameraComponent>(camera);
-		auto camera_transform_component = world_.Get<aoe::TransformComponent>(camera);
+		
 		auto camera_component = world_.Get<aoe::CameraComponent>(camera);
 		camera_component->projection = aoe::Projection::kPerspective;
 		camera_component->width = application_.GetWindow().GetWidth();
@@ -109,6 +123,7 @@ public:
 		camera_component->near_plain = 0.1f;
 		camera_component->far_plain = 100.0f;
 		camera_component->field_of_view = aoe::Math::kPi / 2;
+
 		auto fly_camera_component = world_.Get<aoe::FlyCameraComponent>(camera);
 		fly_camera_component->speed = 6.0f;
 		fly_camera_component->sensitivity = 0.002f;

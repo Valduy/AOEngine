@@ -9,7 +9,6 @@ DX11DebugPass::DX11DebugPass(const ServiceProvider& service_provider)
 	: service_provider_(service_provider)
 	, vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/DebugPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/DebugPass.hlsl"))
-	, vertex_buffers_()
 	, world_(nullptr)
 	, render_context_(nullptr)
 	, relationeer_(nullptr)
@@ -43,22 +42,13 @@ void DX11DebugPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	world_->ForEach<LineComponent, DX11LineDataComponent>(
-	[&, this](auto entity, auto line_component, auto line_data_component) {
-		auto it = vertex_buffers_.find(entity);
-
-		if (it == vertex_buffers_.end()) {
-			AOE_LOG_WARNING("There is no vertex buffer for entity.");
-			return;
-		}
-		
-		const DX11LineResources& line_resources = it->second;
-
+	world_->ForEach<LineComponent, DX11LineDataComponent, DX11LineResourcesComponent>(
+	[&, this](auto entity, auto line_component, auto line_data_component, auto line_resources_component) {
 		context.SetConstantBuffer(GPUShaderType::kVertex, line_data_component->buffer);
 
-		for (const DX11SegmentResources& segment_resources : line_resources.segments_resources) {
-			context.SetVertexBuffer(segment_resources.vertex_buffer);
-			context.Draw(segment_resources.vertex_buffer.GetElementsCount());
+		for (const DX11GPUBuffer& vertex_buffer : line_resources_component->GetLineResources()) {
+			context.SetVertexBuffer(vertex_buffer);
+			context.Draw(vertex_buffer.GetElementsCount());
 		}
 	});
 }
@@ -67,24 +57,16 @@ void DX11DebugPass::InitializeLineData() {
 	world_->ForEach<TransformComponent, LineComponent>(
 	[this](auto entity, auto transform_component, auto line_component) {
 		world_->Add<DX11LineDataComponent>(entity);
-		vertex_buffers_.emplace(entity, CreateLineResources(line_component->GetLine()));
+		world_->Add<DX11LineResourcesComponent>(entity, CreateLineResources(line_component->GetLine()));
 	});
 }
 
-DX11LineResources DX11DebugPass::CreateLineResources(const Line& lines) {
-	std::vector<DX11SegmentResources> segments_resources;
+std::vector<DX11GPUBuffer> DX11DebugPass::CreateLineResources(const Line& lines) {
+	std::vector<DX11GPUBuffer> line_resources;
 
 	for (const Segment& segment : lines.GetSegments()) {
-		DX11SegmentResources segment_resources{
-			CreateVertexBuffer(segment),
-		};
-
-		segments_resources.emplace_back(std::move(segment_resources));
+		line_resources.emplace_back(CreateVertexBuffer(segment));
 	}
-
-	DX11LineResources line_resources{
-		std::move(segments_resources),
-	};
 
 	return line_resources;
 }
@@ -101,18 +83,18 @@ DX11GPUBuffer DX11DebugPass::CreateVertexBuffer(const Segment& segment) {
 
 void DX11DebugPass::SubscribeToComponents() {
 	world_->ComponentAdded<TransformComponent>().Attach(*this, &DX11DebugPass::OnTransformComponentAdded);
-	world_->ComponentRemoved<TransformComponent>().Attach(*this, &DX11DebugPass::OnTransformComponentRemoved);
+	world_->ComponentRemoved<TransformComponent>().Attach(*this, &DX11DebugPass::OnComponentRemoved);
 
 	world_->ComponentAdded<LineComponent>().Attach(*this, &DX11DebugPass::OnLineComponentAdded);
-	world_->ComponentRemoved<LineComponent>().Attach(*this, &DX11DebugPass::OnLineComponentRemoved);
+	world_->ComponentRemoved<LineComponent>().Attach(*this, &DX11DebugPass::OnComponentRemoved);
 }
 
 void DX11DebugPass::UnsibscribeFromComponents() {
 	world_->ComponentAdded<TransformComponent>().Detach(*this, &DX11DebugPass::OnTransformComponentAdded);
-	world_->ComponentRemoved<TransformComponent>().Detach(*this, &DX11DebugPass::OnTransformComponentRemoved);
+	world_->ComponentRemoved<TransformComponent>().Detach(*this, &DX11DebugPass::OnComponentRemoved);
 
 	world_->ComponentAdded<LineComponent>().Detach(*this, &DX11DebugPass::OnLineComponentAdded);
-	world_->ComponentRemoved<LineComponent>().Detach(*this, &DX11DebugPass::OnLineComponentRemoved);
+	world_->ComponentRemoved<LineComponent>().Detach(*this, &DX11DebugPass::OnComponentRemoved);
 }
 
 void DX11DebugPass::UpdateLineData(Entity camera) {
@@ -147,35 +129,30 @@ void DX11DebugPass::PrepareRenderContext() {
 }
 
 void DX11DebugPass::OnTransformComponentAdded(Entity entity) {
-	if (world_->Has<LineComponent>(entity) && !world_->Has<DX11LineDataComponent>(entity)) {
-		world_->Add<DX11LineDataComponent>(entity);
-
-		auto line_component = world_->Get<LineComponent>(entity);
-		vertex_buffers_.emplace(entity, CreateLineResources(line_component->GetLine()));
-	}
-}
-
-void DX11DebugPass::OnTransformComponentRemoved(Entity entity) {
-	if (world_->Has<DX11LineDataComponent>(entity)) {
-		world_->Remove<DX11LineDataComponent>(entity);
-		vertex_buffers_.erase(entity);
+	if (world_->Has<LineComponent>(entity)) {
+		SetupLineEntity(entity);
 	}
 }
 
 void DX11DebugPass::OnLineComponentAdded(Entity entity) {
-	if (world_->Has<TransformComponent>(entity) && !world_->Has<DX11LineDataComponent>(entity)) {
-		world_->Add<DX11LineDataComponent>(entity);
-
-		auto line_component = world_->Get<LineComponent>(entity);
-		vertex_buffers_.emplace(entity, CreateLineResources(line_component->GetLine()));
+	if (world_->Has<TransformComponent>(entity)) {
+		SetupLineEntity(entity);
 	}
 }
 
-void DX11DebugPass::OnLineComponentRemoved(Entity entity) {
-	if (world_->Has<DX11LineDataComponent>(entity)) {
-		world_->Remove<DX11LineDataComponent>(entity);
-		vertex_buffers_.erase(entity);
-	}
+void DX11DebugPass::OnComponentRemoved(Entity entity) {
+	world_->Remove<DX11LineDataComponent>(entity);
+	world_->Remove<DX11LineResourcesComponent>(entity);
+}
+
+void DX11DebugPass::SetupLineEntity(Entity entity) {
+	AOE_ASSERT_MSG(!world_->Has<DX11LineDataComponent>(entity), "Entity already has DX11LineDataComponent.");
+	AOE_ASSERT_MSG(!world_->Has<DX11LineResourcesComponent>(entity), "Entity already has DX11LineResourcesComponent.");
+
+	auto line_component = world_->Get<LineComponent>(entity);
+
+	world_->Add<DX11LineDataComponent>(entity);
+	world_->Add<DX11LineResourcesComponent>(entity, CreateLineResources(line_component->GetLine()));
 }
 
 } // namespace aoe

@@ -55,10 +55,11 @@ private:
 	void PrepareRenderContext();
 
 	void OnTransformComponentAdded(Entity entity);
-	void OnTransformComponentRemoved(Entity entity);
-
 	void OnRenderComponentAdded(Entity entity);
-	void OnRenderComponentRemoved(Entity entity);
+
+	void OnComponentRemoved(Entity entity);
+
+	void SetupGeometryEntity(Entity entity);
 };
 
 } // namespace aoe

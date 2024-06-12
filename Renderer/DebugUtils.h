@@ -16,7 +16,7 @@ public:
 	static Entity CreateAxis(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
-		Transform transfrom);
+		Transform transfrom = {});
 
 	static Entity CreateLine(
 		World& world,

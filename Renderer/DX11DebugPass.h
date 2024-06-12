@@ -16,12 +16,18 @@
 
 namespace aoe {
 
-struct DX11SegmentResources {
-	const DX11GPUBuffer vertex_buffer;
-};
+class DX11LineResourcesComponent {
+public:
+	DX11LineResourcesComponent(std::vector<DX11GPUBuffer> line_resources)
+		: line_resources_(std::move(line_resources))
+	{}
 
-struct DX11LineResources {
-	const std::vector<DX11SegmentResources> segments_resources;
+	const std::vector<DX11GPUBuffer>& GetLineResources() {
+		return line_resources_;
+	}
+
+private:
+	std::vector<DX11GPUBuffer> line_resources_;
 };
 
 class DX11DebugPass : public IRenderPass {
@@ -39,14 +45,13 @@ private:
 
 	DX11GPUVertexShader vertex_shader_;
 	DX11GPUPixelShader pixel_shader_;
-	std::unordered_map<Entity, DX11LineResources> vertex_buffers_;
-
+	
 	World* world_;
 	DX11RenderContext* render_context_;
 	Relationeer<TransformComponent>* relationeer_;
 
 	void InitializeLineData();
-	DX11LineResources CreateLineResources(const Line& lines);
+	std::vector<DX11GPUBuffer> CreateLineResources(const Line& lines);
 	DX11GPUBuffer CreateVertexBuffer(const Segment& segment);
 
 	void SubscribeToComponents();
@@ -56,10 +61,11 @@ private:
 	void PrepareRenderContext();
 
 	void OnTransformComponentAdded(Entity entity);
-	void OnTransformComponentRemoved(Entity entity);
-
 	void OnLineComponentAdded(Entity entity);
-	void OnLineComponentRemoved(Entity entity);
+
+	void OnComponentRemoved(Entity entity);
+
+	void SetupLineEntity(Entity entity);
 };
 
 } // namespace aoe

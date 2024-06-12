@@ -37,6 +37,7 @@ void DX11GeometryPass::Initialize() {
 
 	InitializeRenderTargets();
 	InitializeGeometryData();
+
 	SubscribeToComponents();
 }
 
@@ -101,25 +102,24 @@ void DX11GeometryPass::InitializeRenderTargets() {
 void DX11GeometryPass::InitializeGeometryData() {
 	world_->ForEach<TransformComponent, RenderComponent>(
 	[this](auto entity, auto transform_component, auto render_component) {
-		world_->Add<DX11TransformDataComponent>(entity);
-		world_->Add<DX11MaterialDataComponent>(entity);
+		SetupGeometryEntity(entity);
 	});
 }
 
 void DX11GeometryPass::SubscribeToComponents() {
 	world_->ComponentAdded<TransformComponent>().Attach(*this, &DX11GeometryPass::OnTransformComponentAdded);
-	world_->ComponentRemoved<TransformComponent>().Attach(*this, &DX11GeometryPass::OnTransformComponentRemoved);
+	world_->ComponentRemoved<TransformComponent>().Attach(*this, &DX11GeometryPass::OnComponentRemoved);
 
 	world_->ComponentAdded<RenderComponent>().Attach(*this, &DX11GeometryPass::OnRenderComponentAdded);
-	world_->ComponentRemoved<RenderComponent>().Attach(*this, &DX11GeometryPass::OnRenderComponentRemoved);
+	world_->ComponentRemoved<RenderComponent>().Attach(*this, &DX11GeometryPass::OnComponentRemoved);
 }
 
 void DX11GeometryPass::UnsibscribeFromComponents() {
 	world_->ComponentAdded<TransformComponent>().Detach(*this, &DX11GeometryPass::OnTransformComponentAdded);
-	world_->ComponentRemoved<TransformComponent>().Detach(*this, &DX11GeometryPass::OnTransformComponentRemoved);
+	world_->ComponentRemoved<TransformComponent>().Detach(*this, &DX11GeometryPass::OnComponentRemoved);
 
 	world_->ComponentAdded<RenderComponent>().Detach(*this, &DX11GeometryPass::OnRenderComponentAdded);
-	world_->ComponentRemoved<RenderComponent>().Detach(*this, &DX11GeometryPass::OnRenderComponentRemoved);
+	world_->ComponentRemoved<RenderComponent>().Detach(*this, &DX11GeometryPass::OnComponentRemoved);
 }
 
 void DX11GeometryPass::UpdateGeometryData(Entity camera) {
@@ -164,28 +164,28 @@ void DX11GeometryPass::PrepareRenderContext() {
 }
 
 void DX11GeometryPass::OnTransformComponentAdded(Entity entity) {
-	if (world_->Has<TransformComponent>(entity) && !world_->Has<DX11TransformDataComponent>(entity)) {
-		world_->Add<DX11TransformDataComponent>(entity);
+	if (world_->Has<RenderComponent>(entity)) {
+		SetupGeometryEntity(entity);
 	}
-
-	world_->Add<DX11MaterialDataComponent>(entity);
-}
-
-void DX11GeometryPass::OnTransformComponentRemoved(Entity entity) {
-	world_->Remove<DX11TransformDataComponent>(entity);
 }
 
 void DX11GeometryPass::OnRenderComponentAdded(Entity entity) {
-	if (world_->Has<TransformComponent>(entity) && !world_->Has<DX11TransformDataComponent>(entity)) {
-		world_->Add<DX11TransformDataComponent>(entity);
+	if (world_->Has<TransformComponent>(entity)) {
+		SetupGeometryEntity(entity);
 	}
-
-	world_->Add<DX11MaterialDataComponent>(entity);
 }
 
-void DX11GeometryPass::OnRenderComponentRemoved(Entity entity) {
+void DX11GeometryPass::OnComponentRemoved(Entity entity) {
 	world_->Remove<DX11TransformDataComponent>(entity);
 	world_->Remove<DX11MaterialDataComponent>(entity);
+}
+
+void DX11GeometryPass::SetupGeometryEntity(Entity entity) {
+	AOE_ASSERT_MSG(!world_->Has<DX11TransformDataComponent>(entity), "Entity already has DX11TransformDataComponent.");
+	AOE_ASSERT_MSG(!world_->Has<DX11MaterialDataComponent>(entity), "Entity already has DX11MaterialDataComponent.");
+
+	world_->Add<DX11TransformDataComponent>(entity);
+	world_->Add<DX11MaterialDataComponent>(entity);
 }
 
 } // namespace aoe
