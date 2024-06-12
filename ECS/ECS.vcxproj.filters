@@ -46,6 +46,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="ECS.natvis" />
+    <Natvis Include="ComponentHandler.natvis" />
   </ItemGroup>
 </Project>

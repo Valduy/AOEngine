@@ -110,12 +110,13 @@ private:
 	Lookup bound_;
 
 	static void AssertEntityIsValid(Entity entity) {
-		AOE_ASSERT_MSG(entity.GetId() >= 0, "Invalid entity.");
+		AOE_ASSERT_MSG(entity.GetId() >= 0 && entity.GetVersion() >= 0, "Invalid entity.");
 	}
 
 	template<typename ...TArgs>
 	Lookup CreateComponent(Entity entity, TArgs&&... args) {
 		AOE_ASSERT_MSG(bound_ <= dense_.size(), "Invalid bound.");
+		
 		TComponent component(std::forward<TArgs>(args)...);
 		Lookup lookup = bound_;
 

@@ -13,26 +13,26 @@ template<typename TComponent>
 class ComponentHandler {
 public:
 	ComponentHandler()
-		: ComponentHandler(nullptr, kNullEntityId)
+		: ComponentHandler(nullptr, Entity::Null())
 	{}
 
-	ComponentHandler(Pool<TComponent>* pool, EntityId entity_id)
+	ComponentHandler(Pool<TComponent>* pool, Entity entity)
 		: pool_(pool)
-		, entity_id_(entity_id)
+		, entity_(entity)
 	{}
 
 	bool IsValid() const {
-		if (pool_ == nullptr) {
+		if (pool_ == nullptr || entity_.IsNull()) {
 			return false;
 		}
 
-		TComponent* component = pool_->Get(entity_id_);
+		TComponent* component = pool_->Get(entity_);
 		return component != nullptr;
 	}
 
 	TComponent* Get() const {
-		AOE_ASSERT_MSG(pool_ != nullptr, "Handler is invalid.");
-		TComponent* component = pool_->Get(entity_id_);
+		AOE_ASSERT_MSG(pool_ != nullptr || entity_.IsNull(), "Handler is invalid.");
+		TComponent* component = pool_->Get(entity_);
 		AOE_ASSERT_MSG(component != nullptr, "Entity doesn't have a required component.");
 		return component;
 	}
@@ -43,7 +43,7 @@ public:
 
 private:
 	Pool<TComponent>* pool_;
-	EntityId entity_id_;
+	Entity entity_;
 };
 
 } // namespace aoe

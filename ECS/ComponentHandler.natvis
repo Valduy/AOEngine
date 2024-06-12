@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="aoe::ComponentHandler&lt;*&gt;">
+		<Intrinsic Name="isEntityValid" Expression="entity_.version_ >= -1 &amp;&amp; entity_.id_ >= -1"/>
+		<Intrinsic Name="isHandlerValid" Expression="pool_ != nullptr &amp;&amp; isEntityValid()"/>
+		<Intrinsic Name="getLookup" Expression="pool_->sparse_[entity_.id_]"/>
+		<Intrinsic Name="getHolder" Expression="pool_->dense_[getLookup()]"/>
+		<Expand>
+			<Item Name="Component" Condition="isHandlerValid()">getHolder().data</Item>
+		</Expand>
+	</Type>
+</AutoVisualizer>

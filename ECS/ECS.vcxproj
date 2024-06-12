@@ -158,7 +158,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="ECS.natvis" />
+    <Natvis Include="ComponentHandler.natvis" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">

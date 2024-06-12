@@ -104,11 +104,11 @@ public:
 		ambient_light_component->color = { 1.0f, 1.0f, 1.0f };
 		ambient_light_component->intensity = 0.25f;
 
-		aoe::Entity direction_light = world_.Create();
-		world_.Add<aoe::TransformComponent>(direction_light);
-		world_.Add<aoe::DirectionalLightComponent>(direction_light);
-		auto direction_transform_component = world_.Get<aoe::TransformComponent>(direction_light);
-		auto direction_light_component = world_.Get<aoe::DirectionalLightComponent>(direction_light);
+		aoe::Entity directional_light = world_.Create();
+		world_.Add<aoe::TransformComponent>(directional_light);
+		world_.Add<aoe::DirectionalLightComponent>(directional_light);
+		auto direction_transform_component = world_.Get<aoe::TransformComponent>(directional_light);
+		auto direction_light_component = world_.Get<aoe::DirectionalLightComponent>(directional_light);
 		direction_light_component->color = { 1.0f, 1.0f, 1.0f };
 
 		aoe::Entity camera = world_.Create();
