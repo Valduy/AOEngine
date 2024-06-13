@@ -1,35 +1,22 @@
 #pragma once
 
-#include "../Game/ServiceProvider.h"
-#include "../Game/TransformUtils.h"
-#include "../ECS/World.h"
-
-#include "IRenderPass.h"
-#include "DX11RenderContext.h"
-#include "DX11ShaderHelper.h"
-#include "DX11RenderDataComponents.h"
+#include "DX11RenderPassBase.h"
 
 namespace aoe {
 
-class DX11DirectionalLightPass : public IRenderPass {
+class DX11DirectionalLightPass : public DX11RenderPassBase {
 public:
-	DX11DirectionalLightPass(const ServiceProvider& service_provider);
+	DX11DirectionalLightPass();
 
-	void Initialize() override;
+	void Initialize(const aoe::ServiceProvider& service_provider) override;
 	void Terminate() override;
 
 	void Update() override;
 	void Render() override;
 
 private:
-	const ServiceProvider& service_provider_;
-
 	DX11GPUVertexShader vertex_shader_;
 	DX11GPUPixelShader pixel_shader_;
-
-	World* world_;
-	DX11RenderContext* render_context_;
-	Relationeer<TransformComponent>* relationeer_;
 
 	void InitializeDirectionLightData();
 

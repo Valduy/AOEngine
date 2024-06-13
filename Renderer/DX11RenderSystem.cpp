@@ -5,21 +5,21 @@
 
 namespace aoe {
 
-DX11RenderSystem::DX11RenderSystem(const aoe::ServiceProvider& service_provider)
-	: geometry_pass_(service_provider)
-	, light_pass_(service_provider)
-	, tone_pass_(service_provider)
-	, debug_pass_(service_provider)
+DX11RenderSystem::DX11RenderSystem()
+	: geometry_pass_()
+	, light_pass_()
+	, tone_pass_()
+	, debug_pass_()
 	, render_context_(nullptr)
 {}
 
 void DX11RenderSystem::Initialize(const aoe::ServiceProvider& service_provider) {
 	ECSSystemBase::Initialize(service_provider);
 
-	geometry_pass_.Initialize();
-	light_pass_.Initialize();
-	tone_pass_.Initialize();
-	debug_pass_.Initialize();
+	geometry_pass_.Initialize(service_provider);
+	light_pass_.Initialize(service_provider);
+	tone_pass_.Initialize(service_provider);
+	debug_pass_.Initialize(service_provider);
 
 	render_context_ = service_provider.GetService<DX11RenderContext>();
 	AOE_ASSERT_MSG(render_context_ != nullptr, "There is no DX11RenderContext service.");

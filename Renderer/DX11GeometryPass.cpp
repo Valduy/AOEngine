@@ -1,43 +1,33 @@
 #include "pch.h"
 
 #include "DX11GeometryPass.h"
+#include "DX11RenderDataComponents.h"
+#include "RenderComponent.h"
 #include "CameraUtils.h"
 
 namespace aoe {
 
-DX11GeometryPass::DX11GeometryPass(const ServiceProvider& service_provider)
-	: service_provider_(service_provider)
-	, render_targets_()
+DX11GeometryPass::DX11GeometryPass()
+	: render_targets_()
 	, vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/GeometryPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/GeometryPass.hlsl"))
 	, sampler_(CreateSamplerDescription())
 	, blend_state_(CreateBlendStateDescription())
-	, world_(nullptr)
-	, render_context_(nullptr)
 	, model_manager_(nullptr)
 	, texture_manager_(nullptr)
-	, relationeer_(nullptr)
 {}
 
-void DX11GeometryPass::Initialize() {
-	world_ = service_provider_.GetService<World>();
-	AOE_ASSERT_MSG(world_ != nullptr, "There is no World service.");
+void DX11GeometryPass::Initialize(const ServiceProvider& service_provider) {
+	DX11RenderPassBase::Initialize(service_provider);
 
-	render_context_ = service_provider_.GetService<DX11RenderContext>();
-	AOE_ASSERT_MSG(render_context_ != nullptr, "There is no DX11RenderContext service.");
-
-	model_manager_ = service_provider_.GetService<DX11ModelManager>();
+	model_manager_ = service_provider.GetService<DX11ModelManager>();
 	AOE_ASSERT_MSG(model_manager_ != nullptr, "There is no DX11ModelManager service.");
 
-	texture_manager_ = service_provider_.GetService<DX11TextureManager>();
+	texture_manager_ = service_provider.GetService<DX11TextureManager>();
 	AOE_ASSERT_MSG(texture_manager_ != nullptr, "There is no DX11TextureManager service.");
-
-	relationeer_ = service_provider_.GetService<Relationeer<TransformComponent>>();
-	AOE_ASSERT_MSG(relationeer_ != nullptr, "There is no Relationeer<TransformComponent> service.");
 
 	InitializeRenderTargets();
 	InitializeGeometryData();
-
 	SubscribeToComponents();
 }
 
@@ -46,7 +36,7 @@ void DX11GeometryPass::Terminate() {
 }
 
 void DX11GeometryPass::Update() {
-	Entity camera = CameraUtils::GetActualCamera(*world_);
+	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
 	UpdateGeometryData(camera);
 }
 
@@ -54,7 +44,7 @@ void DX11GeometryPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	world_->ForEach<RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>(
+	GetWorld()->ForEach<RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>(
 	[&, this](auto entity, auto render_component, auto transform_data_component, auto material_data_component) {
 		const DX11ModelResources& model_resources = model_manager_->GetModelResources(render_component->model_id);
 		const DX11GPUTexture2D& texture_resources = texture_manager_->GetTextureResources(render_component->texture_id);
@@ -92,42 +82,42 @@ GPUBlendStateDescription DX11GeometryPass::CreateBlendStateDescription() {
 }
 
 void DX11GeometryPass::InitializeRenderTargets() {
-	render_targets_.render_target_views[0] = &render_context_->GetDiffuseTextureView();
-	render_targets_.render_target_views[1] = &render_context_->GetSpecularTextureView();
-	render_targets_.render_target_views[2] = &render_context_->GetNormalTextureView();
-	render_targets_.render_target_views[3] = &render_context_->GetPositionTextureView();
-	render_targets_.depth_stencil_view = &render_context_->GetDepthBufferView();
+	render_targets_.render_target_views[0] = &GetRenderContext()->GetDiffuseTextureView();
+	render_targets_.render_target_views[1] = &GetRenderContext()->GetSpecularTextureView();
+	render_targets_.render_target_views[2] = &GetRenderContext()->GetNormalTextureView();
+	render_targets_.render_target_views[3] = &GetRenderContext()->GetPositionTextureView();
+	render_targets_.depth_stencil_view = &GetRenderContext()->GetDepthBufferView();
 }
 
 void DX11GeometryPass::InitializeGeometryData() {
-	world_->ForEach<TransformComponent, RenderComponent>(
+	GetWorld()->ForEach<TransformComponent, RenderComponent>(
 	[this](auto entity, auto transform_component, auto render_component) {
 		SetupGeometryEntity(entity);
 	});
 }
 
 void DX11GeometryPass::SubscribeToComponents() {
-	world_->ComponentAdded<TransformComponent>().Attach(*this, &DX11GeometryPass::OnTransformComponentAdded);
-	world_->ComponentRemoved<TransformComponent>().Attach(*this, &DX11GeometryPass::OnComponentRemoved);
+	GetWorld()->ComponentAdded<TransformComponent>().Attach(*this, &DX11GeometryPass::OnTransformComponentAdded);
+	GetWorld()->ComponentRemoved<TransformComponent>().Attach(*this, &DX11GeometryPass::OnComponentRemoved);
 
-	world_->ComponentAdded<RenderComponent>().Attach(*this, &DX11GeometryPass::OnRenderComponentAdded);
-	world_->ComponentRemoved<RenderComponent>().Attach(*this, &DX11GeometryPass::OnComponentRemoved);
+	GetWorld()->ComponentAdded<RenderComponent>().Attach(*this, &DX11GeometryPass::OnRenderComponentAdded);
+	GetWorld()->ComponentRemoved<RenderComponent>().Attach(*this, &DX11GeometryPass::OnComponentRemoved);
 }
 
 void DX11GeometryPass::UnsibscribeFromComponents() {
-	world_->ComponentAdded<TransformComponent>().Detach(*this, &DX11GeometryPass::OnTransformComponentAdded);
-	world_->ComponentRemoved<TransformComponent>().Detach(*this, &DX11GeometryPass::OnComponentRemoved);
+	GetWorld()->ComponentAdded<TransformComponent>().Detach(*this, &DX11GeometryPass::OnTransformComponentAdded);
+	GetWorld()->ComponentRemoved<TransformComponent>().Detach(*this, &DX11GeometryPass::OnComponentRemoved);
 
-	world_->ComponentAdded<RenderComponent>().Detach(*this, &DX11GeometryPass::OnRenderComponentAdded);
-	world_->ComponentRemoved<RenderComponent>().Detach(*this, &DX11GeometryPass::OnComponentRemoved);
+	GetWorld()->ComponentAdded<RenderComponent>().Detach(*this, &DX11GeometryPass::OnRenderComponentAdded);
+	GetWorld()->ComponentRemoved<RenderComponent>().Detach(*this, &DX11GeometryPass::OnComponentRemoved);
 }
 
 void DX11GeometryPass::UpdateGeometryData(Entity camera) {
-	Matrix4f camera_matrix = CameraUtils::GetCameraMatrix(*world_, camera);
+	Matrix4f camera_matrix = CameraUtils::GetCameraMatrix(*GetWorld(), camera);
 
-	world_->ForEach<TransformComponent, RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>(
+	GetWorld()->ForEach<TransformComponent, RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>(
 	[&, this](auto entity, auto transform_component, auto render_component, auto transform_data_component, auto render_data_component) {
-		Matrix4f world = TransformUtils::GetGlobalWorldMatrix(*world_, *relationeer_, entity);
+			Matrix4f world = TransformUtils::GetGlobalWorldMatrix(*GetWorld(), *GetRelationeer(), entity);
 		Matrix4f world_view_projection = camera_matrix * world;
 
 		TransformData transform_data{};
@@ -147,10 +137,10 @@ void DX11GeometryPass::UpdateGeometryData(Entity camera) {
 
 void DX11GeometryPass::PrepareRenderContext() {
 	DX11RasterizerStateID rs_id{ GPUCullMode::kBack, GPUFillMode::kSolid };
-	const DX11GPURasterizerState& rasterizer_state = render_context_->GetRasterizerState(rs_id);
+	const DX11GPURasterizerState& rasterizer_state = GetRenderContext()->GetRasterizerState(rs_id);
 
 	DX11DepthStateID ds_id{ true, GPUDepthWriteMask::kWriteAll, GPUComparsionFunction::kLess };
-	const DX11GPUDepthState& depth_state = render_context_->GetDepthState(ds_id);
+	const DX11GPUDepthState& depth_state = GetRenderContext()->GetDepthState(ds_id);
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	context.SetRenderTargets(render_targets_);
@@ -164,28 +154,28 @@ void DX11GeometryPass::PrepareRenderContext() {
 }
 
 void DX11GeometryPass::OnTransformComponentAdded(Entity entity) {
-	if (world_->Has<RenderComponent>(entity)) {
+	if (GetWorld()->Has<RenderComponent>(entity)) {
 		SetupGeometryEntity(entity);
 	}
 }
 
 void DX11GeometryPass::OnRenderComponentAdded(Entity entity) {
-	if (world_->Has<TransformComponent>(entity)) {
+	if (GetWorld()->Has<TransformComponent>(entity)) {
 		SetupGeometryEntity(entity);
 	}
 }
 
 void DX11GeometryPass::OnComponentRemoved(Entity entity) {
-	world_->Remove<DX11TransformDataComponent>(entity);
-	world_->Remove<DX11MaterialDataComponent>(entity);
+	GetWorld()->Remove<DX11TransformDataComponent>(entity);
+	GetWorld()->Remove<DX11MaterialDataComponent>(entity);
 }
 
 void DX11GeometryPass::SetupGeometryEntity(Entity entity) {
-	AOE_ASSERT_MSG(!world_->Has<DX11TransformDataComponent>(entity), "Entity already has DX11TransformDataComponent.");
-	AOE_ASSERT_MSG(!world_->Has<DX11MaterialDataComponent>(entity), "Entity already has DX11MaterialDataComponent.");
+	AOE_ASSERT_MSG(!GetWorld()->Has<DX11TransformDataComponent>(entity), "Entity already has DX11TransformDataComponent.");
+	AOE_ASSERT_MSG(!GetWorld()->Has<DX11MaterialDataComponent>(entity), "Entity already has DX11MaterialDataComponent.");
 
-	world_->Add<DX11TransformDataComponent>(entity);
-	world_->Add<DX11MaterialDataComponent>(entity);
+	GetWorld()->Add<DX11TransformDataComponent>(entity);
+	GetWorld()->Add<DX11MaterialDataComponent>(entity);
 }
 
 } // namespace aoe

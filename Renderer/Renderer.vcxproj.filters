@@ -72,7 +72,7 @@
     <ClInclude Include="CameraUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IRenderPass.h">
+    <ClInclude Include="DX11RenderPassBase.h">
       <Filter>Header Files\DX11\RenderPasses</Filter>
     </ClInclude>
     <ClInclude Include="DX11GeometryPass.h">

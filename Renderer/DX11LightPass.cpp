@@ -4,27 +4,19 @@
 
 namespace aoe {
 
-DX11LightPass::DX11LightPass(const ServiceProvider& service_provider)
-	: service_provider_(service_provider)
-	, render_targets_()
+DX11LightPass::DX11LightPass()
+	: render_targets_()
 	, blend_state_(CreateBlendStateDescription())
-	, ambient_light_pass_(service_provider)
-	, directional_light_pass_(service_provider)
-	, world_(nullptr)
-	, render_context_(nullptr)
+	, ambient_light_pass_()
+	, directional_light_pass_()
 {}
 
-void DX11LightPass::Initialize() {
-	world_ = service_provider_.GetService<World>();
-	AOE_ASSERT_MSG(world_ != nullptr, "There is no World service.");
-
-	render_context_ = service_provider_.GetService<DX11RenderContext>();
-	AOE_ASSERT_MSG(render_context_ != nullptr, "There is no DX11RenderContext service.");
+void DX11LightPass::Initialize(const ServiceProvider& service_provider) {
+	DX11RenderPassBase::Initialize(service_provider);
 
 	InitializeRenderTargets();
-
-	ambient_light_pass_.Initialize();
-	directional_light_pass_.Initialize();
+	ambient_light_pass_.Initialize(service_provider);
+	directional_light_pass_.Initialize(service_provider);
 }
 
 void DX11LightPass::Terminate() {
@@ -61,8 +53,8 @@ GPUBlendStateDescription DX11LightPass::CreateBlendStateDescription() {
 }
 
 void DX11LightPass::InitializeRenderTargets() {
-	render_targets_.render_target_views[0] = &render_context_->GetAccumulatorTextureView();
-	render_targets_.depth_stencil_view = &render_context_->GetDepthBufferView();
+	render_targets_.render_target_views[0] = &GetRenderContext()->GetAccumulatorTextureView();
+	render_targets_.depth_stencil_view = &GetRenderContext()->GetDepthBufferView();
 }
 
 void DX11LightPass::PrepareRenderContext() {

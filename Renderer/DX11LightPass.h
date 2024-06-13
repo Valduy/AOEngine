@@ -5,26 +5,21 @@
 
 namespace aoe {
 
-class DX11LightPass : public IRenderPass {
+class DX11LightPass : public DX11RenderPassBase {
 public:
-	DX11LightPass(const ServiceProvider& service_provider);
+	DX11LightPass();
 
-	void Initialize() override;
+	void Initialize(const aoe::ServiceProvider& service_provider) override;
 	void Terminate() override;
 
 	void Update() override;
 	void Render() override;
 
 private:
-	const ServiceProvider& service_provider_;
-
 	DX11GPURenderTargets render_targets_;
 	DX11GPUBlendState blend_state_;
 	DX11AmbientLightPass ambient_light_pass_;
 	DX11DirectionalLightPass directional_light_pass_;
-
-	World* world_;
-	DX11RenderContext* render_context_;
 
 	static GPUBlendStateDescription CreateBlendStateDescription();
 

@@ -15,6 +15,8 @@
 #include "../Renderer/CameraComponent.h"
 #include "../Renderer/Colors.h"
 #include "../Renderer/DebugUtils.h"
+#include "../Renderer/Material.h"
+#include "../Renderer/RenderComponent.h"
 #include "../Resources/DX11ModelManager.h"
 #include "../Resources/DX11TextureManager.h"
 #include "../Common/FlyCameraSystem.h"
@@ -135,7 +137,7 @@ public:
 		service_provider_.AddService(&texture_manager_);
 
 		systems_pool_.PushSystem<aoe::FlyCameraSystem>();
-		systems_pool_.PushSystem<aoe::DX11RenderSystem>(service_provider_);
+		systems_pool_.PushSystem<aoe::DX11RenderSystem>();
 		systems_pool_.Initialize(service_provider_);
 	};
 

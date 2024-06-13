@@ -2,30 +2,20 @@
 
 #include "DX11DebugPass.h"
 #include "DX11RenderDataComponents.h"
+#include "LineComponent.h"
+#include "CameraUtils.h"
 
 namespace aoe {
 
-DX11DebugPass::DX11DebugPass(const ServiceProvider& service_provider)
-	: service_provider_(service_provider)
-	, vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/DebugPass.hlsl"))
+DX11DebugPass::DX11DebugPass()
+	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/DebugPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/DebugPass.hlsl"))
-	, world_(nullptr)
-	, render_context_(nullptr)
-	, relationeer_(nullptr)
 {}
 
-void DX11DebugPass::Initialize() {
-	world_ = service_provider_.GetService<World>();
-	AOE_ASSERT_MSG(world_ != nullptr, "There is no World service.");
-
-	render_context_ = service_provider_.GetService<DX11RenderContext>();
-	AOE_ASSERT_MSG(render_context_ != nullptr, "There is no DX11RenderContext service.");
-
-	relationeer_ = service_provider_.GetService<Relationeer<TransformComponent>>();
-	AOE_ASSERT_MSG(relationeer_ != nullptr, "There is no Relationeer<TransformComponent> service.");
+void DX11DebugPass::Initialize(const ServiceProvider& service_provider) {
+	DX11RenderPassBase::Initialize(service_provider);
 
 	InitializeLineData();
-
 	SubscribeToComponents();
 }
 
@@ -34,7 +24,7 @@ void DX11DebugPass::Terminate() {
 }
 
 void DX11DebugPass::Update() {
-	Entity camera = CameraUtils::GetActualCamera(*world_);
+	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
 	UpdateLineData(camera);
 }
 
@@ -42,7 +32,7 @@ void DX11DebugPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	world_->ForEach<LineComponent, DX11LineDataComponent, DX11LineResourcesComponent>(
+	GetWorld()->ForEach<LineComponent, DX11LineDataComponent, DX11LineResourcesComponent>(
 	[&, this](auto entity, auto line_component, auto line_data_component, auto line_resources_component) {
 		context.SetConstantBuffer(GPUShaderType::kVertex, line_data_component->buffer);
 
@@ -54,10 +44,10 @@ void DX11DebugPass::Render() {
 }
 
 void DX11DebugPass::InitializeLineData() {
-	world_->ForEach<TransformComponent, LineComponent>(
+	GetWorld()->ForEach<TransformComponent, LineComponent>(
 	[this](auto entity, auto transform_component, auto line_component) {
-		world_->Add<DX11LineDataComponent>(entity);
-		world_->Add<DX11LineResourcesComponent>(entity, CreateLineResources(line_component->GetLine()));
+		GetWorld()->Add<DX11LineDataComponent>(entity);
+		GetWorld()->Add<DX11LineResourcesComponent>(entity, CreateLineResources(line_component->GetLine()));
 	});
 }
 
@@ -82,27 +72,27 @@ DX11GPUBuffer DX11DebugPass::CreateVertexBuffer(const Segment& segment) {
 }
 
 void DX11DebugPass::SubscribeToComponents() {
-	world_->ComponentAdded<TransformComponent>().Attach(*this, &DX11DebugPass::OnTransformComponentAdded);
-	world_->ComponentRemoved<TransformComponent>().Attach(*this, &DX11DebugPass::OnComponentRemoved);
+	GetWorld()->ComponentAdded<TransformComponent>().Attach(*this, &DX11DebugPass::OnTransformComponentAdded);
+	GetWorld()->ComponentRemoved<TransformComponent>().Attach(*this, &DX11DebugPass::OnComponentRemoved);
 
-	world_->ComponentAdded<LineComponent>().Attach(*this, &DX11DebugPass::OnLineComponentAdded);
-	world_->ComponentRemoved<LineComponent>().Attach(*this, &DX11DebugPass::OnComponentRemoved);
+	GetWorld()->ComponentAdded<LineComponent>().Attach(*this, &DX11DebugPass::OnLineComponentAdded);
+	GetWorld()->ComponentRemoved<LineComponent>().Attach(*this, &DX11DebugPass::OnComponentRemoved);
 }
 
 void DX11DebugPass::UnsibscribeFromComponents() {
-	world_->ComponentAdded<TransformComponent>().Detach(*this, &DX11DebugPass::OnTransformComponentAdded);
-	world_->ComponentRemoved<TransformComponent>().Detach(*this, &DX11DebugPass::OnComponentRemoved);
+	GetWorld()->ComponentAdded<TransformComponent>().Detach(*this, &DX11DebugPass::OnTransformComponentAdded);
+	GetWorld()->ComponentRemoved<TransformComponent>().Detach(*this, &DX11DebugPass::OnComponentRemoved);
 
-	world_->ComponentAdded<LineComponent>().Detach(*this, &DX11DebugPass::OnLineComponentAdded);
-	world_->ComponentRemoved<LineComponent>().Detach(*this, &DX11DebugPass::OnComponentRemoved);
+	GetWorld()->ComponentAdded<LineComponent>().Detach(*this, &DX11DebugPass::OnLineComponentAdded);
+	GetWorld()->ComponentRemoved<LineComponent>().Detach(*this, &DX11DebugPass::OnComponentRemoved);
 }
 
 void DX11DebugPass::UpdateLineData(Entity camera) {
-	Matrix4f camera_matrix = CameraUtils::GetCameraMatrix(*world_, camera);
+	Matrix4f camera_matrix = CameraUtils::GetCameraMatrix(*GetWorld(), camera);
 
-	world_->ForEach<TransformComponent, LineComponent, DX11LineDataComponent>(
+	GetWorld()->ForEach<TransformComponent, LineComponent, DX11LineDataComponent>(
 	[&, this](auto entity, auto transform_component, auto line_component, auto line_data_component) {
-		Matrix4f world = TransformUtils::GetGlobalWorldMatrix(*world_, *relationeer_, entity);
+		Matrix4f world = TransformUtils::GetGlobalWorldMatrix(*GetWorld(), *GetRelationeer(), entity);
 		Matrix4f world_view_projection = camera_matrix * world;
 
 		LineData line_data{};
@@ -115,10 +105,10 @@ void DX11DebugPass::UpdateLineData(Entity camera) {
 
 void DX11DebugPass::PrepareRenderContext() {
 	DX11RasterizerStateID rs_id{ GPUCullMode::kBack, GPUFillMode::kSolid };
-	const DX11GPURasterizerState& rasterizer_state = render_context_->GetRasterizerState(rs_id);
+	const DX11GPURasterizerState& rasterizer_state = GetRenderContext()->GetRasterizerState(rs_id);
 
 	DX11DepthStateID ds_id{ true, GPUDepthWriteMask::kWriteAll, GPUComparsionFunction::kLess };
-	const DX11GPUDepthState& depth_state = render_context_->GetDepthState(ds_id);
+	const DX11GPUDepthState& depth_state = GetRenderContext()->GetDepthState(ds_id);
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	context.SetRasterizerState(rasterizer_state);
@@ -129,30 +119,30 @@ void DX11DebugPass::PrepareRenderContext() {
 }
 
 void DX11DebugPass::OnTransformComponentAdded(Entity entity) {
-	if (world_->Has<LineComponent>(entity)) {
+	if (GetWorld()->Has<LineComponent>(entity)) {
 		SetupLineEntity(entity);
 	}
 }
 
 void DX11DebugPass::OnLineComponentAdded(Entity entity) {
-	if (world_->Has<TransformComponent>(entity)) {
+	if (GetWorld()->Has<TransformComponent>(entity)) {
 		SetupLineEntity(entity);
 	}
 }
 
 void DX11DebugPass::OnComponentRemoved(Entity entity) {
-	world_->Remove<DX11LineDataComponent>(entity);
-	world_->Remove<DX11LineResourcesComponent>(entity);
+	GetWorld()->Remove<DX11LineDataComponent>(entity);
+	GetWorld()->Remove<DX11LineResourcesComponent>(entity);
 }
 
 void DX11DebugPass::SetupLineEntity(Entity entity) {
-	AOE_ASSERT_MSG(!world_->Has<DX11LineDataComponent>(entity), "Entity already has DX11LineDataComponent.");
-	AOE_ASSERT_MSG(!world_->Has<DX11LineResourcesComponent>(entity), "Entity already has DX11LineResourcesComponent.");
+	AOE_ASSERT_MSG(!GetWorld()->Has<DX11LineDataComponent>(entity), "Entity already has DX11LineDataComponent.");
+	AOE_ASSERT_MSG(!GetWorld()->Has<DX11LineResourcesComponent>(entity), "Entity already has DX11LineResourcesComponent.");
 
-	auto line_component = world_->Get<LineComponent>(entity);
+	auto line_component = GetWorld()->Get<LineComponent>(entity);
 
-	world_->Add<DX11LineDataComponent>(entity);
-	world_->Add<DX11LineResourcesComponent>(entity, CreateLineResources(line_component->GetLine()));
+	GetWorld()->Add<DX11LineDataComponent>(entity);
+	GetWorld()->Add<DX11LineResourcesComponent>(entity, CreateLineResources(line_component->GetLine()));
 }
 
 } // namespace aoe

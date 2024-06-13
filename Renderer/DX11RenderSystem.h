@@ -11,7 +11,7 @@ namespace aoe {
 
 class DX11RenderSystem : public ECSSystemBase {
 public:
-	DX11RenderSystem(const aoe::ServiceProvider& service_provider);
+	DX11RenderSystem();
 
 	void Initialize(const aoe::ServiceProvider& service_provider) override;
 	void Terminate() override;

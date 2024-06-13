@@ -1,18 +1,7 @@
 #pragma once
 
-#include <unordered_map>
-
-#include "../Game/ServiceProvider.h"
-#include "../Game/Relationeer.h"
-#include "../Game/TransformUtils.h"
-#include "../Graphics/DX11GPUBuffer.h"
-#include "../ECS/World.h"
-
-#include "IRenderPass.h"
-#include "DX11RenderContext.h"
-#include "DX11ShaderHelper.h"
-#include "LineComponent.h"
-#include "CameraUtils.h"
+#include "DX11RenderPassBase.h"
+#include "Line.h"
 
 namespace aoe {
 
@@ -30,26 +19,20 @@ private:
 	std::vector<DX11GPUBuffer> line_resources_;
 };
 
-class DX11DebugPass : public IRenderPass {
+class DX11DebugPass : public DX11RenderPassBase {
 public:
-	DX11DebugPass(const ServiceProvider& service_provider);
+	DX11DebugPass();
 
-	void Initialize() override;
+	void Initialize(const ServiceProvider& service_provider) override;
 	void Terminate() override;
 
 	void Update() override;
 	void Render() override;
 
 private:
-	const ServiceProvider& service_provider_;
-
 	DX11GPUVertexShader vertex_shader_;
 	DX11GPUPixelShader pixel_shader_;
 	
-	World* world_;
-	DX11RenderContext* render_context_;
-	Relationeer<TransformComponent>* relationeer_;
-
 	void InitializeLineData();
 	std::vector<DX11GPUBuffer> CreateLineResources(const Line& lines);
 	DX11GPUBuffer CreateVertexBuffer(const Segment& segment);
