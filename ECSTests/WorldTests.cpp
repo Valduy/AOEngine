@@ -149,6 +149,32 @@ TEST(WorldTests, ForEach_IterateOverMatchedEntities_AllMatchedEntitiesIterated) 
 	ASSERT_TRUE(expected_entities.empty());
 }
 
+TEST(WorldTests, Iterator_IterateOverMatchedEntities_AllMatchedEntitiesIterated) {
+	size_t entities_count = 10;
+	std::unordered_set<aoe::Entity> expected_entities;
+	aoe::World world;
+
+	for (size_t count = 0; count < entities_count; ++count) {
+		aoe::Entity entity = world.Create();
+
+		if (count % 2 == 0) {
+			world.Add<TestComponentA>(entity);
+			world.Add<TestComponentB>(entity);
+			expected_entities.insert(entity);
+		}
+		else {
+			world.Add<TestComponentA>(entity);
+			world.Add<TestComponentC>(entity);
+		}
+	}
+
+	for (aoe::Entity entity : world.GetFilter<TestComponentA, TestComponentB>()) {
+		expected_entities.erase(entity);
+	}
+
+	ASSERT_TRUE(expected_entities.empty());
+}
+
 size_t SumOfAp(size_t a_1, size_t a_n, size_t n) {
 	return (a_1 + a_n) * n / 2;
 }

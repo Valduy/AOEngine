@@ -13,6 +13,101 @@ namespace aoe {
 
 class World {
 public:
+	template<typename... TComponents>
+	class Filter {
+	private:
+		using PoolsTuple = std::tuple<Pool<TComponents>*...>;
+
+	public:
+		class Iterator {
+		public:
+			using iterator_category = std::forward_iterator_tag;
+			using difference_type = std::ptrdiff_t;
+			using value_type = Entity;
+			using pointer = Entity*;
+			using reference = Entity&;
+
+			Iterator(World* world, PoolsTuple pools, size_t idx)
+				: world_(world)
+				, pools_(std::move(pools))
+				, idx_(idx)
+			{
+				if (idx_ >= world_->bound_) {
+					return;
+				}
+
+				Entity entity = world_->dense_[idx_];
+
+				if (!HasRequiredComponents(entity)) {
+					idx_ = GetNext(idx_);
+				}
+			}
+
+			reference operator*() const {
+				return world_->dense_[idx_];
+			}
+
+			pointer operator->() {
+				return &world_->dense_[idx_];
+			}
+
+			Iterator& operator++() {
+				idx_ = GetNext(idx_);
+				return *this;
+			}
+
+			Iterator operator++(int) {
+				Iterator temp = *this;
+				idx_ = GetNext(idx_);
+				return temp;
+			}
+
+			friend bool operator== (const Iterator& lhs, const Iterator& rhs) {
+				return lhs.idx_ == rhs.idx_;
+			};
+
+			friend bool operator!= (const Iterator& lhs, const Iterator& rhs) {
+				return lhs.idx_ != rhs.idx_;
+			};
+
+		private:
+			World* world_;
+			PoolsTuple pools_;
+			size_t idx_;
+
+			size_t GetNext(size_t idx) {
+				for (size_t i = idx + 1; i < world_->bound_; ++i) {
+					Entity entity = world_->dense_[i];
+
+					if (HasRequiredComponents(entity)) {
+						return i;
+					}
+				}
+			}
+
+			bool HasRequiredComponents(Entity entity) {
+				return (std::get<Pool<TComponents>*>(pools_)->Has(entity) && ...);
+			}
+		};
+
+		Filter(World* world)
+			: world_(world)
+			, pools_(std::make_tuple(world->GetPool<TComponents>()...))
+		{}
+
+		Iterator begin() {
+			return { world_, pools_, 0 };
+		}
+
+		Iterator end() {
+			return { world_, pools_, world_->bound_ };
+		}
+
+	private:
+		World* world_;
+		PoolsTuple pools_;
+	};
+
 	Event<World, Entity> EntityCreated;
 	Event<World, Entity> EntityDestroyed;
 
@@ -139,12 +234,17 @@ public:
 		for (size_t i = 0; i < bound_; ++i) {
 			Entity entity = dense_[i];
 
-			if ((!std::get<Pool<TComponents>*>(pools)->Has(entity.GetId()) || ...)) {
+			if ((!std::get<Pool<TComponents>*>(pools)->Has(entity) || ...)) {
 				continue;
 			}
 
-			function(entity, ComponentHandler<TComponents>(std::get<Pool<TComponents>*>(pools), entity.GetId())...);
+			function(entity, ComponentHandler<TComponents>(std::get<Pool<TComponents>*>(pools), entity)...);
 		}
+	}
+
+	template <typename ...TComponents>
+	Filter<TComponents...> GetFilter() {
+		return Filter<TComponents...>(this);
 	}
 
 private:
