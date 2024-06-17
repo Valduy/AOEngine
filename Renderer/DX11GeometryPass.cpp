@@ -44,8 +44,13 @@ void DX11GeometryPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	GetWorld()->ForEach<RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>(
-	[&, this](auto entity, auto render_component, auto transform_data_component, auto material_data_component) {
+	auto filter = GetWorld()->GetFilter<RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>();
+
+	for (Entity entity : filter) {
+		auto render_component = GetWorld()->Get<RenderComponent>(entity);
+		auto transform_data_component = GetWorld()->Get<DX11TransformDataComponent>(entity);
+		auto material_data_component = GetWorld()->Get< DX11MaterialDataComponent>(entity);
+
 		const DX11ModelResources& model_resources = model_manager_->GetModelResources(render_component->model_id);
 		const DX11GPUTexture2D& texture_resources = texture_manager_->GetTextureResources(render_component->texture_id);
 
@@ -58,7 +63,7 @@ void DX11GeometryPass::Render() {
 			context.SetIndexBuffer(mesh_resource.index_buffer);
 			context.DrawIndexed(mesh_resource.index_buffer.GetElementsCount());
 		}
-	});
+	}
 }
 
 GPUSamplerDescription DX11GeometryPass::CreateSamplerDescription() {
@@ -90,10 +95,11 @@ void DX11GeometryPass::InitializeRenderTargets() {
 }
 
 void DX11GeometryPass::InitializeGeometryData() {
-	GetWorld()->ForEach<TransformComponent, RenderComponent>(
-	[this](auto entity, auto transform_component, auto render_component) {
+	auto filter = GetWorld()->GetFilter<TransformComponent, RenderComponent>();
+
+	for (Entity entity : filter) {
 		SetupGeometryEntity(entity);
-	});
+	}
 }
 
 void DX11GeometryPass::SubscribeToComponents() {
@@ -114,10 +120,15 @@ void DX11GeometryPass::UnsibscribeFromComponents() {
 
 void DX11GeometryPass::UpdateGeometryData(Entity camera) {
 	Matrix4f camera_matrix = CameraUtils::GetCameraMatrix(*GetWorld(), camera);
+	auto filter = GetWorld()->GetFilter<TransformComponent, RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>();
 
-	GetWorld()->ForEach<TransformComponent, RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>(
-	[&, this](auto entity, auto transform_component, auto render_component, auto transform_data_component, auto render_data_component) {
-			Matrix4f world = TransformUtils::GetGlobalWorldMatrix(*GetWorld(), *GetRelationeer(), entity);
+	for (Entity entity : filter) {
+		auto transform_component = GetWorld()->Get<TransformComponent>(entity);
+		auto render_component = GetWorld()->Get<RenderComponent>(entity);
+		auto transform_data_component = GetWorld()->Get<DX11TransformDataComponent>(entity);
+		auto material_data_component = GetWorld()->Get<DX11MaterialDataComponent>(entity);
+
+		Matrix4f world = TransformUtils::GetGlobalWorldMatrix(*GetWorld(), *GetRelationeer(), entity);
 		Matrix4f world_view_projection = camera_matrix * world;
 
 		TransformData transform_data{};
@@ -131,8 +142,8 @@ void DX11GeometryPass::UpdateGeometryData(Entity camera) {
 		material_data.shininess = render_component->material.shininess;
 
 		transform_data_component->Update(&transform_data);
-		render_data_component->Update(&material_data);
-	});
+		material_data_component->Update(&material_data);
+	}
 }
 
 void DX11GeometryPass::PrepareRenderContext() {

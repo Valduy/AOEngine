@@ -25,32 +25,40 @@ void DX11AmbientLightPass::Terminate() {
 }
 
 inline void DX11AmbientLightPass::Update() {
-	GetWorld()->ForEach<AmbientLightComponent, DX11AmbientLightDataComponent>(
-	[this](auto entity, auto ambient_light_component, auto ambient_light_data_component) {
+	auto filter = GetWorld()->GetFilter<AmbientLightComponent, DX11AmbientLightDataComponent>();
+
+	for (Entity entity : filter) {
+		auto ambient_light_component = GetWorld()->Get<AmbientLightComponent>(entity);
+		auto ambient_light_data_component = GetWorld()->Get<DX11AmbientLightDataComponent>(entity);
+
 		AmbientLightData data{};
 		data.color = ambient_light_component->color;
 		data.intensity = ambient_light_component->intensity;
 
 		ambient_light_data_component->Update(&data);
-	});
+	}
 }
 
 void DX11AmbientLightPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	GetWorld()->ForEach<DX11AmbientLightDataComponent>(
-	[&, this](auto entity, auto ambient_light_data_component) {
+	auto filter = GetWorld()->GetFilter<DX11AmbientLightDataComponent>();
+
+	for (Entity entity : filter) {
+		auto ambient_light_data_component = GetWorld()->Get<DX11AmbientLightDataComponent>(entity);
+
 		context.SetConstantBuffer(GPUShaderType::kPixel, ambient_light_data_component->buffer, 0);
 		context.Draw(4);
-	});
+	}
 }
 
 void DX11AmbientLightPass::InitializeAmbientLightData() {
-	GetWorld()->ForEach<AmbientLightComponent>(
-	[this](auto entity, auto ambient_light_component) {
+	auto filter = GetWorld()->GetFilter<AmbientLightComponent>();
+
+	for (Entity entity : filter) {
 		GetWorld()->Add<DX11AmbientLightDataComponent>(entity);
-	});
+	}
 }
 
 void DX11AmbientLightPass::SubscribeToComponents() {

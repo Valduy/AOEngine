@@ -5,14 +5,11 @@
 namespace aoe {
 
 Entity CameraUtils::GetActualCamera(World& world) {
-	Entity camera = Entity::Null();
-
-	world.ForEach<TransformComponent, CameraComponent>(
-	[&](auto entity, auto transform_component, auto camera_component) {
-		camera = entity;
-	});
-
-	return camera;
+	for (Entity camera : world.GetFilter< TransformComponent, CameraComponent>()) {
+		return camera;
+	}
+	
+	return Entity::Null();
 }
 
 Matrix4f CameraUtils::GetProjectionMatrix(World& world, Entity camera) {

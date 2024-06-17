@@ -32,23 +32,30 @@ void DX11DebugPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	GetWorld()->ForEach<LineComponent, DX11LineDataComponent, DX11LineResourcesComponent>(
-	[&, this](auto entity, auto line_component, auto line_data_component, auto line_resources_component) {
+	auto filter = GetWorld()->GetFilter<LineComponent, DX11LineDataComponent, DX11LineResourcesComponent>();
+
+	for (Entity entity : filter) {
+		auto line_data_component = GetWorld()->Get<DX11LineDataComponent>(entity);
+		auto line_resources_component = GetWorld()->Get<DX11LineResourcesComponent>(entity);
+
 		context.SetConstantBuffer(GPUShaderType::kVertex, line_data_component->buffer);
 
 		for (const DX11GPUBuffer& vertex_buffer : line_resources_component->GetLineResources()) {
 			context.SetVertexBuffer(vertex_buffer);
 			context.Draw(vertex_buffer.GetElementsCount());
 		}
-	});
+	}
 }
 
 void DX11DebugPass::InitializeLineData() {
-	GetWorld()->ForEach<TransformComponent, LineComponent>(
-	[this](auto entity, auto transform_component, auto line_component) {
+	auto filter = GetWorld()->GetFilter<TransformComponent, LineComponent>();
+
+	for (Entity entity : filter) {
+		auto line_component = GetWorld()->Get<LineComponent>(entity);
+
 		GetWorld()->Add<DX11LineDataComponent>(entity);
 		GetWorld()->Add<DX11LineResourcesComponent>(entity, CreateLineResources(line_component->GetLine()));
-	});
+	}
 }
 
 std::vector<DX11GPUBuffer> DX11DebugPass::CreateLineResources(const Line& lines) {
@@ -89,9 +96,12 @@ void DX11DebugPass::UnsibscribeFromComponents() {
 
 void DX11DebugPass::UpdateLineData(Entity camera) {
 	Matrix4f camera_matrix = CameraUtils::GetCameraMatrix(*GetWorld(), camera);
+	auto filter = GetWorld()->GetFilter<TransformComponent, LineComponent, DX11LineDataComponent>();
 
-	GetWorld()->ForEach<TransformComponent, LineComponent, DX11LineDataComponent>(
-	[&, this](auto entity, auto transform_component, auto line_component, auto line_data_component) {
+	for (Entity entity : filter) {
+		auto line_component = GetWorld()->Get<LineComponent>(entity);
+		auto line_data_component = GetWorld()->Get<DX11LineDataComponent>(entity);
+
 		Matrix4f world = TransformUtils::GetGlobalWorldMatrix(*GetWorld(), *GetRelationeer(), entity);
 		Matrix4f world_view_projection = camera_matrix * world;
 
@@ -100,7 +110,7 @@ void DX11DebugPass::UpdateLineData(Entity camera) {
 		line_data.color = line_component->color;
 
 		line_data_component->Update(&line_data);
-	});
+	}
 }
 
 void DX11DebugPass::PrepareRenderContext() {

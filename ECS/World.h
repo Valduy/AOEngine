@@ -15,9 +15,6 @@ class World {
 public:
 	template<typename... TComponents>
 	class Filter {
-	private:
-		using PoolsTuple = std::tuple<Pool<TComponents>*...>;
-
 	public:
 		class Iterator {
 		public:
@@ -27,9 +24,9 @@ public:
 			using pointer = Entity*;
 			using reference = Entity&;
 
-			Iterator(World* world, PoolsTuple pools, size_t idx)
+			Iterator(World* world, size_t idx)
 				: world_(world)
-				, pools_(std::move(pools))
+				, pools_(std::make_tuple(world->GetPool<TComponents>()...))
 				, idx_(idx)
 			{
 				if (idx_ >= world_->bound_) {
@@ -71,6 +68,8 @@ public:
 			};
 
 		private:
+			using PoolsTuple = std::tuple<Pool<TComponents>*...>;
+
 			World* world_;
 			PoolsTuple pools_;
 			size_t idx_;
@@ -92,20 +91,18 @@ public:
 
 		Filter(World* world)
 			: world_(world)
-			, pools_(std::make_tuple(world->GetPool<TComponents>()...))
 		{}
 
 		Iterator begin() {
-			return { world_, pools_, 0 };
+			return { world_, 0 };
 		}
 
 		Iterator end() {
-			return { world_, pools_, world_->bound_ };
+			return { world_, world_->bound_ };
 		}
 
 	private:
 		World* world_;
-		PoolsTuple pools_;
 	};
 
 	Event<World, Entity> EntityCreated;
