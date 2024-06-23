@@ -12,8 +12,7 @@ namespace aoe {
 class DX11RenderContext {
 public:
 	DX11RenderContext(IWindow& window);
-	~DX11RenderContext();
-
+	
 	Viewport GetViewport() const;
 
 	const DX11GPUTextureView& GetRenderTargetView();
@@ -45,8 +44,6 @@ private:
 	DX11GBuffer gbuffer_;
 	DX11RasterizerStates rasterizer_states_;
 	DX11DepthStates depth_states_;
-
-	//void OnWindowSizeChanged(int32_t width, int32_t height);
 };
 
 } // namespace aoe

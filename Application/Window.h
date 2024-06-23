@@ -36,6 +36,9 @@ private:
 	MouseMode mouse_mode_;
 	InputCollector input_collector_;
 
+	int32_t width_;
+	int32_t height_;
+
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 	bool RegisterWindowClass(HINSTANCE hinstance, const std::wstring& window_name);

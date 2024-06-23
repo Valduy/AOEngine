@@ -9,6 +9,8 @@ Window::Window(HINSTANCE hinstance, const std::wstring& window_name, int32_t wid
 	: handle_(0)
 	, mouse_mode_(MouseMode::kRelative)
 	, input_collector_()
+	, width_(width)
+	, height_(height)
 {
 	if (!RegisterWindowClass(hinstance, window_name)) {
 		Platform::Fatal("Failed register window class.");
@@ -52,15 +54,11 @@ void* Window::GetNative() const {
 }
 
 int32_t Window::GetWidth() const {
-	RECT rect;
-	GetClientRect(handle_, &rect);
-	return static_cast<int32_t>(rect.right - rect.left);
+	return width_;
 }
 
 int32_t Window::GetHeight() const {
-	RECT rect;
-	GetClientRect(handle_, &rect);
-	return static_cast<int32_t>(rect.bottom - rect.top);
+	return height_;
 }
 
 MouseMode Window::GetMouseMode() const {
@@ -98,13 +96,15 @@ LRESULT Window::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 		int32_t width = LOWORD(lparam);
 		int32_t height = HIWORD(lparam);
 
+		window->width_ = width;
+		window->height_ = height;
 		window->FireResize(width, height);
 		return 0;
 	}
 	case WM_CLOSE: {
 		window->FireClosing();
 		return 0;
-	}	
+	}
 	case WM_EXITSIZEMOVE: {
 		if (window->mouse_mode_ == MouseMode::kRelative) {
 			window->ClipToWindow();

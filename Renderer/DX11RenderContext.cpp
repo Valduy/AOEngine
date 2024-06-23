@@ -11,8 +11,6 @@ DX11RenderContext::DX11RenderContext(IWindow& window)
 	, gbuffer_(window.GetWidth(), window.GetHeight())
 {}
 
-DX11RenderContext::~DX11RenderContext() {}
-
 Viewport DX11RenderContext::GetViewport() const {
 	float width = static_cast<float>(window_.GetWidth());
 	float height = static_cast<float>(window_.GetHeight());
@@ -76,14 +74,5 @@ void DX11RenderContext::UpdateResources() {
 void DX11RenderContext::PresentFrame() const {
 	swap_chain_.Present();
 }
-
-//void DX11RenderContext::OnWindowSizeChanged(int32_t width, int32_t height) {
-//	uint32_t resource_width = static_cast<uint32_t>(width);
-//	uint32_t resource_height = static_cast<uint32_t>(height);
-//
-//	swap_chain_.TryResize(resource_width, resource_height);
-//	depth_buffer_.TryResize(resource_width, resource_height);
-//	gbuffer_.TryResize(resource_width, resource_height);
-//}
 
 } // namespace aoe
