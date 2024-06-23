@@ -6,12 +6,12 @@ namespace aoe {
 
 DX11RenderContext::DX11RenderContext(IWindow& window)
 	: window_(window)
-	, swap_chain_(window)
+	, swap_chain_(static_cast<HWND>(window.GetNative()), window.GetWidth(), window.GetHeight())
 	, depth_buffer_(GPUTexture2DDescription::DepthStencilBuffer(window.GetWidth(), window.GetHeight()))
 	, gbuffer_(window.GetWidth(), window.GetHeight())
-{
-	// TODO: handle window resize and update resources
-}
+{}
+
+DX11RenderContext::~DX11RenderContext() {}
 
 Viewport DX11RenderContext::GetViewport() const {
 	float width = static_cast<float>(window_.GetWidth());
@@ -64,8 +64,26 @@ const DX11GPUDepthState& DX11RenderContext::GetDepthState(DX11DepthStateID id) c
 	return depth_states_.Get(id);
 }
 
-const void DX11RenderContext::PresentFrame() const {
+void DX11RenderContext::UpdateResources() {
+	uint32_t resource_width = static_cast<uint32_t>(window_.GetWidth());
+	uint32_t resource_height = static_cast<uint32_t>(window_.GetHeight());
+
+	swap_chain_.TryResize(resource_width, resource_height);
+	depth_buffer_.TryResize(resource_width, resource_height);
+	gbuffer_.TryResize(resource_width, resource_height);
+}
+
+void DX11RenderContext::PresentFrame() const {
 	swap_chain_.Present();
 }
+
+//void DX11RenderContext::OnWindowSizeChanged(int32_t width, int32_t height) {
+//	uint32_t resource_width = static_cast<uint32_t>(width);
+//	uint32_t resource_height = static_cast<uint32_t>(height);
+//
+//	swap_chain_.TryResize(resource_width, resource_height);
+//	depth_buffer_.TryResize(resource_width, resource_height);
+//	gbuffer_.TryResize(resource_width, resource_height);
+//}
 
 } // namespace aoe

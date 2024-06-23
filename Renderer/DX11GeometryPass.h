@@ -18,7 +18,6 @@ public:
 	void Render() override;
 
 private:
-	DX11GPURenderTargets render_targets_;
 	DX11GPUVertexShader vertex_shader_;
 	DX11GPUPixelShader pixel_shader_;
 	DX11GPUSampler sampler_;
@@ -30,7 +29,6 @@ private:
 	static GPUSamplerDescription CreateSamplerDescription();
 	static GPUBlendStateDescription CreateBlendStateDescription();
 
-	void InitializeRenderTargets();
 	void InitializeGeometryData();
 
 	void SubscribeToComponents();

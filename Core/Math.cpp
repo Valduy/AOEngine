@@ -50,6 +50,22 @@ const Vector4i Math::kAxisW4i = mathfu::kAxisW4i;
 
 const Quaternion Math::kQIdentity = mathfu::kQuatIdentityf;
 
+bool Math::Equal(float lhs, float rhs, float epsilon) {
+	return Abs(lhs - rhs) < epsilon;
+}
+
+float Math::Min(float lhs, float rhs) {
+	return lhs < rhs ? lhs : rhs;
+}
+
+float Math::Abs(float value) {
+	return fabs(value);
+}
+
+float Math::Max(float lhs, float rhs) {
+	return lhs > rhs ? lhs : rhs;
+}
+
 float Math::Sin(float angle) {
 	return std::sin(angle);
 }

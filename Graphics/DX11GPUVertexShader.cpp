@@ -10,7 +10,6 @@ DX11GPUVertexShader::DX11GPUVertexShader(const DX11GPUByteCode& byte_code)
     , input_layout_(nullptr)
 {
     HRESULT hr = S_OK;
-
     hr = DX11GPUDevice::Instance().GetNative()->CreateVertexShader(
         byte_code.GetBufferPointer(),
         byte_code.GetBufferSize(),
@@ -20,7 +19,6 @@ DX11GPUVertexShader::DX11GPUVertexShader(const DX11GPUByteCode& byte_code)
     AOE_DX_TRY_LOG_ERROR_AND_THROW(hr, "Failed to create vertex shader.");
 
     std::vector<D3D11_INPUT_ELEMENT_DESC> layout_desc = CreateInputLayoutDescriptor(byte_code.GetNative());
-
     hr = DX11GPUDevice::Instance().GetNative()->CreateInputLayout(
         layout_desc.data(),
         static_cast<uint32_t>(layout_desc.size()),

@@ -129,7 +129,7 @@
       <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11GPUBlendState.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\DX11</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

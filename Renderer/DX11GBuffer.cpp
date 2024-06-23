@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "../Core/Debug.h"
+
+
 #include "DX11GBuffer.h"
 
 namespace aoe {
@@ -10,8 +13,10 @@ DX11GBuffer::DX11GBuffer(uint32_t width, uint32_t height)
 	, normal_(GetTexture32x4Description(width, height))
 	, position_(GetTexture32x4Description(width, height))
 	, accumulator_(GetTexture32x4Description(width, height))
+	, width_(0)
+	, height_(0)
 {
-	Resize(width, height);
+	TryResize(width, height);
 }
 
 const DX11GPUTexture2D* DX11GBuffer::GetDiffuseTexture() {
@@ -34,11 +39,24 @@ const DX11GPUTexture2D* DX11GBuffer::GetAccumulatorTexture() {
 	return accumulator_.GetTexture();
 }
 
-void DX11GBuffer::Resize(uint32_t width, uint32_t height) {
-	diffuse_.Resize(width, height);
-	normal_.Resize(width, height);
-	position_.Resize(width, height);
-	accumulator_.Resize(width, height);
+bool DX11GBuffer::TryResize(uint32_t width, uint32_t height) {
+	AOE_ASSERT_MSG(width > 0, "Width equal to zero.");
+	AOE_ASSERT_MSG(height > 0, "Height equal to zero.");
+
+	if (width_ == width && height_ == height) {
+		return false;
+	}
+
+	width_ = width;
+	height_ = height;
+
+	diffuse_.TryResize(width, height);
+	specular_.TryResize(width, height);
+	normal_.TryResize(width, height);
+	position_.TryResize(width, height);
+	accumulator_.TryResize(width, height);
+
+	return true;
 }
 
 GPUTexture2DDescription DX11GBuffer::GetTexture8x4Description(uint32_t width, uint32_t height) {

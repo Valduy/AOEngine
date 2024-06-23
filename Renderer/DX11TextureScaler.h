@@ -11,10 +11,9 @@ public:
 
 	~DX11TextureScaler();
 
-	bool IsCollapsed();
 	const DX11GPUTexture2D* GetTexture();
 
-	void Resize(uint32_t width, uint32_t height);
+	bool TryResize(uint32_t width, uint32_t height);
 
 	friend void swap(DX11TextureScaler& first, DX11TextureScaler& second);
 
@@ -23,6 +22,9 @@ public:
 private:
 	GPUTexture2DDescription description_;
 	DX11GPUTexture2D* texture_;
+
+	int32_t width_;
+	int32_t height_;
 };
 
 } // namespace aoe

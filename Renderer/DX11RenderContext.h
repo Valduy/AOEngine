@@ -12,6 +12,7 @@ namespace aoe {
 class DX11RenderContext {
 public:
 	DX11RenderContext(IWindow& window);
+	~DX11RenderContext();
 
 	Viewport GetViewport() const;
 
@@ -33,7 +34,8 @@ public:
 
 	const DX11GPUDepthState& GetDepthState(DX11DepthStateID id) const;
 
-	const void PresentFrame() const;
+	void UpdateResources();
+	void PresentFrame() const;
 
 private:
 	IWindow& window_;
@@ -43,6 +45,8 @@ private:
 	DX11GBuffer gbuffer_;
 	DX11RasterizerStates rasterizer_states_;
 	DX11DepthStates depth_states_;
+
+	//void OnWindowSizeChanged(int32_t width, int32_t height);
 };
 
 } // namespace aoe

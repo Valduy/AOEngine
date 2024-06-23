@@ -5,20 +5,11 @@
 namespace aoe {
 
 DX11TonePass::DX11TonePass()
-	: render_targets_()
-	, vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/TonePass.hlsl"))
+	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/TonePass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/TonePass.hlsl"))
 	, sampler_(CreateSamplerDescription())
 	, blend_state_(CreateBlendStateDescription())
 {}
-
-void DX11TonePass::Initialize(const ServiceProvider& service_provider) {
-	DX11RenderPassBase::Initialize(service_provider);
-
-	InitializeRenderTargets();
-}
-
-void DX11TonePass::Terminate() {}
 
 void DX11TonePass::Render() {
 	PrepareRenderContext();
@@ -47,11 +38,6 @@ GPUBlendStateDescription DX11TonePass::CreateBlendStateDescription() {
 	return blend_state_desc;
 }
 
-void DX11TonePass::InitializeRenderTargets() {
-	render_targets_.render_target_views[0] = &GetRenderContext()->GetRenderTargetView();
-	render_targets_.depth_stencil_view = &GetRenderContext()->GetDepthBufferView();
-}
-
 void DX11TonePass::PrepareRenderContext() {
 	DX11RasterizerStateID rs_id{ GPUCullMode::kBack, GPUFillMode::kSolid };
 	const DX11GPURasterizerState& rasterizer_state = GetRenderContext()->GetRasterizerState(rs_id);
@@ -59,13 +45,17 @@ void DX11TonePass::PrepareRenderContext() {
 	DX11DepthStateID ds_id{ false, GPUDepthWriteMask::kWriteNone, GPUComparsionFunction::kNever };
 	const DX11GPUDepthState& depth_state = GetRenderContext()->GetDepthState(ds_id);
 
+	DX11GPURenderTargets render_targets;
+	render_targets.render_target_views[0] = &GetRenderContext()->GetRenderTargetView();
+	render_targets.depth_stencil_view = &GetRenderContext()->GetDepthBufferView();
+
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	context.SetRasterizerState(rasterizer_state);
 	context.SetBlendState(blend_state_, 0xffffffff);
 	context.SetDepthState(depth_state);
 	context.SetVertexShader(vertex_shader_);
 	context.SetPixelShader(pixel_shader_);
-	context.SetRenderTargets(render_targets_);
+	context.SetRenderTargets(render_targets);
 	context.SetShaderResource(GPUShaderType::kPixel, GetRenderContext()->GetAccumulatorTextureView(), 0);
 	context.SetSampler(GPUShaderType::kPixel, sampler_, 0);
 	context.SetPrimitiveTopology(GPUPrimitiveTopology::kTriangleStrip);

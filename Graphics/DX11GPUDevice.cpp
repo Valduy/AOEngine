@@ -26,7 +26,7 @@ DX11GPUDevice::DX11GPUDevice()
 		D3D_FEATURE_LEVEL_11_1,
 	};
 
-	HRESULT hr = D3D11CreateDevice(
+	const HRESULT hr = D3D11CreateDevice(
 		nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
 		nullptr,

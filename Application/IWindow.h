@@ -13,6 +13,7 @@ class IWindow {
 public:
 	Event<IWindow> Closing;
 	Event<IWindow> Destroying;
+	Event<IWindow, int32_t, int32_t> Resize;
 	Event<IWindow, int32_t, int32_t> SizeChanged;
 
 	virtual ~IWindow() = default;
@@ -33,6 +34,10 @@ protected:
 
 	void FireDestroying() {
 		Destroying.Notify();
+	}
+
+	void FireResize(int32_t width, int32_t height) {
+		Resize.Notify(width, height);
 	}
 
 	void FireSizeChanged(int32_t width, int32_t height) {

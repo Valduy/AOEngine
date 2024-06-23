@@ -11,18 +11,16 @@ namespace aoe {
 
 class DX11GPUSwapChain {
 public:
-	DX11GPUSwapChain(IWindow& window);
+	DX11GPUSwapChain(HWND handle, uint32_t width, uint32_t height);
 	~DX11GPUSwapChain();
 
 	IDXGISwapChain* GetNative() const;
 	const DX11GPUTextureView& GetRenderTargetView() const;
 
-	bool Resize(uint32_t width, uint32_t height) const;
+	bool TryResize(uint32_t width, uint32_t height);
 	void Present() const;
 
 private:
-	IWindow& window_;
-
 	Microsoft::WRL::ComPtr<IDXGIFactory> dxgi_factory_;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swap_chain_;
 	

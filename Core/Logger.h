@@ -54,7 +54,7 @@ private:
         case aoe::LogType::kWarning:
             return "Warning";
         case aoe::LogType::kError:
-            break;
+            return "Error";
         case aoe::LogType::kFatal:
             return "Fatal";
         }

@@ -80,7 +80,11 @@ public:
 
 	template<typename T>
 	static T Clamp(T value, T min, T max);
-
+	
+	static bool Equal(float lhs, float rhs, float epsilon = kEpsilon);
+	static float Abs(float value);
+	static float Min(float lhs, float rhs);
+	static float Max(float lhs, float rhs);
 	static float Sin(float angle);
 	static float Cos(float angle);
 };

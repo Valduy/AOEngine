@@ -14,7 +14,7 @@ public:
 	const DX11GPUTexture2D* GetPositionTexture();
 	const DX11GPUTexture2D* GetAccumulatorTexture();
 
-	void Resize(uint32_t width, uint32_t height);
+	bool TryResize(uint32_t width, uint32_t height);
 
 private:
 	DX11TextureScaler diffuse_;
@@ -22,6 +22,9 @@ private:
 	DX11TextureScaler normal_;
 	DX11TextureScaler position_;
 	DX11TextureScaler accumulator_;
+
+	uint32_t width_;
+	uint32_t height_;
 
 	static GPUTexture2DDescription GetTexture8x4Description(uint32_t width, uint32_t height);
 	static GPUTexture2DDescription GetTexture32x4Description(uint32_t width, uint32_t height);

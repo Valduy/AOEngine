@@ -5,8 +5,7 @@
 namespace aoe {
 
 DX11LightPass::DX11LightPass()
-	: render_targets_()
-	, blend_state_(CreateBlendStateDescription())
+	: blend_state_(CreateBlendStateDescription())
 	, ambient_light_pass_()
 	, directional_light_pass_()
 {}
@@ -14,7 +13,6 @@ DX11LightPass::DX11LightPass()
 void DX11LightPass::Initialize(const ServiceProvider& service_provider) {
 	DX11RenderPassBase::Initialize(service_provider);
 
-	InitializeRenderTargets();
 	ambient_light_pass_.Initialize(service_provider);
 	directional_light_pass_.Initialize(service_provider);
 }
@@ -52,14 +50,13 @@ GPUBlendStateDescription DX11LightPass::CreateBlendStateDescription() {
 	return blend_state_desc;
 }
 
-void DX11LightPass::InitializeRenderTargets() {
-	render_targets_.render_target_views[0] = &GetRenderContext()->GetAccumulatorTextureView();
-	render_targets_.depth_stencil_view = &GetRenderContext()->GetDepthBufferView();
-}
-
 void DX11LightPass::PrepareRenderContext() {
+	DX11GPURenderTargets render_targets;
+	render_targets.render_target_views[0] = &GetRenderContext()->GetAccumulatorTextureView();
+	render_targets.depth_stencil_view = &GetRenderContext()->GetDepthBufferView();
+
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	context.SetRenderTargets(render_targets_);
+	context.SetRenderTargets(render_targets);
 	context.SetBlendState(blend_state_, 0xffffffff);
 }
 

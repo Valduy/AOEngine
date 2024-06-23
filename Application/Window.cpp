@@ -53,13 +53,13 @@ void* Window::GetNative() const {
 
 int32_t Window::GetWidth() const {
 	RECT rect;
-	GetWindowRect(handle_, &rect);
+	GetClientRect(handle_, &rect);
 	return static_cast<int32_t>(rect.right - rect.left);
 }
 
 int32_t Window::GetHeight() const {
 	RECT rect;
-	GetWindowRect(handle_, &rect);
+	GetClientRect(handle_, &rect);
 	return static_cast<int32_t>(rect.bottom - rect.top);
 }
 
@@ -92,6 +92,13 @@ LRESULT Window::WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	case WM_DESTROY: {
 		window->FireDestroying();
 		PostQuitMessage(0);
+		return 0;
+	}
+	case WM_SIZE: {
+		int32_t width = LOWORD(lparam);
+		int32_t height = HIWORD(lparam);
+
+		window->FireResize(width, height);
 		return 0;
 	}
 	case WM_CLOSE: {

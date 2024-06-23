@@ -28,6 +28,7 @@ private:
 	DX11RenderContext* render_context_;
 
 	void PrepareRenderContext();
+	void UpdateCameras();
 	void Render();
 	void PresentFrame();
 };

@@ -60,6 +60,11 @@ public:
 	bool IsRenderTarget() const;
 	bool IsUnorderedAccess() const;
 
+	void Test() {
+		auto refs = texture_->Release();
+		auto test = 0;
+	}
+
 private:
 	GPUTexture2DDescription description_;
 	DX11GPUTextureView texture_view_;

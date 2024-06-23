@@ -38,6 +38,7 @@ void DX11RenderSystem::PerTickUpdate(float dt) {
 	PrepareRenderContext();
 
 	if (!camera.IsNull()) {	
+		UpdateCameras();
 		Render();
 	}
 
@@ -56,6 +57,17 @@ void DX11RenderSystem::PerFrameUpdate(float dt) {
 	debug_pass_.Update();
 }
 
+void DX11RenderSystem::UpdateCameras() {
+	Viewport viewport = render_context_->GetViewport();
+	auto filter = GetWorld()->GetFilter<CameraComponent>();
+
+	for (Entity entity : filter) {
+		auto camera_component = GetWorld()->Get<CameraComponent>(entity);
+		camera_component->width = viewport.width;
+		camera_component->height = viewport.height;
+	}
+}
+
 void DX11RenderSystem::PrepareRenderContext() {
 	const float background_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -67,6 +79,8 @@ void DX11RenderSystem::PrepareRenderContext() {
 	context.ClearRenderTarget(render_context_->GetAccumulatorTextureView(), background_color);
 	context.ClearDepth(render_context_->GetDepthBufferView(), 1.0f);
 	context.ClearState();
+
+	render_context_->UpdateResources();
 	context.SetViewport(render_context_->GetViewport());
 }
 

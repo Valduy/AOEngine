@@ -90,7 +90,9 @@ Vector3f FlyCameraSystem::GetMovement(Transform transform, float speed, float dt
 		movement += transform.GetDown();
 	}
 
-	return movement * speed * dt;
+	return Math::Equal(movement.Length(), 0) 
+		? Math::kZeros3f 
+		: movement.Normalized() * speed * dt;
 }
 
 } // namespace aoe

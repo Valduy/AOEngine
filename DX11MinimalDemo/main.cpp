@@ -57,7 +57,7 @@ public:
         : window_(window)
         , model_(aoe::ModelLoader::Load(L"Content/Dice_d4.fbx", aoe::ModelLoaderOptions::kFlipUVs))
         , image_(aoe::TextureLoader::Load(L"Content/Dice_d4_Albedo.png", 4))
-        , swap_chain_(window)
+        , swap_chain_(static_cast<HWND>(window.GetNative()), window.GetWidth(), window.GetHeight())
         , depth_stencil_buffer_(aoe::GPUTexture2DDescription::DepthStencilBuffer(window_.GetWidth(), window_.GetHeight()))
         , depth_state_(kDepthStateDesc)
         , rasterized_state_(kRasterizerStateDesc)

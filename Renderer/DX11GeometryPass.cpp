@@ -8,8 +8,7 @@
 namespace aoe {
 
 DX11GeometryPass::DX11GeometryPass()
-	: render_targets_()
-	, vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/GeometryPass.hlsl"))
+	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/GeometryPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/GeometryPass.hlsl"))
 	, sampler_(CreateSamplerDescription())
 	, blend_state_(CreateBlendStateDescription())
@@ -26,7 +25,6 @@ void DX11GeometryPass::Initialize(const ServiceProvider& service_provider) {
 	texture_manager_ = service_provider.GetService<DX11TextureManager>();
 	AOE_ASSERT_MSG(texture_manager_ != nullptr, "There is no DX11TextureManager service.");
 
-	InitializeRenderTargets();
 	InitializeGeometryData();
 	SubscribeToComponents();
 }
@@ -84,14 +82,6 @@ GPUBlendStateDescription DX11GeometryPass::CreateBlendStateDescription() {
 	blend_state_desc.render_targets[0].color_write_mask = GPUColorWriteMask::kAll;
 
 	return blend_state_desc;
-}
-
-void DX11GeometryPass::InitializeRenderTargets() {
-	render_targets_.render_target_views[0] = &GetRenderContext()->GetDiffuseTextureView();
-	render_targets_.render_target_views[1] = &GetRenderContext()->GetSpecularTextureView();
-	render_targets_.render_target_views[2] = &GetRenderContext()->GetNormalTextureView();
-	render_targets_.render_target_views[3] = &GetRenderContext()->GetPositionTextureView();
-	render_targets_.depth_stencil_view = &GetRenderContext()->GetDepthBufferView();
 }
 
 void DX11GeometryPass::InitializeGeometryData() {
@@ -153,8 +143,15 @@ void DX11GeometryPass::PrepareRenderContext() {
 	DX11DepthStateID ds_id{ true, GPUDepthWriteMask::kWriteAll, GPUComparsionFunction::kLess };
 	const DX11GPUDepthState& depth_state = GetRenderContext()->GetDepthState(ds_id);
 
+	DX11GPURenderTargets render_targets;
+	render_targets.render_target_views[0] = &GetRenderContext()->GetDiffuseTextureView();
+	render_targets.render_target_views[1] = &GetRenderContext()->GetSpecularTextureView();
+	render_targets.render_target_views[2] = &GetRenderContext()->GetNormalTextureView();
+	render_targets.render_target_views[3] = &GetRenderContext()->GetPositionTextureView();
+	render_targets.depth_stencil_view = &GetRenderContext()->GetDepthBufferView();
+
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	context.SetRenderTargets(render_targets_);
+	context.SetRenderTargets(render_targets);
 	context.SetRasterizerState(rasterizer_state);
 	context.SetBlendState(blend_state_, 0xffffffff);
 	context.SetDepthState(depth_state);

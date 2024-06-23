@@ -16,14 +16,12 @@ public:
 	void Render() override;
 
 private:
-	DX11GPURenderTargets render_targets_;
 	DX11GPUBlendState blend_state_;
 	DX11AmbientLightPass ambient_light_pass_;
 	DX11DirectionalLightPass directional_light_pass_;
 
 	static GPUBlendStateDescription CreateBlendStateDescription();
 
-	void InitializeRenderTargets();
 	void PrepareRenderContext();
 };
 
