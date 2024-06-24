@@ -33,12 +33,9 @@ void DX11RenderSystem::Terminate() {
 }
 
 void DX11RenderSystem::PerTickUpdate(float dt) {
-	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
-
 	PrepareRenderContext();
 
-	if (!camera.IsNull()) {	
-		UpdateCameras();
+	if (CameraUtils::HasCamera(*GetWorld())) {
 		Render();
 	}
 
@@ -46,9 +43,7 @@ void DX11RenderSystem::PerTickUpdate(float dt) {
 }
 
 void DX11RenderSystem::PerFrameUpdate(float dt) {
-	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
-
-	if (camera.IsNull()) {
+	if (!CameraUtils::HasCamera(*GetWorld())) {
 		return;
 	}
 
@@ -85,6 +80,8 @@ void DX11RenderSystem::PrepareRenderContext() {
 }
 
 void DX11RenderSystem::Render() {
+	UpdateCameras();
+
 	geometry_pass_.Render();
 	light_pass_.Render();
 	tone_pass_.Render();
