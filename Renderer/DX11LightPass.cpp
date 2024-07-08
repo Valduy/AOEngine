@@ -8,6 +8,7 @@ DX11LightPass::DX11LightPass()
 	: blend_state_(CreateBlendStateDescription())
 	, ambient_light_pass_()
 	, directional_light_pass_()
+	, point_light_pass_()
 {}
 
 void DX11LightPass::Initialize(const ServiceProvider& service_provider) {
@@ -15,16 +16,19 @@ void DX11LightPass::Initialize(const ServiceProvider& service_provider) {
 
 	ambient_light_pass_.Initialize(service_provider);
 	directional_light_pass_.Initialize(service_provider);
+	point_light_pass_.Initialize(service_provider);
 }
 
 void DX11LightPass::Terminate() {
 	ambient_light_pass_.Terminate();
 	directional_light_pass_.Terminate();
+	point_light_pass_.Terminate();
 }
 
 inline void DX11LightPass::Update() {
 	ambient_light_pass_.Update();
 	directional_light_pass_.Update();
+	point_light_pass_.Update();
 }
 
 void DX11LightPass::Render() {
@@ -32,6 +36,7 @@ void DX11LightPass::Render() {
 
 	ambient_light_pass_.Render();
 	directional_light_pass_.Render();
+	point_light_pass_.Render();
 }
 
 GPUBlendStateDescription DX11LightPass::CreateBlendStateDescription() {

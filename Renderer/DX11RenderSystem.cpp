@@ -40,6 +40,7 @@ void DX11RenderSystem::PerTickUpdate(float dt) {
 	}
 
 	PresentFrame();
+	ClearContext();
 }
 
 void DX11RenderSystem::PerFrameUpdate(float dt) {
@@ -64,18 +65,9 @@ void DX11RenderSystem::UpdateCameras() {
 }
 
 void DX11RenderSystem::PrepareRenderContext() {
-	const float background_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	render_context_->UpdateResources();
 
 	aoe::DX11GPUContext context = aoe::DX11GPUDevice::Instance().GetContext();
-	context.ClearRenderTarget(render_context_->GetRenderTargetView(), background_color);
-	context.ClearRenderTarget(render_context_->GetDiffuseTextureView(), background_color);
-	context.ClearRenderTarget(render_context_->GetNormalTextureView(), background_color);
-	context.ClearRenderTarget(render_context_->GetPositionTextureView(), background_color);
-	context.ClearRenderTarget(render_context_->GetAccumulatorTextureView(), background_color);
-	context.ClearDepth(render_context_->GetDepthBufferView(), 1.0f);
-	context.ClearState();
-
-	render_context_->UpdateResources();
 	context.SetViewport(render_context_->GetViewport());
 }
 
@@ -90,6 +82,19 @@ void DX11RenderSystem::Render() {
 
 void DX11RenderSystem::PresentFrame() {
 	render_context_->PresentFrame();
+}
+
+void DX11RenderSystem::ClearContext() {
+	const float background_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+	aoe::DX11GPUContext context = aoe::DX11GPUDevice::Instance().GetContext();
+	context.ClearRenderTarget(render_context_->GetRenderTargetView(), background_color);
+	context.ClearRenderTarget(render_context_->GetDiffuseTextureView(), background_color);
+	context.ClearRenderTarget(render_context_->GetNormalTextureView(), background_color);
+	context.ClearRenderTarget(render_context_->GetPositionTextureView(), background_color);
+	context.ClearRenderTarget(render_context_->GetAccumulatorTextureView(), background_color);
+	context.ClearDepth(render_context_->GetDepthBufferView(), 1.0f);
+	context.ClearState();
 }
 
 } // namespace aoe

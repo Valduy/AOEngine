@@ -164,6 +164,7 @@
     <ClInclude Include="DX11DepthStates.h" />
     <ClInclude Include="DX11DirectionalLightPass.h" />
     <ClInclude Include="DX11LightPass.h" />
+    <ClInclude Include="DX11PointLightPass.h" />
     <ClInclude Include="DX11RasterizerStates.h" />
     <ClInclude Include="DX11GBuffer.h" />
     <ClInclude Include="DX11RenderContext.h" />
@@ -178,6 +179,7 @@
     <ClInclude Include="Line.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PointLightComponent.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="DX11RenderDataComponents.h" />
   </ItemGroup>
@@ -192,6 +194,7 @@
     <ClCompile Include="DX11GBuffer.cpp" />
     <ClCompile Include="DX11GeometryPass.cpp" />
     <ClCompile Include="DX11LightPass.cpp" />
+    <ClCompile Include="DX11PointLightPass.cpp" />
     <ClCompile Include="DX11RasterizerStates.cpp" />
     <ClCompile Include="DX11RenderContext.cpp" />
     <ClCompile Include="DX11RenderSystem.cpp" />
@@ -235,7 +238,7 @@
     <FxCompile Include="Content\GeometryPass.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Content\MaterialData.hlsl">
+    <FxCompile Include="Content\PointLightPass.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Content\TonePass.hlsl">

@@ -31,6 +31,7 @@ private:
 	void UpdateCameras();
 	void Render();
 	void PresentFrame();
+	void ClearContext();
 };
 
 } // namespace aoe

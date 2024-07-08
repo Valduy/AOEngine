@@ -120,6 +120,12 @@
     <ClInclude Include="Line.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DX11PointLightPass.h">
+      <Filter>Header Files\DX11\RenderPasses\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLightComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -173,6 +179,9 @@
     <ClCompile Include="DebugUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DX11PointLightPass.cpp">
+      <Filter>Source Files\DX11\RenderPasses\Light</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\GeometryPass.hlsl">
@@ -190,10 +199,10 @@
     <FxCompile Include="Content\DirectionalLightPass.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Content\MaterialData.hlsl">
+    <FxCompile Include="Content\DebugPass.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Content\DebugPass.hlsl">
+    <FxCompile Include="Content\PointLightPass.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

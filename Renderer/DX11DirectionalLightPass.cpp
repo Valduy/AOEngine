@@ -25,14 +25,27 @@ void DX11DirectionalLightPass::Terminate() {
 
 void DX11DirectionalLightPass::Update() {
 	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
-	UpdateDirectionLightData(camera);
+	Vector3f camera_position = GetGlobalPosition(camera);
+	auto filter = GetWorld()->GetFilter<TransformComponent, DirectionalLightComponent, DX11DirectionalLightDataComponent>();
+
+	for (Entity entity : filter) {
+		auto directional_light_component = GetWorld()->Get<DirectionalLightComponent>(entity);
+		auto directional_light_data_component = GetWorld()->Get<DX11DirectionalLightDataComponent>(entity);
+
+		DirectionalLightData data{};
+		data.view_position = camera_position;
+		data.direction = GetGlobalTransform(entity).GetForward();
+		data.color = directional_light_component->color;
+
+		directional_light_data_component->Update(&data);
+	}
 }
 
 void DX11DirectionalLightPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	auto filter = GetWorld()->GetFilter<DX11DirectionalLightDataComponent>();
+	auto filter = GetWorld()->GetFilter<TransformComponent, DX11DirectionalLightDataComponent>();
 
 	for (Entity entity : filter) {
 		auto direction_light_data_component = GetWorld()->Get<DX11DirectionalLightDataComponent>(entity);
@@ -77,23 +90,6 @@ void DX11DirectionalLightPass::PrepareRenderContext() {
 	context.SetShaderResource(GPUShaderType::kPixel, GetRenderContext()->GetNormalTextureView(), 2);
 	context.SetShaderResource(GPUShaderType::kPixel, GetRenderContext()->GetPositionTextureView(), 3);
 	context.SetPrimitiveTopology(GPUPrimitiveTopology::kTriangleStrip);
-}
-
-void DX11DirectionalLightPass::UpdateDirectionLightData(Entity camera) {
-	auto transform_component = GetWorld()->Get<TransformComponent>(camera);
-	auto filter = GetWorld()->GetFilter<TransformComponent, DirectionalLightComponent, DX11DirectionalLightDataComponent>();
-
-	for (Entity entity : filter) {
-		auto direction_light_component = GetWorld()->Get<DirectionalLightComponent>(entity);
-		auto direction_light_data_component = GetWorld()->Get<DX11DirectionalLightDataComponent>(entity);
-
-		DirectionalLightData data{};
-		data.view_position = transform_component->transform.position;
-		data.direction = TransformUtils::GetGlobalForward(*GetWorld(), *GetRelationeer(), entity);
-		data.color = direction_light_component->color;
-
-		direction_light_data_component->Update(&data);
-	}
 }
 
 void DX11DirectionalLightPass::OnDirectionLightComponentAdded(Entity entity) {

@@ -2,6 +2,7 @@
 
 #include "DX11AmbientLightPass.h"
 #include "DX11DirectionalLightPass.h"
+#include "DX11PointLightPass.h"
 
 namespace aoe {
 
@@ -19,6 +20,7 @@ private:
 	DX11GPUBlendState blend_state_;
 	DX11AmbientLightPass ambient_light_pass_;
 	DX11DirectionalLightPass directional_light_pass_;
+	DX11PointLightPass point_light_pass_;
 
 	static GPUBlendStateDescription CreateBlendStateDescription();
 

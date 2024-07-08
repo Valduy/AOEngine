@@ -21,7 +21,13 @@ struct Transform {
 		, scale(scale)
 	{}
 
-	Matrix4f GetWorldMatrix() const {
+	Transform(Matrix4f world) 
+		: position(world.TranslationVector3D())
+		, rotation(Quaternion::FromMatrix(world))
+		, scale(world.ScaleVector3D())
+	{}
+
+	Matrix4f ToMatrix() const {
 		Matrix4f world_matrix = Matrix4f::Identity();
 		world_matrix *= Matrix4f::FromTranslationVector(position);
 		world_matrix *= rotation.ToMatrix4();

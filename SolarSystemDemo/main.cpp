@@ -11,6 +11,7 @@
 #include "../Renderer/DX11RenderSystem.h"
 #include "../Renderer/AmbientLightComponent.h"
 #include "../Renderer/DirectionalLightComponent.h"
+#include "../Renderer/PointLightComponent.h"
 #include "../Renderer/LineComponent.h"
 #include "../Renderer/CameraComponent.h"
 #include "../Renderer/Colors.h"
@@ -34,7 +35,6 @@ public:
 		, systems_pool_()
 	{}
 
-	// TODO: make gpu data for lines part of line data component
 	void Initialize() override {
 		aoe::ModelId dice_model_id = model_manager_.Load(L"/Content/Dice_d4.fbx", aoe::ModelLoaderOptions::kFlipUVs);
 		aoe::TextureId dice_texture_id = texture_manager_.LoadRGBA(L"/Content/Dice_d4_Albedo.png");
@@ -47,7 +47,7 @@ public:
 
 		aoe::Material material;
 		material.diffuse = { 1.0f, 1.0f, 1.0f };
-		material.specular = { 0.1f, 0.1f, 0.1f };
+		material.specular = { 0.8f, 0.8f, 0.8f };
 		material.shininess = 32.0f;
 		world_.Add<aoe::RenderComponent>(entity_dice_0, dice_model_id, dice_texture_id, material);
 
@@ -85,7 +85,7 @@ public:
 			0.0f * aoe::Math::kDeg2Rad
 		));
 
-		auto sphere = aoe::DebugUtils::CreateSphere(world_);
+		aoe::Entity sphere = aoe::DebugUtils::CreateSphere(world_);
 		relationeer_.SetParent(sphere, entity_dice_0);
 		relationeer_.SetParent(aoe::DebugUtils::CreateAxis(world_, relationeer_), sphere);
 
@@ -111,6 +111,18 @@ public:
 		auto direction_transform_component = world_.Get<aoe::TransformComponent>(directional_light);
 		auto direction_light_component = world_.Get<aoe::DirectionalLightComponent>(directional_light);
 		direction_light_component->color = { 1.0f, 1.0f, 1.0f };
+
+		aoe::Entity point_light = world_.Create();
+		world_.Add<aoe::TransformComponent>(point_light);
+		world_.Add<aoe::PointLightComponent>(point_light);
+		auto point_transform_component = world_.Get<aoe::TransformComponent>(point_light);
+		auto point_light_component = world_.Get<aoe::PointLightComponent>(point_light);
+		point_transform_component->transform.scale = { 5.0f, 5.0f, 5.0f };
+		point_transform_component->transform.position = { 0.0f, 0.0f, 2.0f };
+		point_light_component->color = { 1.0f, 1.0f, 1.0f };
+		
+		aoe::Entity point_light_sphere = aoe::DebugUtils::CreateSphere(world_, {}, aoe::Colors::kWhite);
+		relationeer_.SetParent(point_light_sphere, point_light);
 
 		aoe::Entity camera = world_.Create();
 		world_.Add<aoe::TransformComponent>(camera);

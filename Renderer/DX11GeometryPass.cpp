@@ -94,22 +94,20 @@ void DX11GeometryPass::InitializeGeometryData() {
 
 void DX11GeometryPass::SubscribeToComponents() {
 	GetWorld()->ComponentAdded<TransformComponent>().Attach(*this, &DX11GeometryPass::OnTransformComponentAdded);
-	GetWorld()->ComponentRemoved<TransformComponent>().Attach(*this, &DX11GeometryPass::OnComponentRemoved);
-
 	GetWorld()->ComponentAdded<RenderComponent>().Attach(*this, &DX11GeometryPass::OnRenderComponentAdded);
+
 	GetWorld()->ComponentRemoved<RenderComponent>().Attach(*this, &DX11GeometryPass::OnComponentRemoved);
 }
 
 void DX11GeometryPass::UnsibscribeFromComponents() {
 	GetWorld()->ComponentAdded<TransformComponent>().Detach(*this, &DX11GeometryPass::OnTransformComponentAdded);
-	GetWorld()->ComponentRemoved<TransformComponent>().Detach(*this, &DX11GeometryPass::OnComponentRemoved);
-
 	GetWorld()->ComponentAdded<RenderComponent>().Detach(*this, &DX11GeometryPass::OnRenderComponentAdded);
+
 	GetWorld()->ComponentRemoved<RenderComponent>().Detach(*this, &DX11GeometryPass::OnComponentRemoved);
 }
 
 void DX11GeometryPass::UpdateGeometryData(Entity camera) {
-	Matrix4f camera_matrix = CameraUtils::GetCameraMatrix(*GetWorld(), camera);
+	Matrix4f camera_matrix = GetCameraMatrix(camera);
 	auto filter = GetWorld()->GetFilter<TransformComponent, RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>();
 
 	for (Entity entity : filter) {
@@ -118,7 +116,7 @@ void DX11GeometryPass::UpdateGeometryData(Entity camera) {
 		auto transform_data_component = GetWorld()->Get<DX11TransformDataComponent>(entity);
 		auto material_data_component = GetWorld()->Get<DX11MaterialDataComponent>(entity);
 
-		Matrix4f world = TransformUtils::GetGlobalWorldMatrix(*GetWorld(), *GetRelationeer(), entity);
+		Matrix4f world = GetGlobalWorldMatrix(entity);
 		Matrix4f world_view_projection = camera_matrix * world;
 
 		TransformData transform_data{};

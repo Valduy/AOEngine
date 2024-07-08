@@ -22,16 +22,24 @@ Matrix4f CameraUtils::GetProjectionMatrix(World& world, Entity camera) {
 	return camera_component->GetProjectionMatrix();
 }
 
-Matrix4f CameraUtils::GetViewMatrix(World& world, Entity camera) {
-	auto transform_component = world.Get<TransformComponent>(camera);
-	Vector3f forward = transform_component->transform.GetForward();
-	Vector3f position = transform_component->transform.position;
+Matrix4f CameraUtils::GetViewMatrix(
+	World& world, 
+	Relationeer<TransformComponent>& relationeer, 
+	Entity camera) 
+{
+	auto global_transform = TransformUtils::GetGlobalTransform(world, relationeer, camera);
+	Vector3f forward = global_transform.GetForward();
+	Vector3f position = global_transform.position;
 
 	return Matrix4f::LookAt(position + forward, position, Math::kUp, Math::kLH);
 }
 
-Matrix4f CameraUtils::GetCameraMatrix(World& world, Entity camera) {
-	Matrix4f view_matrix = GetViewMatrix(world, camera);
+Matrix4f CameraUtils::GetCameraMatrix(
+	World& world, 
+	Relationeer<TransformComponent>& relationeer, 
+	Entity camera) 
+{
+	Matrix4f view_matrix = GetViewMatrix(world, relationeer, camera);
 	Matrix4f projection_matrix = GetProjectionMatrix(world, camera);
 	Matrix4f camera_matrix = projection_matrix * view_matrix;
 

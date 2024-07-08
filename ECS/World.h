@@ -29,7 +29,14 @@ public:
 				, pools_(std::make_tuple(world->GetPool<TComponents>()...))
 				, idx_(idx)
 			{
+				AOE_ASSERT_MSG(idx_ <= world_->bound_, "Invalid entity index.");
+
 				if (idx_ >= world_->bound_) {
+					return;
+				}
+
+				if (!HasRequiredPools()) {
+					idx_ = world_->bound_;
 					return;
 				}
 
@@ -82,6 +89,10 @@ public:
 						return i;
 					}
 				}
+			}
+
+			bool HasRequiredPools() {
+				return ((std::get<Pool<TComponents>*>(pools_) != nullptr) && ...);
 			}
 
 			bool HasRequiredComponents(Entity entity) {

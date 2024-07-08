@@ -24,7 +24,7 @@ public:
 
 	DX11ModelManager();
 
-	ModelId Load(const std::wstring& path, ModelLoaderOptions options) override;
+	ModelId Load(const std::wstring& path, ModelLoaderOptions options = ModelLoaderOptions::kConvertToLeftHanded) override;
 	ModelId Upload(Model model) override;
 	ModelId GetDefault() override;
 	const Model& GetModel(ModelId model_id) override;

@@ -95,14 +95,14 @@ void DX11DebugPass::UnsibscribeFromComponents() {
 }
 
 void DX11DebugPass::UpdateLineData(Entity camera) {
-	Matrix4f camera_matrix = CameraUtils::GetCameraMatrix(*GetWorld(), camera);
+	Matrix4f camera_matrix = GetCameraMatrix(camera);
 	auto filter = GetWorld()->GetFilter<TransformComponent, LineComponent, DX11LineDataComponent>();
 
 	for (Entity entity : filter) {
 		auto line_component = GetWorld()->Get<LineComponent>(entity);
 		auto line_data_component = GetWorld()->Get<DX11LineDataComponent>(entity);
 
-		Matrix4f world = TransformUtils::GetGlobalWorldMatrix(*GetWorld(), *GetRelationeer(), entity);
+		Matrix4f world = GetGlobalWorldMatrix(entity);
 		Matrix4f world_view_projection = camera_matrix * world;
 
 		LineData line_data{};

@@ -35,6 +35,19 @@ struct DirectionalLightData {
 	float dummy2;
 };
 
+struct PointLightData {
+	Vector3f view_position;
+	float dummy0;
+	Vector3f position;
+	float dummy1;
+	Vector3f color;
+	float dummy2;
+};
+
+struct PointLightTransformData {
+	Matrix4f world_view_projection;
+};
+
 struct LineData {
 	Matrix4f world_view_projection;
 	Vector3f color;
@@ -60,6 +73,8 @@ using DX11TransformDataComponent = DX11RenderDataComponent<TransformData>;
 using DX11MaterialDataComponent = DX11RenderDataComponent<MaterialData>;
 using DX11AmbientLightDataComponent = DX11RenderDataComponent<AmbientLightData>;
 using DX11DirectionalLightDataComponent = DX11RenderDataComponent<DirectionalLightData>;
+using DX11PointLightDataComponent = DX11RenderDataComponent<PointLightData>;
+using DX11PointLightTransformDataComponent = DX11RenderDataComponent<PointLightTransformData>;
 using DX11LineDataComponent = DX11RenderDataComponent<LineData>;
 
 } // namespace aoe
