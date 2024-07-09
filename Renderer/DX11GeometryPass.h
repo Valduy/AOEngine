@@ -41,8 +41,6 @@ private:
 	void OnRenderComponentAdded(Entity entity);
 
 	void OnComponentRemoved(Entity entity);
-
-	void SetupGeometryEntity(Entity entity);
 };
 
 } // namespace aoe

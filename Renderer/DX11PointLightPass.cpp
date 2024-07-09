@@ -34,27 +34,24 @@ void DX11PointLightPass::Update() {
 	Entity camera = GetActualCamera();
 	Vector3f camera_position = GetGlobalPosition(camera);
 	Matrix4f camera_matrix = GetCameraMatrix(camera);
-	auto filter = GetWorld()->GetFilter<TransformComponent, PointLightComponent, DX11PointLightTransformDataComponent, DX11PointLightDataComponent>();
+	auto filter = GetWorld()->GetFilter<TransformComponent, PointLightComponent, PointLightDataComponent>();
 
 	for (Entity entity : filter) {
 		auto transform_component = GetWorld()->Get<TransformComponent>(entity);
 		auto point_light_component = GetWorld()->Get<PointLightComponent>(entity);
-		auto transform_data_component = GetWorld()->Get<DX11PointLightTransformDataComponent>(entity);
-		auto point_light_data_component = GetWorld()->Get<DX11PointLightDataComponent>(entity);
+		auto point_light_data_component = GetWorld()->Get<PointLightDataComponent>(entity);
 
 		Matrix4f world = GetGlobalWorldMatrix(entity);
 		Matrix4f world_view_projection = camera_matrix * world;
-
-		PointLightTransformData transform_data{};
-		transform_data.world_view_projection = world_view_projection.Transpose();
+		Matrix4f world_view_projection_t = world_view_projection.Transpose();
 
 		PointLightData light_data{};
 		light_data.view_position = camera_position;
 		light_data.position = GetGlobalPosition(entity);
 		light_data.color = point_light_component->color;
 
-		transform_data_component->Update(&transform_data);
-		point_light_data_component->Update(&light_data);
+		point_light_data_component->transform_data.Update(&world_view_projection_t);
+		point_light_data_component->light_data.Update(&light_data);
 	}
 }
 
@@ -63,14 +60,13 @@ void DX11PointLightPass::Render() {
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	const DX11ModelResources& sphere_resources = model_manager_->GetModelResources(sphere_id);
-	auto filter = GetWorld()->GetFilter<DX11PointLightTransformDataComponent, DX11PointLightDataComponent>();
+	auto filter = GetWorld()->GetFilter<PointLightDataComponent>();
 
 	for (Entity entity : filter) {
-		auto transform_data_component = GetWorld()->Get<DX11PointLightTransformDataComponent>(entity);
-		auto point_light_data_component = GetWorld()->Get<DX11PointLightDataComponent>(entity);
+		auto point_light_data_component = GetWorld()->Get<PointLightDataComponent>(entity);
 
-		context.SetConstantBuffer(GPUShaderType::kVertex, transform_data_component->buffer, 0);
-		context.SetConstantBuffer(GPUShaderType::kPixel, point_light_data_component->buffer, 1);
+		context.SetConstantBuffer(GPUShaderType::kVertex, point_light_data_component->transform_data.buffer, 0);
+		context.SetConstantBuffer(GPUShaderType::kPixel, point_light_data_component->light_data.buffer, 1);
 
 		for (const DX11MeshResources& mesh_resource : sphere_resources.meshes_resources) {
 			context.SetVertexBuffer(mesh_resource.vertex_buffer);
@@ -84,7 +80,7 @@ void DX11PointLightPass::InitializePointLightData() {
 	auto filter = GetWorld()->GetFilter<TransformComponent, PointLightComponent>();
 
 	for (Entity entity : filter) {
-		SetupPointLight(entity);
+		GetWorld()->Add<PointLightDataComponent>(entity);
 	}
 }
 
@@ -123,27 +119,18 @@ void DX11PointLightPass::PrepareRenderContext() {
 
 void DX11PointLightPass::OnTransformComponentAdded(Entity entity) {
 	if (GetWorld()->Has<PointLightComponent>(entity)) {
-		SetupPointLight(entity);
+		GetWorld()->Add<PointLightDataComponent>(entity);
 	}
 }
 
 void DX11PointLightPass::OnPointLightComponentAdded(Entity entity) {
 	if (GetWorld()->Has<TransformComponent>(entity)) {
-		SetupPointLight(entity);
+		GetWorld()->Add<PointLightDataComponent>(entity);
 	}
 }
 
 void DX11PointLightPass::OnComponentRemoved(Entity entity) {
-	GetWorld()->Remove<DX11PointLightTransformDataComponent>(entity);
-	GetWorld()->Remove<DX11PointLightDataComponent>(entity);
-}
-
-void DX11PointLightPass::SetupPointLight(Entity entity) {
-	AOE_ASSERT_MSG(!GetWorld()->Has<DX11PointLightTransformDataComponent>(entity), "Entity already has DX11PointLightTransformDataComponent.");
-	AOE_ASSERT_MSG(!GetWorld()->Has<DX11PointLightDataComponent>(entity), "Entity already has DX11PointLightDataComponent.");
-
-	GetWorld()->Add<DX11PointLightTransformDataComponent>(entity);
-	GetWorld()->Add<DX11PointLightDataComponent>(entity);
+	GetWorld()->Remove<PointLightDataComponent>(entity);
 }
 
 } // namespace aoe

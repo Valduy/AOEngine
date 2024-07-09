@@ -26,18 +26,18 @@ void DX11DirectionalLightPass::Terminate() {
 void DX11DirectionalLightPass::Update() {
 	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
 	Vector3f camera_position = GetGlobalPosition(camera);
-	auto filter = GetWorld()->GetFilter<TransformComponent, DirectionalLightComponent, DX11DirectionalLightDataComponent>();
+	auto filter = GetWorld()->GetFilter<TransformComponent, DirectionalLightComponent, DirectionalLightDataComponent>();
 
 	for (Entity entity : filter) {
 		auto directional_light_component = GetWorld()->Get<DirectionalLightComponent>(entity);
-		auto directional_light_data_component = GetWorld()->Get<DX11DirectionalLightDataComponent>(entity);
+		auto directional_light_data_component = GetWorld()->Get<DirectionalLightDataComponent>(entity);
 
 		DirectionalLightData data{};
 		data.view_position = camera_position;
 		data.direction = GetGlobalTransform(entity).GetForward();
 		data.color = directional_light_component->color;
 
-		directional_light_data_component->Update(&data);
+		directional_light_data_component->light_data.Update(&data);
 	}
 }
 
@@ -45,12 +45,12 @@ void DX11DirectionalLightPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	auto filter = GetWorld()->GetFilter<TransformComponent, DX11DirectionalLightDataComponent>();
+	auto filter = GetWorld()->GetFilter<TransformComponent, DirectionalLightDataComponent>();
 
 	for (Entity entity : filter) {
-		auto direction_light_data_component = GetWorld()->Get<DX11DirectionalLightDataComponent>(entity);
+		auto direction_light_data_component = GetWorld()->Get<DirectionalLightDataComponent>(entity);
 
-		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_data_component->buffer, 0);
+		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_data_component->light_data.buffer, 0);
 		context.Draw(4);
 	}
 }
@@ -59,7 +59,7 @@ void DX11DirectionalLightPass::InitializeDirectionLightData() {
 	auto filter = GetWorld()->GetFilter<DirectionalLightComponent>();
 
 	for (Entity entity : filter) {
-		GetWorld()->Add<DX11DirectionalLightDataComponent>(entity);
+		GetWorld()->Add<DirectionalLightDataComponent>(entity);
 	}
 }
 
@@ -93,11 +93,11 @@ void DX11DirectionalLightPass::PrepareRenderContext() {
 }
 
 void DX11DirectionalLightPass::OnDirectionLightComponentAdded(Entity entity) {
-	GetWorld()->Add<DX11DirectionalLightDataComponent>(entity);
+	GetWorld()->Add<DirectionalLightDataComponent>(entity);
 }
 
 void DX11DirectionalLightPass::OnDirectionLightComponentRemoved(Entity entity) {
-	GetWorld()->Remove<DX11DirectionalLightDataComponent>(entity);
+	GetWorld()->Remove<DirectionalLightDataComponent>(entity);
 }
 
 } // namespace aoe

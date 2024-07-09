@@ -25,17 +25,17 @@ void DX11AmbientLightPass::Terminate() {
 }
 
 inline void DX11AmbientLightPass::Update() {
-	auto filter = GetWorld()->GetFilter<AmbientLightComponent, DX11AmbientLightDataComponent>();
+	auto filter = GetWorld()->GetFilter<AmbientLightComponent, AmbientLightDataComponent>();
 
 	for (Entity entity : filter) {
 		auto ambient_light_component = GetWorld()->Get<AmbientLightComponent>(entity);
-		auto ambient_light_data_component = GetWorld()->Get<DX11AmbientLightDataComponent>(entity);
+		auto ambient_light_data_component = GetWorld()->Get<AmbientLightDataComponent>(entity);
 
 		AmbientLightData data{};
 		data.color = ambient_light_component->color;
 		data.intensity = ambient_light_component->intensity;
 
-		ambient_light_data_component->Update(&data);
+		ambient_light_data_component->light_data.Update(&data);
 	}
 }
 
@@ -43,12 +43,12 @@ void DX11AmbientLightPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	auto filter = GetWorld()->GetFilter<DX11AmbientLightDataComponent>();
+	auto filter = GetWorld()->GetFilter<AmbientLightDataComponent>();
 
 	for (Entity entity : filter) {
-		auto ambient_light_data_component = GetWorld()->Get<DX11AmbientLightDataComponent>(entity);
+		auto ambient_light_data_component = GetWorld()->Get<AmbientLightDataComponent>(entity);
 
-		context.SetConstantBuffer(GPUShaderType::kPixel, ambient_light_data_component->buffer, 0);
+		context.SetConstantBuffer(GPUShaderType::kPixel, ambient_light_data_component->light_data.buffer, 0);
 		context.Draw(4);
 	}
 }
@@ -57,7 +57,7 @@ void DX11AmbientLightPass::InitializeAmbientLightData() {
 	auto filter = GetWorld()->GetFilter<AmbientLightComponent>();
 
 	for (Entity entity : filter) {
-		GetWorld()->Add<DX11AmbientLightDataComponent>(entity);
+		GetWorld()->Add<AmbientLightDataComponent>(entity);
 	}
 }
 
@@ -91,11 +91,11 @@ void DX11AmbientLightPass::PrepareRenderContext() {
 }
 
 void DX11AmbientLightPass::OnAmbientLightComponentAdded(Entity entity) {
-	GetWorld()->Add<DX11AmbientLightDataComponent>(entity);
+	GetWorld()->Add<AmbientLightDataComponent>(entity);
 }
 
 void DX11AmbientLightPass::OnAmbientLightComponentRemoved(Entity entity) {
-	GetWorld()->Remove<DX11AmbientLightDataComponent>(entity);
+	GetWorld()->Remove<AmbientLightDataComponent>(entity);
 }
 
 } // namespace aoe

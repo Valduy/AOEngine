@@ -32,13 +32,13 @@ void DX11DebugPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	auto filter = GetWorld()->GetFilter<LineComponent, DX11LineDataComponent, DX11LineResourcesComponent>();
+	auto filter = GetWorld()->GetFilter<LineComponent, LineDataComponent, DX11LineResourcesComponent>();
 
 	for (Entity entity : filter) {
-		auto line_data_component = GetWorld()->Get<DX11LineDataComponent>(entity);
+		auto line_data_component = GetWorld()->Get<LineDataComponent>(entity);
 		auto line_resources_component = GetWorld()->Get<DX11LineResourcesComponent>(entity);
 
-		context.SetConstantBuffer(GPUShaderType::kVertex, line_data_component->buffer);
+		context.SetConstantBuffer(GPUShaderType::kVertex, line_data_component->line_data.buffer);
 
 		for (const DX11GPUBuffer& vertex_buffer : line_resources_component->GetLineResources()) {
 			context.SetVertexBuffer(vertex_buffer);
@@ -53,7 +53,7 @@ void DX11DebugPass::InitializeLineData() {
 	for (Entity entity : filter) {
 		auto line_component = GetWorld()->Get<LineComponent>(entity);
 
-		GetWorld()->Add<DX11LineDataComponent>(entity);
+		GetWorld()->Add<LineDataComponent>(entity);
 		GetWorld()->Add<DX11LineResourcesComponent>(entity, CreateLineResources(line_component->GetLine()));
 	}
 }
@@ -96,11 +96,11 @@ void DX11DebugPass::UnsibscribeFromComponents() {
 
 void DX11DebugPass::UpdateLineData(Entity camera) {
 	Matrix4f camera_matrix = GetCameraMatrix(camera);
-	auto filter = GetWorld()->GetFilter<TransformComponent, LineComponent, DX11LineDataComponent>();
+	auto filter = GetWorld()->GetFilter<TransformComponent, LineComponent, LineDataComponent>();
 
 	for (Entity entity : filter) {
 		auto line_component = GetWorld()->Get<LineComponent>(entity);
-		auto line_data_component = GetWorld()->Get<DX11LineDataComponent>(entity);
+		auto line_data_component = GetWorld()->Get<LineDataComponent>(entity);
 
 		Matrix4f world = GetGlobalWorldMatrix(entity);
 		Matrix4f world_view_projection = camera_matrix * world;
@@ -109,7 +109,7 @@ void DX11DebugPass::UpdateLineData(Entity camera) {
 		line_data.world_view_projection = world_view_projection.Transpose();
 		line_data.color = line_component->color;
 
-		line_data_component->Update(&line_data);
+		line_data_component->line_data.Update(&line_data);
 	}
 }
 
@@ -141,17 +141,17 @@ void DX11DebugPass::OnLineComponentAdded(Entity entity) {
 }
 
 void DX11DebugPass::OnComponentRemoved(Entity entity) {
-	GetWorld()->Remove<DX11LineDataComponent>(entity);
+	GetWorld()->Remove<LineDataComponent>(entity);
 	GetWorld()->Remove<DX11LineResourcesComponent>(entity);
 }
 
 void DX11DebugPass::SetupLineEntity(Entity entity) {
-	AOE_ASSERT_MSG(!GetWorld()->Has<DX11LineDataComponent>(entity), "Entity already has DX11LineDataComponent.");
+	AOE_ASSERT_MSG(!GetWorld()->Has<LineDataComponent>(entity), "Entity already has LineDataComponent.");
 	AOE_ASSERT_MSG(!GetWorld()->Has<DX11LineResourcesComponent>(entity), "Entity already has DX11LineResourcesComponent.");
 
 	auto line_component = GetWorld()->Get<LineComponent>(entity);
 
-	GetWorld()->Add<DX11LineDataComponent>(entity);
+	GetWorld()->Add<LineDataComponent>(entity);
 	GetWorld()->Add<DX11LineResourcesComponent>(entity, CreateLineResources(line_component->GetLine()));
 }
 

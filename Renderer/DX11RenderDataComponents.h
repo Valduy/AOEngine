@@ -44,10 +44,6 @@ struct PointLightData {
 	float dummy2;
 };
 
-struct PointLightTransformData {
-	Matrix4f world_view_projection;
-};
-
 struct LineData {
 	Matrix4f world_view_projection;
 	Vector3f color;
@@ -55,11 +51,10 @@ struct LineData {
 };
 
 template<typename TData>
-class DX11RenderDataComponent {
-public:
+struct DX11RenderData {
 	DX11GPUBuffer buffer;
 
-	DX11RenderDataComponent()
+	DX11RenderData()
 		: buffer(DX11GPUBuffer::Create<TData>({GPUBufferType::kConstantBuffer, GPUResourceUsage::kDynamic}))
 	{}
 
@@ -69,12 +64,26 @@ public:
 	}
 };
 
-using DX11TransformDataComponent = DX11RenderDataComponent<TransformData>;
-using DX11MaterialDataComponent = DX11RenderDataComponent<MaterialData>;
-using DX11AmbientLightDataComponent = DX11RenderDataComponent<AmbientLightData>;
-using DX11DirectionalLightDataComponent = DX11RenderDataComponent<DirectionalLightData>;
-using DX11PointLightDataComponent = DX11RenderDataComponent<PointLightData>;
-using DX11PointLightTransformDataComponent = DX11RenderDataComponent<PointLightTransformData>;
-using DX11LineDataComponent = DX11RenderDataComponent<LineData>;
+struct GeometryDataComponent {
+	DX11RenderData<TransformData> transform_data;
+	DX11RenderData<MaterialData> material_data;
+};
+
+struct AmbientLightDataComponent {
+	DX11RenderData<AmbientLightData> light_data;
+};
+
+struct DirectionalLightDataComponent {
+	DX11RenderData<DirectionalLightData> light_data;
+};
+
+struct PointLightDataComponent {
+	DX11RenderData<Matrix4f> transform_data;
+	DX11RenderData<PointLightData> light_data;
+};
+
+struct LineDataComponent {
+	DX11RenderData<LineData> line_data;
+};
 
 } // namespace aoe

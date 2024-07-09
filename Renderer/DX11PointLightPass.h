@@ -34,8 +34,6 @@ private:
 	void OnTransformComponentAdded(Entity entity);
 
 	void OnComponentRemoved(Entity entity);
-
-	void SetupPointLight(Entity entity);
 };
 
 } // namespace aoe

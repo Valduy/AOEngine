@@ -42,18 +42,17 @@ void DX11GeometryPass::Render() {
 	PrepareRenderContext();
 
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	auto filter = GetWorld()->GetFilter<RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>();
+	auto filter = GetWorld()->GetFilter<RenderComponent, GeometryDataComponent>();
 
 	for (Entity entity : filter) {
 		auto render_component = GetWorld()->Get<RenderComponent>(entity);
-		auto transform_data_component = GetWorld()->Get<DX11TransformDataComponent>(entity);
-		auto material_data_component = GetWorld()->Get< DX11MaterialDataComponent>(entity);
+		auto geometry_data_component = GetWorld()->Get<GeometryDataComponent>(entity);
 
 		const DX11ModelResources& model_resources = model_manager_->GetModelResources(render_component->model_id);
 		const DX11GPUTexture2D& texture_resources = texture_manager_->GetTextureResources(render_component->texture_id);
 
-		context.SetConstantBuffer(GPUShaderType::kVertex, transform_data_component->buffer, 0);
-		context.SetConstantBuffer(GPUShaderType::kPixel, material_data_component->buffer, 1);
+		context.SetConstantBuffer(GPUShaderType::kVertex, geometry_data_component->transform_data.buffer, 0);
+		context.SetConstantBuffer(GPUShaderType::kPixel, geometry_data_component->material_data.buffer, 1);
 		context.SetShaderResource(GPUShaderType::kPixel, texture_resources.GetTextureView(), 0);
 
 		for (const DX11MeshResources& mesh_resource : model_resources.meshes_resources) {
@@ -88,7 +87,7 @@ void DX11GeometryPass::InitializeGeometryData() {
 	auto filter = GetWorld()->GetFilter<TransformComponent, RenderComponent>();
 
 	for (Entity entity : filter) {
-		SetupGeometryEntity(entity);
+		GetWorld()->Add<GeometryDataComponent>(entity);
 	}
 }
 
@@ -108,13 +107,12 @@ void DX11GeometryPass::UnsibscribeFromComponents() {
 
 void DX11GeometryPass::UpdateGeometryData(Entity camera) {
 	Matrix4f camera_matrix = GetCameraMatrix(camera);
-	auto filter = GetWorld()->GetFilter<TransformComponent, RenderComponent, DX11TransformDataComponent, DX11MaterialDataComponent>();
+	auto filter = GetWorld()->GetFilter<TransformComponent, RenderComponent, GeometryDataComponent>();
 
 	for (Entity entity : filter) {
 		auto transform_component = GetWorld()->Get<TransformComponent>(entity);
 		auto render_component = GetWorld()->Get<RenderComponent>(entity);
-		auto transform_data_component = GetWorld()->Get<DX11TransformDataComponent>(entity);
-		auto material_data_component = GetWorld()->Get<DX11MaterialDataComponent>(entity);
+		auto geometry_data_component = GetWorld()->Get<GeometryDataComponent>(entity);
 
 		Matrix4f world = GetGlobalWorldMatrix(entity);
 		Matrix4f world_view_projection = camera_matrix * world;
@@ -129,8 +127,8 @@ void DX11GeometryPass::UpdateGeometryData(Entity camera) {
 		material_data.specular = render_component->material.specular;
 		material_data.shininess = render_component->material.shininess;
 
-		transform_data_component->Update(&transform_data);
-		material_data_component->Update(&material_data);
+		geometry_data_component->transform_data.Update(&transform_data);
+		geometry_data_component->material_data.Update(&material_data);
 	}
 }
 
@@ -161,27 +159,18 @@ void DX11GeometryPass::PrepareRenderContext() {
 
 void DX11GeometryPass::OnTransformComponentAdded(Entity entity) {
 	if (GetWorld()->Has<RenderComponent>(entity)) {
-		SetupGeometryEntity(entity);
+		GetWorld()->Add<GeometryDataComponent>(entity);
 	}
 }
 
 void DX11GeometryPass::OnRenderComponentAdded(Entity entity) {
 	if (GetWorld()->Has<TransformComponent>(entity)) {
-		SetupGeometryEntity(entity);
+		GetWorld()->Add<GeometryDataComponent>(entity);
 	}
 }
 
 void DX11GeometryPass::OnComponentRemoved(Entity entity) {
-	GetWorld()->Remove<DX11TransformDataComponent>(entity);
-	GetWorld()->Remove<DX11MaterialDataComponent>(entity);
-}
-
-void DX11GeometryPass::SetupGeometryEntity(Entity entity) {
-	AOE_ASSERT_MSG(!GetWorld()->Has<DX11TransformDataComponent>(entity), "Entity already has DX11TransformDataComponent.");
-	AOE_ASSERT_MSG(!GetWorld()->Has<DX11MaterialDataComponent>(entity), "Entity already has DX11MaterialDataComponent.");
-
-	GetWorld()->Add<DX11TransformDataComponent>(entity);
-	GetWorld()->Add<DX11MaterialDataComponent>(entity);
+	GetWorld()->Remove<GeometryDataComponent>(entity);
 }
 
 } // namespace aoe
