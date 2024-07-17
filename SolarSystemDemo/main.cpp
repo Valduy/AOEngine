@@ -39,25 +39,26 @@ public:
 		aoe::ModelId dice_model_id = model_manager_.Load(L"/Content/Dice_d4.fbx", aoe::ModelLoaderOptions::kFlipUVs);
 		aoe::TextureId dice_texture_id = texture_manager_.LoadRGBA(L"/Content/Dice_d4_Albedo.png");
 
-		aoe::Entity entity_dice_0 = world_.Create();
-		world_.Add<aoe::TransformComponent>(entity_dice_0);
-		auto dice_0_transform_component = world_.Get<aoe::TransformComponent>(entity_dice_0);
-		dice_0_transform_component->transform.position = { 0.0f, 0.0f, 4.0f };
-		dice_0_transform_component->transform.scale = { 1.0f, 1.0f, 1.0f };
-
 		aoe::Material material;
 		material.diffuse = { 1.0f, 1.0f, 1.0f };
 		material.specular = { 0.8f, 0.8f, 0.8f };
 		material.shininess = 32.0f;
+
+		aoe::Entity entity_dice_0 = world_.Create();
+		world_.Add<aoe::TransformComponent>(entity_dice_0);
 		world_.Add<aoe::RenderComponent>(entity_dice_0, dice_model_id, dice_texture_id, material);
 
-		aoe::Transform axis_0_transform{};
-		axis_0_transform.scale = { 3.0f, 3.0f, 3.0f };
-		auto axis_0 = aoe::DebugUtils::CreateAxis(world_, relationeer_, axis_0_transform);
-		relationeer_.SetParent(axis_0, entity_dice_0);
+		auto dice_0_transform_component = world_.Get<aoe::TransformComponent>(entity_dice_0);
+		dice_0_transform_component->transform.position = { 0.0f, 0.0f, 4.0f };
+		dice_0_transform_component->transform.scale = { 1.0f, 1.0f, 1.0f };
+
+		auto other_material = material;
+		other_material.diffuse = { 0.3, 1, 0.3 };
 
 		aoe::Entity entity_dice_1 = world_.Create();
 		world_.Add<aoe::TransformComponent>(entity_dice_1);
+		world_.Add<aoe::RenderComponent>(entity_dice_1, dice_model_id, dice_texture_id, other_material);
+
 		auto dice_1_transform_component = world_.Get<aoe::TransformComponent>(entity_dice_1);
 		dice_1_transform_component->transform.position = { 1.0f, 1.0f, 1.0f };
 		dice_1_transform_component->transform.rotation = aoe::Quaternion::FromEulerAngles(
@@ -67,9 +68,23 @@ public:
 		);
 		dice_1_transform_component->transform.scale = { 1.0f, 1.0f, 1.0f };
 
-		auto other_material = material;
-		other_material.diffuse = { 0.3, 1, 0.3 };
-		world_.Add<aoe::RenderComponent>(entity_dice_1, dice_model_id, dice_texture_id, other_material);
+		aoe::Entity entity_dice_2 = world_.Create();
+		world_.Add<aoe::TransformComponent>(entity_dice_2);
+		world_.Add<aoe::RenderComponent>(entity_dice_2, dice_model_id, dice_texture_id, other_material);
+
+		auto dice_2_transform_component = world_.Get<aoe::TransformComponent>(entity_dice_2);
+		dice_2_transform_component->transform.position = { 0.0f, -1.0f, 0.0f };
+		dice_2_transform_component->transform.rotation = aoe::Quaternion::FromEulerAngles(
+			90.0f * aoe::Math::kDeg2Rad,
+			0.0f * aoe::Math::kDeg2Rad,
+			0.0f * aoe::Math::kDeg2Rad
+		);
+		dice_2_transform_component->transform.scale = { 10.0f, 10.0f, 10û.0f };
+
+		aoe::Transform axis_0_transform{};
+		axis_0_transform.scale = { 3.0f, 3.0f, 3.0f };
+		auto axis_0 = aoe::DebugUtils::CreateAxis(world_, relationeer_, axis_0_transform);
+		relationeer_.SetParent(axis_0, entity_dice_0);
 
 		aoe::Transform axis_1_transform{};
 		axis_1_transform.scale = { 3.0f, 3.0f, 3.0f };
