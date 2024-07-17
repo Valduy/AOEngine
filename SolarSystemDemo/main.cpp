@@ -79,7 +79,7 @@ public:
 			0.0f * aoe::Math::kDeg2Rad,
 			0.0f * aoe::Math::kDeg2Rad
 		);
-		dice_2_transform_component->transform.scale = { 10.0f, 10.0f, 10û.0f };
+		dice_2_transform_component->transform.scale = { 10.0f, 10.0f, 10.0f };
 
 		aoe::Transform axis_0_transform{};
 		axis_0_transform.scale = { 3.0f, 3.0f, 3.0f };
