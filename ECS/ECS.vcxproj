@@ -147,6 +147,7 @@
     <ClInclude Include="IPool.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Pool.h" />
+    <ClInclude Include="SparseMap.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>

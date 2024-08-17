@@ -1,22 +1,21 @@
 #include "pch.h"
 
 #include "../Core/Delegate.h"
-// TODO: detach during notification
 
 namespace aoe_tests {
-namespace delegate_tests {
+namespace core_tests {
 
 template<typename... TParams>
 class TestObserver {
 public:
-	void SetDelegate(aoe::Delegate<TParams...>* delegate) {
-		delegate_ = delegate;
-	}
-
 	TestObserver()
 		: calls_count_(0)
 		, delegate_(nullptr)
 	{}
+
+	void SetDelegate(aoe::Delegate<TParams...>* delegate) {
+		delegate_ = delegate;
+	}
 
 	size_t GetCallsCount() const {
 		return calls_count_;
@@ -111,7 +110,7 @@ TEST_P(DelegateFixture, Notify_DetachDuringNotification_ActionsFiredCorrectly) {
 
 template<typename... TParams>
 std::vector<TestObserver<TParams...>*> CreateObservers(size_t size) {
-	std::vector<TestObserver<>*> observers(size);
+	std::vector<TestObserver<TParams...>*> observers(size);
 
 	for (size_t i = 0; i < size; ++i) {
 		observers[i] = new TestObserver<TParams...>();

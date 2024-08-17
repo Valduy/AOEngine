@@ -92,9 +92,9 @@ TEST(WorldTests, IsValid_CheckIsRemovedEntityValid_False) {
 }
 
 TEST(WorldTests, Destroy_CreateAndDestroyEntities_AllCreatedEntitiesAreUnique) {
-	size_t max_alive_entities_count = 10;
-	size_t recreated_entities_count = SumOfAp(1, max_alive_entities_count, max_alive_entities_count);
-	size_t unique_entities_count = recreated_entities_count + max_alive_entities_count;
+	const size_t max_alive_entities_count = 10;
+	const size_t recreated_entities_count = SumOfAp(1, max_alive_entities_count, max_alive_entities_count);
+	const size_t unique_entities_count = recreated_entities_count + max_alive_entities_count;
 
 	std::unordered_set<aoe::Entity> unique_entities;
 	std::vector<aoe::Entity> entities;

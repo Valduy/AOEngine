@@ -8,6 +8,9 @@
     <ClCompile Include="WorldTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="SparseMapTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
