@@ -3,11 +3,9 @@
 #include "../Core/Debug.h"
 
 #include "ECS.h"
+#include "ComponentsPool.h"
 
 namespace aoe {
-
-template<typename T>
-class Pool;
 
 template<typename TComponent>
 class ComponentHandler {
@@ -16,7 +14,7 @@ public:
 		: ComponentHandler(nullptr, Entity::Null())
 	{}
 
-	ComponentHandler(Pool<TComponent>* pool, Entity entity)
+	ComponentHandler(ComponentsPool<TComponent>* pool, Entity entity)
 		: pool_(pool)
 		, entity_(entity)
 	{}
@@ -30,20 +28,23 @@ public:
 		return component != nullptr;
 	}
 
-	TComponent* Get() const {
+	TComponent* Get() {
 		AOE_ASSERT_MSG(pool_ != nullptr || entity_.IsNull(), "Handler is invalid.");
 		TComponent* component = pool_->Get(entity_);
 		AOE_ASSERT_MSG(component != nullptr, "Entity doesn't have a required component.");
 		return component;
 	}
 
-	TComponent* operator->() const {
+	TComponent* operator->() {
 		return Get();
 	}
 
 private:
-	Pool<TComponent>* pool_;
+	ComponentsPool<TComponent>* pool_;
 	Entity entity_;
 };
+
+template<typename TComponent>
+using CH = ComponentHandler<TComponent>;
 
 } // namespace aoe

@@ -2,13 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="PoolTests.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
     <ClCompile Include="WorldTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="SparseMapTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="EntitiesPoolTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,57 +8,8 @@ namespace aoe {
 
 template<typename TData>
 class SparseMap {
-private:
-	template<typename TValue>
-	using InnerIterator = std::vector<TValue>::iterator;
-
 public:
 	using Id = size_t;
-	
-	class Iterator {
-	public:
-		using iterator_category = std::forward_iterator_tag;
-		using difference_type = std::ptrdiff_t;
-		using value_type = std::pair<const Id, TData&>;
-		using pointer = value_type*;
-		using reference = value_type&;
-
-		Iterator(InnerIterator<std::pair<Id, TData>> it)
-			: it_(it)
-			, value_(it_->first, it_->second)
-		{}
-
-		value_type operator*() const {
-			return value_;
-		}
-
-		pointer operator->() {
-			return &value_;
-		}
-
-		Iterator& operator++() {
-			std::advance(it_, 1);
-			return *this;
-		}
-
-		Iterator operator++(int) {
-			Iterator temp = *this;
-			std::advance(it_, 1);
-			return temp;
-		}
-
-		friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
-			return lhs.it_ == rhs.it_;
-		}
-
-		friend bool operator!=(const Iterator lhs, const Iterator& rhs) {
-			return lhs.it_ != rhs.it_;
-		}
-
-	private:
-		InnerIterator<std::pair<Id, TData>> it_;
-		value_type value_;
-	};
 
 	SparseMap()
 		: sparse_()
@@ -67,7 +18,7 @@ public:
 	{}
 
 	bool Has(Id id) const {
-		if (id >= sparse_.size()) {
+		if (id < 0 || id >= sparse_.size()) {
 			return false;
 		}
 
@@ -116,22 +67,12 @@ public:
 		bound_ -= 1;
 
 		Lookup lookup = sparse_[id];
-		Id other_id = dense_[bound_].first;
+		Id moved = dense_[bound_].first;
 
 		std::swap(dense_[lookup], dense_[bound_]);
 
-		sparse_[other_id] = lookup;
+		sparse_[moved] = lookup;
 		sparse_[id] = kUndefined;
-	}
-
-	Iterator begin() {
-		return { dense_.begin() };
-	}
-
-	Iterator end() {
-		auto end = dense_.begin();
-		std::advance(end, bound_);
-		return { end };
 	}
 
 private:

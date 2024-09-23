@@ -142,11 +142,12 @@
   <ItemGroup>
     <ClInclude Include="ComponentHandler.h" />
     <ClInclude Include="ECS.h" />
+    <ClInclude Include="EntitiesPool.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="IPool.h" />
+    <ClInclude Include="IComponentsPool.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Pool.h" />
+    <ClInclude Include="ComponentsPool.h" />
     <ClInclude Include="SparseMap.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

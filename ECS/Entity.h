@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Core/Debug.h"
+
 #include "ECS.h"
 
 namespace aoe {
@@ -38,6 +40,10 @@ public:
 	
 	friend bool operator==(const Entity& lhs, const Entity& rhs) {
 		return lhs.version_ == rhs.version_ && lhs.id_ == rhs.id_;
+	}
+
+	friend bool operator!=(const Entity& lhs, const Entity& rhs) {
+		return !(lhs == rhs);
 	}
 
 private:

@@ -27,10 +27,10 @@
     <ClInclude Include="ComponentHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Pool.h">
+    <ClInclude Include="ComponentsPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IPool.h">
+    <ClInclude Include="IComponentsPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="World.h">
@@ -40,6 +40,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SparseMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EntitiesPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

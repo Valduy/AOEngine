@@ -1,17 +1,21 @@
 #pragma once
 
-#include <vector>
 #include <unordered_map>
 
-#include "../Core/Debug.h"
 #include "../Core/Identifier.h"
 
-#include "Pool.h"
-#include "Entity.h"
+#include "ComponentsPool.h"
+#include "EntitiesPool.h"
+#include "ComponentHandler.h"
 
 namespace aoe {
 
 class World {
+private:
+	template<typename ...TComponents>
+	using ComponentsPools = std::tuple<ComponentsPool<TComponents>*...>;
+	using InnerIterator = EntitiesPool::Iterator;
+
 public:
 	template<typename... TComponents>
 	class Filter {
@@ -21,82 +25,66 @@ public:
 			using iterator_category = std::forward_iterator_tag;
 			using difference_type = std::ptrdiff_t;
 			using value_type = Entity;
-			using pointer = Entity*;
-			using reference = Entity&;
+			using pointer = value_type*;
+			using reference = value_type&;
 
-			Iterator(World* world, size_t idx)
-				: world_(world)
-				, pools_(std::make_tuple(world->GetPool<TComponents>()...))
-				, idx_(idx)
+			Iterator(World* world, InnerIterator it, InnerIterator end)
+				: pools_(world->GetPools<TComponents...>())
+				, it_(it)
+				, end_(end)
 			{
-				AOE_ASSERT_MSG(idx_ <= world_->bound_, "Invalid entity index.");
-
-				if (idx_ >= world_->bound_) {
+				if (it_ == end_) {
 					return;
 				}
 
-				if (!HasRequiredPools()) {
-					idx_ = world_->bound_;
+				if (World::HasNullPools(pools_)) {
+					it_ = end_;
 					return;
 				}
 
-				Entity entity = world_->dense_[idx_];
-
-				if (!HasRequiredComponents(entity)) {
-					idx_ = GetNext(idx_);
+				if (!World::HasRequiredComponents(pools_, *it_)) {
+					Advance();
 				}
 			}
 
-			reference operator*() const {
-				return world_->dense_[idx_];
+			reference operator*() {
+				return *it_;
 			}
 
 			pointer operator->() {
-				return &world_->dense_[idx_];
+				return &(*it_);
 			}
 
 			Iterator& operator++() {
-				idx_ = GetNext(idx_);
+				Advance();
 				return *this;
 			}
 
 			Iterator operator++(int) {
 				Iterator temp = *this;
-				idx_ = GetNext(idx_);
+				Advance();
 				return temp;
 			}
 
 			friend bool operator== (const Iterator& lhs, const Iterator& rhs) {
-				return lhs.idx_ == rhs.idx_;
+				return lhs.it_ == rhs.it_;
 			};
 
 			friend bool operator!= (const Iterator& lhs, const Iterator& rhs) {
-				return lhs.idx_ != rhs.idx_;
+				return lhs.it_ != rhs.it_;
 			};
 
 		private:
-			using PoolsTuple = std::tuple<Pool<TComponents>*...>;
+			ComponentsPools<TComponents...> pools_;
+			InnerIterator it_;
+			InnerIterator end_;
 
-			World* world_;
-			PoolsTuple pools_;
-			size_t idx_;
-
-			size_t GetNext(size_t idx) {
-				for (size_t i = idx + 1; i < world_->bound_; ++i) {
-					Entity entity = world_->dense_[i];
-
-					if (HasRequiredComponents(entity)) {
-						return i;
+			void Advance() {
+				for (std::advance(it_, 1); it_ != end_; std::advance(it_, 1)) {
+					if (World::HasRequiredComponents(pools_, *it_)) {
+						return;
 					}
 				}
-			}
-
-			bool HasRequiredPools() {
-				return ((std::get<Pool<TComponents>*>(pools_) != nullptr) && ...);
-			}
-
-			bool HasRequiredComponents(Entity entity) {
-				return (std::get<Pool<TComponents>*>(pools_)->Has(entity) && ...);
 			}
 		};
 
@@ -105,11 +93,15 @@ public:
 		{}
 
 		Iterator begin() {
-			return { world_, 0 };
+			auto it = world_->entities_pool_.begin();
+			auto end = world_->entities_pool_.end();
+			return { world_, it, end };
 		}
 
 		Iterator end() {
-			return { world_, world_->bound_ };
+			auto it = world_->entities_pool_.end();
+			auto end = world_->entities_pool_.end();
+			return { world_, it, end };
 		}
 
 	private:
@@ -119,53 +111,36 @@ public:
 	Event<World, Entity> EntityCreated;
 	Event<World, Entity> EntityDestroyed;
 
+	World()
+		: component_pools_()
+		, entities_pool_()
+		, to_destroy_()
+	{}
+
+	~World() {
+		for (auto it : component_pools_) {
+			delete it.second;
+		}
+	}
+
 	template<typename TComponent>
 	EventBase<Entity>& ComponentAdded() {
-		Pool<TComponent>* pool = GetOrCreatePool<TComponent>();
+		ComponentsPool<TComponent>* pool = GetOrCreatePool<TComponent>();
 		return pool->ComponentAdded;
 	}
 
 	template<typename TComponent>
 	EventBase<Entity>& ComponentRemoved() {
-		Pool<TComponent>* pool = GetOrCreatePool<TComponent>();
+		ComponentsPool<TComponent>* pool = GetOrCreatePool<TComponent>();
 		return pool->ComponentRemoved;
 	}
 
 	bool IsValid(Entity entity) const {
-		AOE_ASSERT_MSG(entity.GetId() >= 0, "Invalid entity.");
-
-		if (entity.GetId() >= sparse_.size()) {
-			return false;
-		}
-
-		Lookup lookup = sparse_[entity.GetId()];
-
-		if (lookup >= bound_) {
-			return false;
-		}
-
-		return dense_[lookup].GetVersion() == entity.GetVersion();
+		return entities_pool_.IsValid(entity);
 	}
 
 	Entity Create() {
-		Entity entity = Entity::Null();
-
-		if (bound_ < dense_.size()) {
-			entity = dense_[bound_];
-			bound_ += 1;
-
-			EntityCreated.Notify(entity);
-			return entity;
-		}
-
-		AOE_ASSERT_MSG(bound_ == dense_.size(), "Invalid bound.");
-
-		sparse_.push_back(bound_);
-		bound_ += 1;
-		entity = dense_.emplace_back(dense_.size());
-
-		EntityCreated.Notify(entity);
-		return entity;
+		return entities_pool_.Create();
 	}
 
 	void Destroy(Entity entity) {
@@ -177,7 +152,7 @@ public:
 	template<typename TComponent>
 	bool Has(Entity entity) const {
 		AssertEntityIsValid(entity);
-		Pool<TComponent>* pool = GetPool<TComponent>();
+		ComponentsPool<TComponent>* pool = GetPool<TComponent>();
 
 		if (pool == nullptr) {
 			return false;
@@ -189,21 +164,21 @@ public:
 	template<typename TComponent, typename ...TArgs>
 	void Add(Entity entity, TArgs&&... args) {
 		AssertEntityIsValid(entity);
-		Pool<TComponent>* pool = GetOrCreatePool<TComponent>();
-		pool->Add(entity.GetId(), std::forward<TArgs>(args)...);
+		ComponentsPool<TComponent>* pool = GetOrCreatePool<TComponent>();
+		pool->Add(entity, std::forward<TArgs>(args)...);
 	}
 
 	template<typename TComponent>
-	ComponentHandler<TComponent> Get(Entity entity) const {
+	CH<TComponent> Get(Entity entity) {
 		AssertEntityIsValid(entity);
-		Pool<TComponent>* pool = GetPool<TComponent>();
+		ComponentsPool<TComponent>* pool = GetPool<TComponent>();
 		return { pool, entity.GetId() };
 	}
 
 	template<typename TComponent>
 	void Remove(Entity entity) {
 		AssertEntityIsValid(entity);
-		Pool<TComponent>* pool = GetPool<TComponent>();
+		ComponentsPool<TComponent>* pool = GetPool<TComponent>();
 
 		if (pool != nullptr) {
 			pool->Remove(entity.GetId());
@@ -216,37 +191,29 @@ public:
 				continue;
 			}
 
-			for (auto& it : pools_) {
+			for (auto& it : component_pools_) {
 				it.second->Remove(entity.GetId());
 			}
 
 			EntityDestroyed.Notify(entity);
-
-			bound_ -= 1;
-			Entity moved = dense_[bound_];
-
-			std::swap(sparse_[entity.GetId()], sparse_[moved.GetId()]);
-			dense_[sparse_[moved.GetId()]] = moved;
-			dense_[sparse_[entity.GetId()]] = {entity.GetVersion() + 1, entity.GetId()};
+			entities_pool_.Destroy(entity);
 		}
 	}
 
 	template <typename ...TComponents, typename TFunction>
 	void ForEach(TFunction function) {
-		auto pools(std::make_tuple(GetPool<TComponents>()...));
+		ComponentsPools<TComponents...> pools = GetPools<TComponents...>();
 
-		if (((std::get<Pool<TComponents>*>(pools) == nullptr) || ...)) {
+		if (HasNullPools(pools)) {
 			return;
 		}
 
-		for (size_t i = 0; i < bound_; ++i) {
-			Entity entity = dense_[i];
-
-			if ((!std::get<Pool<TComponents>*>(pools)->Has(entity) || ...)) {
+		for (Entity entity : entities_pool_) {
+			if (!HasRequiredComponents(pools, entity)) {
 				continue;
 			}
 
-			function(entity, ComponentHandler<TComponents>(std::get<Pool<TComponents>*>(pools), entity)...);
+			function(entity, CH<TComponents>(std::get<ComponentsPool<TComponents>*>(pools), entity)...);
 		}
 	}
 
@@ -256,42 +223,52 @@ public:
 	}
 
 private:
-	using Lookup = size_t;
-
-	std::unordered_map<TypeId, IPool*> pools_;
-	std::vector<Lookup> sparse_;
-	std::vector<Entity> dense_;
+	std::unordered_map<TypeId, IComponentsPool*> component_pools_;
+	EntitiesPool entities_pool_;
 	std::vector<Entity> to_destroy_;
 
-	Lookup bound_ = 0;
+	template<typename ...TComponents>
+	static bool HasNullPools(ComponentsPools<TComponents...>& pools) {
+		return ((std::get<ComponentsPool<TComponents>*>(pools) == nullptr) || ...);
+	}
+
+	template<typename ...TComponents>
+	static bool HasRequiredComponents(ComponentsPools<TComponents...>& pools, Entity entity) {
+		return (std::get<ComponentsPool<TComponents>*>(pools)->Has(entity) && ...);
+	}
 
 	void AssertEntityIsValid(Entity entity) const {
 		AOE_ASSERT_MSG(IsValid(entity), "Invalid entity.");
 	}
 
 	template<typename TComponent>
-	Pool<TComponent>* GetPool() const {
-		TypeId type_id = aoe::Identifier::GetTypeId<TComponent>();
-		auto it = pools_.find(type_id);
+	ComponentsPool<TComponent>* GetPool() const {
+		TypeId type_id = Identifier::GetTypeId<TComponent>();
+		auto it = component_pools_.find(type_id);
 
-		if (it == pools_.end()) {
+		if (it == component_pools_.end()) {
 			return nullptr;
 		}
 
-		return static_cast<Pool<TComponent>*>(it->second);
+		return static_cast<ComponentsPool<TComponent>*>(it->second);
+	}
+
+	template<typename ...TComponents>
+	ComponentsPools<TComponents...> GetPools() const {
+		return std::make_tuple(GetPool<TComponents>()...);
 	}
 
 	template<typename TComponent>
-	Pool<TComponent>* CreatePool() {
-		TypeId type_id = aoe::Identifier::GetTypeId<TComponent>();
-		Pool<TComponent>* pool = new Pool<TComponent>();
-		pools_[type_id] = pool;
+	ComponentsPool<TComponent>* CreatePool() {
+		TypeId type_id = Identifier::GetTypeId<TComponent>();
+		ComponentsPool<TComponent>* pool = new ComponentsPool<TComponent>();
+		component_pools_[type_id] = pool;
 		return pool;
 	}
 
 	template<typename TComponent>
-	Pool<TComponent>* GetOrCreatePool() {
-		Pool<TComponent>* pool = GetPool<TComponent>();
+	ComponentsPool<TComponent>* GetOrCreatePool() {
+		ComponentsPool<TComponent>* pool = GetPool<TComponent>();
 
 		if (pool == nullptr) {
 			pool = CreatePool<TComponent>();

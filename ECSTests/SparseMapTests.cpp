@@ -33,7 +33,7 @@ TEST(SparseMapTests, Get_GetRemovedId_Failure) {
 	ASSERT_DEATH(sparse_map.Get(id), "");
 }
 
-TEST(SparseMapTests, Has_SetIsEmpty_False) {
+TEST(SparseMapTests, Has_MapIsEmpty_False) {
 	aoe::SparseMap<size_t> sparse_map;
 	const aoe::SparseMap<size_t>::Id id = 0;
 
@@ -74,7 +74,7 @@ TEST(SparseMapTests, Has_AddAndRemoveId_False) {
 	ASSERT_FALSE(has);
 }
 
-TEST(SparseMapTests, Remove_SetIsEmpty_HasNotRemovedId) {
+TEST(SparseMapTests, Remove_MapIsEmpty_HasNotRemovedId) {
 	aoe::SparseMap<size_t> sparse_map;
 	const aoe::SparseMap<size_t>::Id id = 0;
 
@@ -84,7 +84,7 @@ TEST(SparseMapTests, Remove_SetIsEmpty_HasNotRemovedId) {
 	ASSERT_FALSE(id);
 }
 
-TEST(SparseMapTests, Remove_IdIsNotAddedToSet_HasNotRemovedId) {
+TEST(SparseMapTests, Remove_IdIsNotAddedToMsp_HasNotRemovedId) {
 	aoe::SparseMap<size_t> sparse_map;
 	const aoe::SparseMap<size_t>::Id id_to_add = 0;
 	const aoe::SparseMap<size_t>::Id id_to_remove = 1;

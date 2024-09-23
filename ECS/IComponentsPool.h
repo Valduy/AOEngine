@@ -4,9 +4,9 @@
 
 namespace aoe {
 
-class IPool {
+class IComponentsPool {
 public:
-	virtual ~IPool() = default;
+	virtual ~IComponentsPool() = default;
 	virtual bool Has(Entity entity) = 0;
 	virtual void Remove(Entity entity) = 0;
 };
