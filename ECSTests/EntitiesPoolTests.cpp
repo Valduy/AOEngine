@@ -88,12 +88,18 @@ TEST(EntitiesPoolTests, Iterator_IterateOverExistedEntities_AllExistedEntitiesIt
 		}
 	}
 	
-	for (aoe::Entity removed = alive_entities.back(); !alive_entities.empty(); alive_entities.pop_back()) {
+	while (!alive_entities.empty()) {
+		aoe::Entity removed = alive_entities.back();
+		alive_entities.pop_back();
+
 		pool.Destroy(removed);
 		removed_entities.insert(removed);
 
 		for (aoe::Entity entity : pool) {
+			auto it = std::find(alive_entities.begin(), alive_entities.end(), entity);
+
 			ASSERT_FALSE(removed_entities.contains(entity));
+			ASSERT_TRUE(it != alive_entities.end());
 		}
 	}
 }
