@@ -29,7 +29,7 @@ public:
 	}
 
 	TComponent* Get() {
-		AOE_ASSERT_MSG(pool_ != nullptr || entity_.IsNull(), "Handler is invalid.");
+		AOE_ASSERT_MSG(pool_ != nullptr && !entity_.IsNull(), "Handler is invalid.");
 		TComponent* component = pool_->Get(entity_);
 		AOE_ASSERT_MSG(component != nullptr, "Entity doesn't have a required component.");
 		return component;

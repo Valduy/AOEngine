@@ -21,10 +21,13 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FlyCameraSystem.h">
+    <ClInclude Include="FlyCameraComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FlyCameraComponent.h">
+    <ClInclude Include="FlyCameraTickSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FlyCameraFrameSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,7 +35,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlyCameraSystem.cpp">
+    <ClCompile Include="FlyCameraTickSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FlyCameraFrameSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

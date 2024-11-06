@@ -165,7 +165,7 @@ public:
 	void Add(Entity entity, TArgs&&... args) {
 		AssertEntityIsValid(entity);
 		ComponentsPool<TComponent>* pool = GetOrCreatePool<TComponent>();
-		pool->Add(entity, std::forward<TArgs>(args)...);
+		pool->Emplace(entity, std::forward<TArgs>(args)...);
 	}
 
 	template<typename TComponent>

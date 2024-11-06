@@ -145,12 +145,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="FlyCameraComponent.h" />
-    <ClInclude Include="FlyCameraSystem.h" />
+    <ClInclude Include="FlyCameraTickSystem.h" />
+    <ClInclude Include="FlyCameraFrameSystem.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FlyCameraSystem.cpp" />
+    <ClCompile Include="FlyCameraFrameSystem.cpp" />
+    <ClCompile Include="FlyCameraTickSystem.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

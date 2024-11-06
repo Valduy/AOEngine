@@ -10,7 +10,7 @@ bool CameraUtils::HasCamera(World& world) {
 }
 
 Entity CameraUtils::GetActualCamera(World& world) {
-	for (Entity camera : world.GetFilter< TransformComponent, CameraComponent>()) {
+	for (Entity camera : world.GetFilter<TransformComponent, CameraComponent>()) {
 		return camera;
 	}
 	

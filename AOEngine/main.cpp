@@ -1,37 +1,41 @@
 #include <iostream>
 
-#include "../Core/Event.h"
+#include "../ECS/SparseMap.h"
 
-class ISubject {
-public:
-	aoe::Event<ISubject, size_t> ActionHappened;
-
-protected:
-	void NotifyActionHappened() {
-		ActionHappened.Notify(1);
+struct TestComponent {
+	TestComponent() {
+		std::cout << "TestComponent()\n";
 	}
-};
 
-class Subject : public ISubject {
-public:
-	void Foo() {
-		NotifyActionHappened();
+	TestComponent(const TestComponent& other) {
+		std::cout << "TestComponent(const TestComponent&)\n";
 	}
-};
 
-class Observer {
-public:
-	void Bar(size_t num) {
-		std::cout << "Bar " << num << std::endl;
+	TestComponent(TestComponent&& other) noexcept {
+		std::cout << "TestComponent(TestComponent&&)\n";
+	}
+
+	TestComponent& operator=(const TestComponent&) {
+		std::cout << "operator=(const TestComponent&)\n";
+		return *this;
+	}
+
+	TestComponent& operator=(TestComponent&&) noexcept {
+		std::cout << "operator=(TestComponent&&)\n";
+		return *this;
 	}
 };
 
 int main() {
-	Subject subject;
-	Observer observer;
+	aoe::SparseMap<TestComponent>::Id id = 0;
+	aoe::SparseMap<TestComponent> map;
 
-	subject.ActionHappened.Attach(observer, &Observer::Bar);
-	subject.Foo();
+	TestComponent component;
+	map.Add(id, component);
+	std::cout << std::endl;
+
+	map.Remove(id);
+	map.Emplace(id);
 
 	return 0;
 }

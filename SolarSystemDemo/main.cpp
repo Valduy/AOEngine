@@ -1,8 +1,4 @@
-#include <functional>
-
 #include "../Application/Application.h"
-#include "../Core/Math.h"
-#include "../ECS/World.h"
 #include "../Resources/ModelLoader.h"
 #include "../Game/TransformComponent.h"
 #include "../Game/Relationeer.h"
@@ -20,7 +16,8 @@
 #include "../Renderer/RenderComponent.h"
 #include "../Resources/DX11ModelManager.h"
 #include "../Resources/DX11TextureManager.h"
-#include "../Common/FlyCameraSystem.h"
+#include "../Common/FlyCameraTickSystem.h"
+#include "../Common/FlyCameraFrameSystem.h"
 
 class SolarSystemScene : public aoe::IScene {
 public:
@@ -53,7 +50,7 @@ public:
 		dice_0_transform_component->transform.scale = { 1.0f, 1.0f, 1.0f };
 
 		auto other_material = material;
-		other_material.diffuse = { 0.3, 1, 0.3 };
+		other_material.diffuse = { 0.3f, 1.0f, 0.3f };
 
 		aoe::Entity entity_dice_1 = world_.Create();
 		world_.Add<aoe::TransformComponent>(entity_dice_1);
@@ -163,7 +160,8 @@ public:
 		service_provider_.AddService(&model_manager_);
 		service_provider_.AddService(&texture_manager_);
 
-		systems_pool_.PushSystem<aoe::FlyCameraSystem>();
+		systems_pool_.PushSystem<aoe::FlyCameraTickSystem>();
+		systems_pool_.PushSystem<aoe::FlyCameraFrameSystem>();
 		systems_pool_.PushSystem<aoe::DX11RenderSystem>();
 		systems_pool_.Initialize(service_provider_);
 	};

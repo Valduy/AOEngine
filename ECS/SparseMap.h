@@ -34,9 +34,14 @@ public:
 	}
 
 	template<typename ...TArgs>
-	void Add(Id id, TArgs&&... args) {
+	void Emplace(Id id, TArgs&&... args) {
 		TData data(std::forward<TArgs>(args)...);
 		Add(id, std::move(data));
+	}
+
+	void Add(Id id, const TData& data) {
+		TData copy(data);
+		Add(id, std::move(copy));
 	}
 
 	void Add(Id id, TData&& data) {
@@ -48,9 +53,7 @@ public:
 		}
 
 		if (bound_ < dense_.size()) {
-			std::pair<Id, TData>& pair = dense_[bound_];
-			pair.first = id;
-			pair.second = std::move(data);
+			dense_[bound_] = { id, std::forward<TData>(data) };
 		} else {
 			dense_.emplace_back(id, std::forward<TData>(data));
 		}

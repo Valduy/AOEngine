@@ -32,9 +32,14 @@ public:
 	}
 
 	template<typename ...TArgs>
-	void Add(Entity entity, TArgs&&... args) {
+	void Emplace(Entity entity, TArgs&&... args) {
 		TComponent component(std::forward<TArgs>(args)...);
 		Add(entity, std::move(component));
+	}
+
+	void Add(Entity entity, const TComponent& component) {
+		TComponent copy(component);
+		Add(entity, std::move(copy));
 	}
 
 	void Add(Entity entity, TComponent&& component) {

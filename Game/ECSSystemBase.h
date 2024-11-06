@@ -8,21 +8,12 @@ namespace aoe {
 
 class ECSSystemBase {
 public:
-	ECSSystemBase()
-		: world_(nullptr)
-	{}
-
+	ECSSystemBase();
 	virtual ~ECSSystemBase() = default;
 
-	World* GetWorld() {
-		return world_;
-	}
+	World* GetWorld();
 
-	virtual void Initialize(const aoe::ServiceProvider& service_provider) {
-		world_ = service_provider.GetService<World>();
-		AOE_ASSERT_MSG(world_ != nullptr, "There is no World service.");
-	}
-
+	virtual void Initialize(const aoe::ServiceProvider& service_provider);
 	virtual void Terminate() {}
 	virtual void PerTickUpdate(float dt) {}
 	virtual void PerFrameUpdate(float dt) {}
