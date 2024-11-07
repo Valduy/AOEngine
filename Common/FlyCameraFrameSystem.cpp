@@ -5,17 +5,15 @@
 namespace aoe {
 
 void FlyCameraFrameSystem::PerFrameUpdate(float dt) {
-	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
+	auto filter = GetWorld()->GetFilter<TransformComponent, FlyCameraComponent>();
 
-	if (camera.IsNull() || !GetWorld()->Has<FlyCameraComponent>(camera)) {
-		return;
+	for (Entity camera : filter) {
+		auto transform_component = GetWorld()->Get<TransformComponent>(camera);
+		auto fly_camera_component = GetWorld()->Get<FlyCameraComponent>(camera);
+
+		Vector3f movement = GetMovement(transform_component->transform, fly_camera_component, dt);
+		transform_component->transform.position += movement;
 	}
-
-	auto transform_component = GetWorld()->Get<TransformComponent>(camera);
-	auto fly_camera_component = GetWorld()->Get<FlyCameraComponent>(camera);
-
-	Vector3f movement = GetMovement(transform_component->transform, fly_camera_component, dt);
-	transform_component->transform.position += movement;
 }
 
 Vector3f FlyCameraFrameSystem::GetMovement(const Transform& transform, CH<FlyCameraComponent> fly_camera_component, float dt) {

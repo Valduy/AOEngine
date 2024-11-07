@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "../Renderer/CameraUtils.h"
+#include "../Game/TransformComponent.h"
 
 #include "FlyCameraTickSystem.h"
 
@@ -14,20 +14,18 @@ void FlyCameraTickSystem::Initialize(const aoe::ServiceProvider& service_provide
 }
 
 void FlyCameraTickSystem::PerTickUpdate(float dt) {
-	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
+	auto filter = GetWorld()->GetFilter<TransformComponent, FlyCameraComponent>();
 
-	if (camera.IsNull() || !GetWorld()->Has<FlyCameraComponent>(camera)) {
-		return;
+	for (Entity camera : filter) {
+		auto transform_component = GetWorld()->Get<TransformComponent>(camera);
+		auto fly_camera_component = GetWorld()->Get<FlyCameraComponent>(camera);
+
+		UpdateAxis(fly_camera_component);
+		UpdateAngles(fly_camera_component);
+
+		Quaternion rotation = Quaternion::FromEulerAngles(fly_camera_component->angles);
+		transform_component->transform.rotation = rotation;
 	}
-
-	auto transform_component = GetWorld()->Get<TransformComponent>(camera);
-	auto fly_camera_component = GetWorld()->Get<FlyCameraComponent>(camera);
-
-	UpdateAxis(fly_camera_component);
-	UpdateAngles(fly_camera_component);
-
-	Quaternion rotation = Quaternion::FromEulerAngles(fly_camera_component->angles);
-	transform_component->transform.rotation = rotation;
 }
 
 void FlyCameraTickSystem::UpdateAxis(CH<FlyCameraComponent> fly_camera_component) {

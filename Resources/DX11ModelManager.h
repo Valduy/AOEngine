@@ -28,7 +28,7 @@ public:
 	ModelId Upload(Model model) override;
 	ModelId GetDefault() override;
 	const Model& GetModel(ModelId model_id) override;
-	const DX11ModelResources& GetModelResources(ModelId mesh_id);
+	const DX11ModelResources& GetModelResources(ModelId model_id);
 
 private:
 	std::unordered_map<std::wstring, ModelId> path_to_model_id_;

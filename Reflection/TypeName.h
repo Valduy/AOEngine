@@ -2,20 +2,18 @@
 
 #include <string>
 #include <string_view>
-#include <array>   // std::array
-#include <utility> // std::index_sequence
+#include <array>
+#include <utility>
 
 namespace aoe {
 
 template <std::size_t...Idxs>
-constexpr auto SubstringAsArray(std::string_view str, std::index_sequence<Idxs...>)
-{
+constexpr auto SubstringAsArray(std::string_view str, std::index_sequence<Idxs...>) {
 	return std::array{ str[Idxs]..., '\n' };
 }
 
 template <typename T>
-constexpr auto TypeNameArray()
-{
+constexpr auto TypeNameArray() {
 #if defined(__clang__)
 	constexpr auto prefix = std::string_view{ "[T = " };
 	constexpr auto suffix = std::string_view{ "]" };
@@ -47,8 +45,7 @@ struct TypeNameHolder {
 };
 
 template <typename T>
-constexpr auto TypeName() -> std::string_view
-{
+constexpr auto TypeName() {
 	constexpr auto& value = TypeNameHolder<T>::value;
 	return std::string_view{ value.data(), value.size() };
 }

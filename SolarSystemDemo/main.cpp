@@ -4,7 +4,7 @@
 #include "../Game/Relationeer.h"
 #include "../Game/TransformUtils.h"
 #include "../Game/SystemsPool.h"
-#include "../Renderer/DX11RenderSystem.h"
+#include "../Renderer/DX11Renderer.h"
 #include "../Renderer/AmbientLightComponent.h"
 #include "../Renderer/DirectionalLightComponent.h"
 #include "../Renderer/PointLightComponent.h"
@@ -162,21 +162,25 @@ public:
 
 		systems_pool_.PushSystem<aoe::FlyCameraTickSystem>();
 		systems_pool_.PushSystem<aoe::FlyCameraFrameSystem>();
-		systems_pool_.PushSystem<aoe::DX11RenderSystem>();
+		
 		systems_pool_.Initialize(service_provider_);
+		renderer_.Initialize(service_provider_);
 	};
 
 	void Terminate() override {
+		renderer_.Terminate();
 		systems_pool_.Terminate();
 	};
 
 	void PerTickUpdate(float dt) override {
 		systems_pool_.PerTickUpdate(dt);
+		renderer_.Render();
 		world_.Validate();
 	}
 
 	void PerFrameUpdate(float dt) override {
 		systems_pool_.PerFrameUpdate(dt);
+		renderer_.Update();
 		world_.Validate();
 	}
 
@@ -192,6 +196,7 @@ private:
 
 	aoe::ServiceProvider service_provider_;
 	aoe::SystemsPool systems_pool_;
+	aoe::DX11Renderer renderer_;
 };
 
 int main() {

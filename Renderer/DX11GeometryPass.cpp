@@ -34,7 +34,7 @@ void DX11GeometryPass::Terminate() {
 }
 
 void DX11GeometryPass::Update() {
-	Entity camera = CameraUtils::GetActualCamera(*GetWorld());
+	Entity camera = GetActualCamera();
 	UpdateGeometryData(camera);
 }
 

@@ -40,8 +40,8 @@ const Model& DX11ModelManager::GetModel(ModelId model_id) {
 	return models_[model_id];
 }
 
-const DX11ModelResources& DX11ModelManager::GetModelResources(ModelId mesh_id) {
-	return models_resources_[mesh_id];
+const DX11ModelResources& DX11ModelManager::GetModelResources(ModelId model_id) {
+	return models_resources_[model_id];
 }
 
 DX11ModelResources DX11ModelManager::CreateModelResources(const Model& model) {

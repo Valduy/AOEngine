@@ -168,7 +168,7 @@
     <ClInclude Include="DX11RasterizerStates.h" />
     <ClInclude Include="DX11GBuffer.h" />
     <ClInclude Include="DX11RenderContext.h" />
-    <ClInclude Include="DX11RenderSystem.h" />
+    <ClInclude Include="DX11Renderer.h" />
     <ClInclude Include="DX11ShaderHelper.h" />
     <ClInclude Include="DX11TextureScaler.h" />
     <ClInclude Include="DX11TonePass.h" />
@@ -197,7 +197,7 @@
     <ClCompile Include="DX11PointLightPass.cpp" />
     <ClCompile Include="DX11RasterizerStates.cpp" />
     <ClCompile Include="DX11RenderContext.cpp" />
-    <ClCompile Include="DX11RenderSystem.cpp" />
+    <ClCompile Include="DX11RenderPassBase.cpp" />
     <ClCompile Include="DX11ShaderHelper.cpp" />
     <ClCompile Include="DX11TextureScaler.cpp" />
     <ClCompile Include="DX11TonePass.cpp" />

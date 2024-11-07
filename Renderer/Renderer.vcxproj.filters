@@ -45,9 +45,6 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DX11RenderSystem.h">
-      <Filter>Header Files\DX11</Filter>
-    </ClInclude>
     <ClInclude Include="DX11RenderContext.h">
       <Filter>Header Files\DX11</Filter>
     </ClInclude>
@@ -126,6 +123,9 @@
     <ClInclude Include="PointLightComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="DX11Renderer.h">
+      <Filter>Header Files\DX11</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -144,9 +144,6 @@
       <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11RenderContext.cpp">
-      <Filter>Source Files\DX11</Filter>
-    </ClCompile>
-    <ClCompile Include="DX11RenderSystem.cpp">
       <Filter>Source Files\DX11</Filter>
     </ClCompile>
     <ClCompile Include="DX11ShaderHelper.cpp">
@@ -181,6 +178,9 @@
     </ClCompile>
     <ClCompile Include="DX11PointLightPass.cpp">
       <Filter>Source Files\DX11\RenderPasses\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="DX11RenderPassBase.cpp">
+      <Filter>Source Files\DX11\RenderPasses</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
