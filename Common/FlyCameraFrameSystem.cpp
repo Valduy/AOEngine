@@ -4,7 +4,7 @@
 
 namespace aoe {
 
-void FlyCameraFrameSystem::PerFrameUpdate(float dt) {
+void FlyCameraFrameSystem::Update(float dt) {
 	auto filter = GetWorld()->GetFilter<TransformComponent, FlyCameraComponent>();
 
 	for (Entity camera : filter) {

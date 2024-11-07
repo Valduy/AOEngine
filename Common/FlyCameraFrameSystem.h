@@ -10,7 +10,7 @@ namespace aoe {
 
 class FlyCameraFrameSystem : public ECSSystemBase {
 public:
-	void PerFrameUpdate(float dt) override;
+	void Update(float dt) override;
 
 private:
 	Vector3f GetMovement(const Transform& transform, CH<FlyCameraComponent> fly_camera_component, float dt);

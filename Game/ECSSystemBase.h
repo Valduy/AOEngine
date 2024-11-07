@@ -15,8 +15,7 @@ public:
 
 	virtual void Initialize(const aoe::ServiceProvider& service_provider);
 	virtual void Terminate() {}
-	virtual void PerTickUpdate(float dt) {}
-	virtual void PerFrameUpdate(float dt) {}
+	virtual void Update(float dt) = 0;
 
 private:
 	World* world_;

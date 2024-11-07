@@ -13,7 +13,7 @@ void FlyCameraTickSystem::Initialize(const aoe::ServiceProvider& service_provide
 	AOE_ASSERT_MSG(application_ != nullptr, "There is no Application service.");
 }
 
-void FlyCameraTickSystem::PerTickUpdate(float dt) {
+void FlyCameraTickSystem::Update(float dt) {
 	auto filter = GetWorld()->GetFilter<TransformComponent, FlyCameraComponent>();
 
 	for (Entity camera : filter) {

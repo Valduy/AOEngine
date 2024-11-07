@@ -10,7 +10,7 @@ namespace aoe {
 class FlyCameraTickSystem : public ECSSystemBase {
 public:
 	void Initialize(const aoe::ServiceProvider& service_provider);
-	void PerTickUpdate(float dt) override;
+	void Update(float dt) override;
 
 private:
 	static constexpr float kEpsilon = 0.001f;

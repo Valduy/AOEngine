@@ -29,7 +29,9 @@ public:
 		, model_manager_()
 		, texture_manager_()
 		, service_provider_()
-		, systems_pool_()
+		, tick_systems_pool_()
+		, frame_systems_pool_()
+		, renderer_()
 	{}
 
 	void Initialize() override {
@@ -160,26 +162,29 @@ public:
 		service_provider_.AddService(&model_manager_);
 		service_provider_.AddService(&texture_manager_);
 
-		systems_pool_.PushSystem<aoe::FlyCameraTickSystem>();
-		systems_pool_.PushSystem<aoe::FlyCameraFrameSystem>();
+		tick_systems_pool_.PushSystem<aoe::FlyCameraTickSystem>();
+		tick_systems_pool_.Initialize(service_provider_);
+
+		frame_systems_pool_.PushSystem<aoe::FlyCameraFrameSystem>();
+		frame_systems_pool_.Initialize(service_provider_);
 		
-		systems_pool_.Initialize(service_provider_);
 		renderer_.Initialize(service_provider_);
 	};
 
 	void Terminate() override {
 		renderer_.Terminate();
-		systems_pool_.Terminate();
+		frame_systems_pool_.Terminate();
+		tick_systems_pool_.Terminate();
 	};
 
 	void PerTickUpdate(float dt) override {
-		systems_pool_.PerTickUpdate(dt);
+		tick_systems_pool_.Update(dt);
 		renderer_.Render();
 		world_.Validate();
 	}
 
 	void PerFrameUpdate(float dt) override {
-		systems_pool_.PerFrameUpdate(dt);
+		frame_systems_pool_.Update(dt);
 		renderer_.Update();
 		world_.Validate();
 	}
@@ -195,7 +200,8 @@ private:
 	aoe::DX11TextureManager texture_manager_;
 
 	aoe::ServiceProvider service_provider_;
-	aoe::SystemsPool systems_pool_;
+	aoe::SystemsPool tick_systems_pool_;
+	aoe::SystemsPool frame_systems_pool_;
 	aoe::DX11Renderer renderer_;
 };
 
