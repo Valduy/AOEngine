@@ -26,11 +26,13 @@ public:
 	}
 
 	template<typename TSystem, typename...TParams>
-	void PushSystem(TParams&&... params) {
+	TSystem& PushSystem(TParams&&... params) {
 		AOE_ASSERT_MSG(!is_inited_, "Systems already inited.");
 
 		TSystem* system = new TSystem(std::forward<TParams>(params)...);
 		systems_.push_back(system);
+
+		return *system;
 	}
 
 	void Initialize(const aoe::ServiceProvider& service_provider) {
@@ -44,6 +46,8 @@ public:
 	}
 
 	void Terminate() {
+		AOE_ASSERT_MSG(is_inited_, "Systems is not inited.");
+
 		for (ECSSystemBase* system : systems_) {
 			system->Terminate();
 		}

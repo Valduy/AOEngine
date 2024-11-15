@@ -4,7 +4,7 @@
 #include "../Game/Relationeer.h"
 #include "../Game/TransformUtils.h"
 #include "../Game/SystemsPool.h"
-#include "../Renderer/DX11Renderer.h"
+#include "../Game/ECSCompositeSystem.h"
 #include "../Renderer/AmbientLightComponent.h"
 #include "../Renderer/DirectionalLightComponent.h"
 #include "../Renderer/PointLightComponent.h"
@@ -14,6 +14,23 @@
 #include "../Renderer/DebugUtils.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/RenderComponent.h"
+
+#include "../Renderer/DX11GeometryPassFrameSystem.h"
+#include "../Renderer/DX11AmbientLightPassFrameSystem.h"
+#include "../Renderer/DX11DirectionalLightPassFrameSystem.h"
+#include "../Renderer/DX11PointLightPassFrameSystem.h"
+#include "../Renderer/DX11DebugPassFrameSystem.h"
+
+#include "../Renderer/DX11PreRenderPassTickSystem.h"
+#include "../Renderer/DX11GeometryPassTickSystem.h"
+#include "../Renderer/DX11PreLightPassTickSystem.h"
+#include "../Renderer/DX11AmbientLightPassTickSystem.h"
+#include "../Renderer/DX11DirectionalLightPassTickSystem.h"
+#include "../Renderer/DX11PointLightPassTickSystem.h"
+#include "../Renderer/DX11TonePassTickSystem.h"
+#include "../Renderer/DX11DebugPassTickSystem.h"
+#include "../Renderer/DX11PostRenderPassTickSystem.h"
+
 #include "../Resources/DX11ModelManager.h"
 #include "../Resources/DX11TextureManager.h"
 #include "../Common/FlyCameraTickSystem.h"
@@ -31,7 +48,6 @@ public:
 		, service_provider_()
 		, tick_systems_pool_()
 		, frame_systems_pool_()
-		, renderer_()
 	{}
 
 	void Initialize() override {
@@ -163,29 +179,38 @@ public:
 		service_provider_.AddService(&texture_manager_);
 
 		tick_systems_pool_.PushSystem<aoe::FlyCameraTickSystem>();
+		tick_systems_pool_.PushSystem<aoe::DX11GeometryPassFrameSystem>();
+		tick_systems_pool_.PushSystem<aoe::DX11AmbientLightPassFrameSystem>();
+		tick_systems_pool_.PushSystem<aoe::DX11DirectionalLightPassFrameSystem>();
+		tick_systems_pool_.PushSystem<aoe::DX11PointLightPassFrameSystem>();
+		tick_systems_pool_.PushSystem<aoe::DX11DebugPassFrameSystem>();
 		tick_systems_pool_.Initialize(service_provider_);
 
 		frame_systems_pool_.PushSystem<aoe::FlyCameraFrameSystem>();
+		frame_systems_pool_.PushSystem<aoe::DX11PreRenderPassTickSystem>();
+		frame_systems_pool_.PushSystem<aoe::DX11GeometryPassTickSystem>();
+		frame_systems_pool_.PushSystem<aoe::DX11PreLightPassTickSystem>();
+		frame_systems_pool_.PushSystem<aoe::DX11AmbientLightPassTickSystem>();
+		frame_systems_pool_.PushSystem<aoe::DX11DirectionalLightPassTickSystem>();
+		frame_systems_pool_.PushSystem<aoe::DX11PointLightPassTickSystem>();
+		frame_systems_pool_.PushSystem<aoe::DX11TonePassTickSystem>();
+		frame_systems_pool_.PushSystem<aoe::DX11DebugPassTickSystem>();
+		frame_systems_pool_.PushSystem<aoe::DX11PostRenderPassTickSystem>();
 		frame_systems_pool_.Initialize(service_provider_);
-		
-		renderer_.Initialize(service_provider_);
 	};
 
 	void Terminate() override {
-		renderer_.Terminate();
 		frame_systems_pool_.Terminate();
 		tick_systems_pool_.Terminate();
 	};
 
 	void PerTickUpdate(float dt) override {
 		tick_systems_pool_.Update(dt);
-		renderer_.Render();
 		world_.Validate();
 	}
 
 	void PerFrameUpdate(float dt) override {
 		frame_systems_pool_.Update(dt);
-		renderer_.Update();
 		world_.Validate();
 	}
 
@@ -202,7 +227,6 @@ private:
 	aoe::ServiceProvider service_provider_;
 	aoe::SystemsPool tick_systems_pool_;
 	aoe::SystemsPool frame_systems_pool_;
-	aoe::DX11Renderer renderer_;
 };
 
 int main() {

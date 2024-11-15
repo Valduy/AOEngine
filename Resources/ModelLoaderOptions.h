@@ -4,7 +4,7 @@
 
 namespace aoe {
 
-enum class ModelLoaderOptions {
+enum class ModelLoaderOptions : uint32_t {
     kCalculateTangentSpace = 0x1,
     kJoinIdenticalVertices = 0x2,
     kMakeLeftHanded = 0x4,

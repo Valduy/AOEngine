@@ -2,17 +2,16 @@
 
 #include "../Graphics/DX11GPUContext.h"
 
-#include "DX11RenderPassBase.h"
+#include "DX11RenderPassSystemBase.h"
 #include "DX11ShaderHelper.h"
 
 namespace aoe {
 
-class DX11TonePass : public DX11RenderPassBase {
+class DX11TonePassTickSystem : public DX11RenderPassSystemBase {
 public:
-	DX11TonePass();
+	DX11TonePassTickSystem();
 
-	void Update() override {}
-	void Render() override;
+	void Update(float dt) override;
 
 private:
 	DX11GPUVertexShader vertex_shader_;
@@ -23,6 +22,7 @@ private:
 	static GPUSamplerDescription CreateSamplerDescription();
 	static GPUBlendStateDescription CreateBlendStateDescription();
 
+	void Render();
 	void PrepareRenderContext();
 };
 

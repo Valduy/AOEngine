@@ -17,8 +17,72 @@ public:
 	virtual void Terminate() {}
 	virtual void Update(float dt) = 0;
 
+protected:
+	EventBase<Entity>& EntityCreated();
+	EventBase<Entity>& EntityDestroyed();
+
+	template<typename TComponent>
+	EventBase<Entity>& ComponentAdded();
+
+	template<typename TComponent>
+	EventBase<Entity>& ComponentRemoved();
+
+	bool IsValid(Entity entity) const;
+	Entity CreateEntity();
+	void DestroyEntity(Entity entity);
+
+	template<typename TComponent>
+	bool HasComponent(Entity entity) const;
+
+	template<typename TComponent, typename ...TArgs>
+	void AddComponent(Entity entity, TArgs&&... args);
+
+	template<typename TComponent>
+	CH<TComponent> GetComponent(Entity entity);
+
+	template<typename TComponent>
+	void RemoveComponent(Entity entity);
+
+	template <typename ...TComponents>
+	auto FilterEntities();
+
 private:
 	World* world_;
 };
+
+template<typename TComponent>
+EventBase<Entity>& ECSSystemBase::ComponentAdded() {
+	return world_->ComponentAdded<TComponent>();
+}
+
+template<typename TComponent>
+EventBase<Entity>& ECSSystemBase::ComponentRemoved() {
+	return world_->ComponentRemoved<TComponent>();
+}
+
+template<typename TComponent>
+bool ECSSystemBase::HasComponent(Entity entity) const {
+	return world_->Has<TComponent>(entity);
+}
+
+template<typename TComponent, typename ...TArgs>
+void ECSSystemBase::AddComponent(Entity entity, TArgs&&... args) {
+	world_->Add<TComponent>(entity, std::forward<TArgs>(args)...);
+}
+
+template<typename TComponent>
+CH<TComponent> ECSSystemBase::GetComponent(Entity entity) {
+	return world_->Get<TComponent>(entity);
+}
+
+template<typename TComponent>
+void ECSSystemBase::RemoveComponent(Entity entity) {
+	world_->Remove<TComponent>(entity);
+}
+
+template <typename ...TComponents>
+auto ECSSystemBase::FilterEntities() {
+	return world_->GetFilter<TComponents...>();
+}
 
 } // namespace aoe

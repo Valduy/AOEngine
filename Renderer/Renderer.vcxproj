@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -159,22 +159,29 @@
     <ClInclude Include="Colors.h" />
     <ClInclude Include="DebugUtils.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
-    <ClInclude Include="DX11AmbientLightPass.h" />
-    <ClInclude Include="DX11DebugPass.h" />
+    <ClInclude Include="DX11AmbientLightPassFrameSystem.h" />
+    <ClInclude Include="DX11AmbientLightPassTickSystem.h" />
+    <ClInclude Include="DX11DebugPassFrameSystem.h" />
+    <ClInclude Include="DX11DebugPassTickSystem.h" />
     <ClInclude Include="DX11DepthStates.h" />
-    <ClInclude Include="DX11DirectionalLightPass.h" />
-    <ClInclude Include="DX11LightPass.h" />
-    <ClInclude Include="DX11PointLightPass.h" />
+    <ClInclude Include="DX11DirectionalLightPassFrameSystem.h" />
+    <ClInclude Include="DX11DirectionalLightPassTickSystem.h" />
+    <ClInclude Include="DX11GeometryPassTickSystem.h" />
+    <ClInclude Include="DX11GeometryPassFrameSystem.h" />
+    <ClInclude Include="DX11LineResourcesComponent.h" />
+    <ClInclude Include="DX11PointLightPassFrameSystem.h" />
+    <ClInclude Include="DX11PointLightPassTickSystem.h" />
+    <ClInclude Include="DX11PostRenderPassTickSystem.h" />
+    <ClInclude Include="DX11PreLightPassTickSystem.h" />
+    <ClInclude Include="DX11PreRenderPassTickSystem.h" />
     <ClInclude Include="DX11RasterizerStates.h" />
     <ClInclude Include="DX11GBuffer.h" />
     <ClInclude Include="DX11RenderContext.h" />
-    <ClInclude Include="DX11Renderer.h" />
+    <ClInclude Include="DX11RenderPassSystemBase.h" />
     <ClInclude Include="DX11ShaderHelper.h" />
     <ClInclude Include="DX11TextureScaler.h" />
-    <ClInclude Include="DX11TonePass.h" />
+    <ClInclude Include="DX11TonePassTickSystem.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="DX11GeometryPass.h" />
-    <ClInclude Include="DX11RenderPassBase.h" />
     <ClInclude Include="LineComponent.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Material.h" />
@@ -187,20 +194,27 @@
     <ClCompile Include="CameraUtils.cpp" />
     <ClCompile Include="Colors.cpp" />
     <ClCompile Include="DebugUtils.cpp" />
-    <ClCompile Include="DX11AmbientLightPass.cpp" />
-    <ClCompile Include="DX11DebugPass.cpp" />
+    <ClCompile Include="DX11AmbientLightPassFrameSystem.cpp" />
+    <ClCompile Include="DX11AmbientLightPassTickSystem.cpp" />
+    <ClCompile Include="DX11DebugPassFrameSystem.cpp" />
+    <ClCompile Include="DX11DebugPassTickSystem.cpp" />
     <ClCompile Include="DX11DepthStates.cpp" />
-    <ClCompile Include="DX11DirectionalLightPass.cpp" />
+    <ClCompile Include="DX11DirectionalLightPassFrameSystem.cpp" />
+    <ClCompile Include="DX11DirectionalLightPassTickSystem.cpp" />
     <ClCompile Include="DX11GBuffer.cpp" />
-    <ClCompile Include="DX11GeometryPass.cpp" />
-    <ClCompile Include="DX11LightPass.cpp" />
-    <ClCompile Include="DX11PointLightPass.cpp" />
+    <ClCompile Include="DX11GeometryPassFrameSystem.cpp" />
+    <ClCompile Include="DX11GeometryPassTickSystem.cpp" />
+    <ClCompile Include="DX11PointLightPassFrameSystem.cpp" />
+    <ClCompile Include="DX11PointLightPassTickSystem.cpp" />
+    <ClCompile Include="DX11PostRenderPassTickSystem.cpp" />
+    <ClCompile Include="DX11PreLightPassTickSystem.cpp" />
+    <ClCompile Include="DX11PreRenderPassTickSystem.cpp" />
     <ClCompile Include="DX11RasterizerStates.cpp" />
     <ClCompile Include="DX11RenderContext.cpp" />
-    <ClCompile Include="DX11RenderPassBase.cpp" />
+    <ClCompile Include="DX11RenderPassSystemBase.cpp" />
     <ClCompile Include="DX11ShaderHelper.cpp" />
     <ClCompile Include="DX11TextureScaler.cpp" />
-    <ClCompile Include="DX11TonePass.cpp" />
+    <ClCompile Include="DX11TonePassTickSystem.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

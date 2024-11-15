@@ -1,28 +1,27 @@
 #include "pch.h"
 
-#include "DX11TonePass.h"
+#include "DX11TonePassTickSystem.h"
 
 namespace aoe {
 
-DX11TonePass::DX11TonePass()
+DX11TonePassTickSystem::DX11TonePassTickSystem()
 	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/TonePass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/TonePass.hlsl"))
 	, sampler_(CreateSamplerDescription())
 	, blend_state_(CreateBlendStateDescription())
 {}
 
-void DX11TonePass::Render() {
-	PrepareRenderContext();
-
-	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
-	context.Draw(4);
+void DX11TonePassTickSystem::Update(float dt) {
+	if (HasCamera()) {
+		Render();
+	}
 }
 
-GPUSamplerDescription DX11TonePass::CreateSamplerDescription() {
+GPUSamplerDescription DX11TonePassTickSystem::CreateSamplerDescription() {
 	return {};
 }
 
-GPUBlendStateDescription DX11TonePass::CreateBlendStateDescription() {
+GPUBlendStateDescription DX11TonePassTickSystem::CreateBlendStateDescription() {
 	GPUBlendStateDescription blend_state_desc{};
 	blend_state_desc.is_alpha_to_coverage_enable = false;
 	blend_state_desc.is_independent_blend_enable = false;
@@ -38,7 +37,14 @@ GPUBlendStateDescription DX11TonePass::CreateBlendStateDescription() {
 	return blend_state_desc;
 }
 
-void DX11TonePass::PrepareRenderContext() {
+void DX11TonePassTickSystem::Render() {
+	PrepareRenderContext();
+
+	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
+	context.Draw(4);
+}
+
+void DX11TonePassTickSystem::PrepareRenderContext() {
 	DX11RasterizerStateID rs_id{ GPUCullMode::kBack, GPUFillMode::kSolid };
 	const DX11GPURasterizerState& rasterizer_state = GetRenderContext()->GetRasterizerState(rs_id);
 

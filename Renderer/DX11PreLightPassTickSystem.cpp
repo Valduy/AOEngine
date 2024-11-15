@@ -1,45 +1,22 @@
 #include "pch.h"
 
-#include "DX11LightPass.h"
+#include "../Graphics/DX11GPUContext.h"
+
+#include "DX11PreLightPassTickSystem.h"
 
 namespace aoe {
 
-DX11LightPass::DX11LightPass()
+DX11PreLightPassTickSystem::DX11PreLightPassTickSystem()
 	: blend_state_(CreateBlendStateDescription())
-	, ambient_light_pass_()
-	, directional_light_pass_()
-	, point_light_pass_()
 {}
 
-void DX11LightPass::Initialize(const ServiceProvider& service_provider) {
-	DX11RenderPassBase::Initialize(service_provider);
-
-	ambient_light_pass_.Initialize(service_provider);
-	directional_light_pass_.Initialize(service_provider);
-	point_light_pass_.Initialize(service_provider);
+void DX11PreLightPassTickSystem::Update(float dt) {
+	if (HasCamera()) {
+		PrepareRenderContext();
+	}
 }
 
-void DX11LightPass::Terminate() {
-	ambient_light_pass_.Terminate();
-	directional_light_pass_.Terminate();
-	point_light_pass_.Terminate();
-}
-
-inline void DX11LightPass::Update() {
-	ambient_light_pass_.Update();
-	directional_light_pass_.Update();
-	point_light_pass_.Update();
-}
-
-void DX11LightPass::Render() {
-	PrepareRenderContext();
-
-	ambient_light_pass_.Render();
-	directional_light_pass_.Render();
-	point_light_pass_.Render();
-}
-
-GPUBlendStateDescription DX11LightPass::CreateBlendStateDescription() {
+GPUBlendStateDescription DX11PreLightPassTickSystem::CreateBlendStateDescription() {
 	GPUBlendStateDescription blend_state_desc{};
 	blend_state_desc.is_alpha_to_coverage_enable = false;
 	blend_state_desc.is_independent_blend_enable = false;
@@ -55,7 +32,7 @@ GPUBlendStateDescription DX11LightPass::CreateBlendStateDescription() {
 	return blend_state_desc;
 }
 
-void DX11LightPass::PrepareRenderContext() {
+void DX11PreLightPassTickSystem::PrepareRenderContext() {
 	DX11GPURenderTargets render_targets;
 	render_targets.render_target_views[0] = &GetRenderContext()->GetAccumulatorTextureView();
 	render_targets.depth_stencil_view = &GetRenderContext()->GetDepthBufferView();

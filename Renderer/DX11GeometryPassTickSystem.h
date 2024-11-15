@@ -1,21 +1,22 @@
 #pragma once
 
+#include "../Graphics/DX11GPUVertexShader.h"
+#include "../Graphics/DX11GPUPixelShader.h"
+#include "../Graphics/DX11GPUSampler.h"
+#include "../Graphics/DX11GPUBlendState.h"
 #include "../Resources/DX11ModelManager.h"
 #include "../Resources/DX11TextureManager.h"
 
-#include "DX11RenderPassBase.h"
+#include "DX11RenderPassSystemBase.h"
 
 namespace aoe {
 
-class DX11GeometryPass : public DX11RenderPassBase {
+class DX11GeometryPassTickSystem : public DX11RenderPassSystemBase {
 public:
-	DX11GeometryPass();
+	DX11GeometryPassTickSystem();
 
 	void Initialize(const ServiceProvider& service_provider) override;
-	void Terminate() override;
-
-	void Update() override;
-	void Render() override;
+	void Update(float dt) override;
 
 private:
 	DX11GPUVertexShader vertex_shader_;
@@ -29,18 +30,8 @@ private:
 	static GPUSamplerDescription CreateSamplerDescription();
 	static GPUBlendStateDescription CreateBlendStateDescription();
 
-	void InitializeGeometryData();
-
-	void SubscribeToComponents();
-	void UnsibscribeFromComponents();
-
-	void UpdateGeometryData(Entity camera);
+	void Render();
 	void PrepareRenderContext();
-
-	void OnTransformComponentAdded(Entity entity);
-	void OnRenderComponentAdded(Entity entity);
-
-	void OnComponentRemoved(Entity entity);
 };
 
 } // namespace aoe

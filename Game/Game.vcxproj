@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ECSCompositeSystem.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ECSSystemBase.h" />
     <ClInclude Include="pch.h" />
