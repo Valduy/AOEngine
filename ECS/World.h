@@ -135,22 +135,22 @@ public:
 		return pool->ComponentRemoved;
 	}
 
-	bool IsValid(Entity entity) const {
+	bool IsEntityValid(Entity entity) const {
 		return entities_pool_.IsValid(entity);
 	}
 
-	Entity Create() {
+	Entity CreateEntity() {
 		return entities_pool_.Create();
 	}
 
-	void Destroy(Entity entity) {
-		if (IsValid(entity)) {
+	void DestroyEntity(Entity entity) {
+		if (IsEntityValid(entity)) {
 			to_destroy_.push_back(entity);
 		}
 	}
 
 	template<typename TComponent>
-	bool Has(Entity entity) const {
+	bool HasComponent(Entity entity) const {
 		AssertEntityIsValid(entity);
 		ComponentsPool<TComponent>* pool = GetPool<TComponent>();
 
@@ -162,21 +162,21 @@ public:
 	}
 
 	template<typename TComponent, typename ...TArgs>
-	void Add(Entity entity, TArgs&&... args) {
+	void AddComponent(Entity entity, TArgs&&... args) {
 		AssertEntityIsValid(entity);
 		ComponentsPool<TComponent>* pool = GetOrCreatePool<TComponent>();
 		pool->Emplace(entity, std::forward<TArgs>(args)...);
 	}
 
 	template<typename TComponent>
-	CH<TComponent> Get(Entity entity) {
+	CH<TComponent> GetComponent(Entity entity) {
 		AssertEntityIsValid(entity);
 		ComponentsPool<TComponent>* pool = GetPool<TComponent>();
 		return { pool, entity.GetId() };
 	}
 
 	template<typename TComponent>
-	void Remove(Entity entity) {
+	void RemoveComponent(Entity entity) {
 		AssertEntityIsValid(entity);
 		ComponentsPool<TComponent>* pool = GetPool<TComponent>();
 
@@ -187,7 +187,7 @@ public:
 
 	void Validate() {
 		for (Entity entity : to_destroy_) {
-			if (!IsValid(entity)) {
+			if (!IsEntityValid(entity)) {
 				continue;
 			}
 
@@ -218,7 +218,7 @@ public:
 	}
 
 	template <typename ...TComponents>
-	Filter<TComponents...> GetFilter() {
+	Filter<TComponents...> FilterEntities() {
 		return Filter<TComponents...>(this);
 	}
 
@@ -238,7 +238,7 @@ private:
 	}
 
 	void AssertEntityIsValid(Entity entity) const {
-		AOE_ASSERT_MSG(IsValid(entity), "Invalid entity.");
+		AOE_ASSERT_MSG(IsEntityValid(entity), "Invalid entity.");
 	}
 
 	template<typename TComponent>

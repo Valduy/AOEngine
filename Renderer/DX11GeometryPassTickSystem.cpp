@@ -19,10 +19,10 @@ DX11GeometryPassTickSystem::DX11GeometryPassTickSystem()
 void DX11GeometryPassTickSystem::Initialize(const ServiceProvider & service_provider) {
 	DX11RenderPassSystemBase::Initialize(service_provider);
 
-	model_manager_ = service_provider.GetService<DX11ModelManager>();
+	model_manager_ = service_provider.TryGetService<DX11ModelManager>();
 	AOE_ASSERT_MSG(model_manager_ != nullptr, "There is no DX11ModelManager service.");
 
-	texture_manager_ = service_provider.GetService<DX11TextureManager>();
+	texture_manager_ = service_provider.TryGetService<DX11TextureManager>();
 	AOE_ASSERT_MSG(texture_manager_ != nullptr, "There is no DX11TextureManager service.");
 }
 

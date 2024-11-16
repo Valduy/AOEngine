@@ -10,7 +10,7 @@ bool CameraUtils::HasCamera(World& world) {
 }
 
 Entity CameraUtils::GetActualCamera(World& world) {
-	for (Entity camera : world.GetFilter<TransformComponent, CameraComponent>()) {
+	for (Entity camera : world.FilterEntities<TransformComponent, CameraComponent>()) {
 		return camera;
 	}
 	
@@ -18,7 +18,7 @@ Entity CameraUtils::GetActualCamera(World& world) {
 }
 
 Matrix4f CameraUtils::GetProjectionMatrix(World& world, Entity camera) {
-	auto camera_component = world.Get<CameraComponent>(camera);
+	auto camera_component = world.GetComponent<CameraComponent>(camera);
 	return camera_component->GetProjectionMatrix();
 }
 

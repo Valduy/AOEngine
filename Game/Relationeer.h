@@ -39,15 +39,15 @@ public:
 	}
 
 	bool HasRelations(Entity entity) const {
-		return world_.Has<RelationsComponent>(entity);
+		return world_.HasComponent<RelationsComponent>(entity);
 	}
 
 	void BreakRelations(Entity entity) {
-		world_.Remove<RelationsComponent>(entity);
+		world_.RemoveComponent<RelationsComponent>(entity);
 	}
 
 	Entity GetParent(Entity child) const {
-		auto relations = world_.Get<RelationsComponent>(child);
+		auto relations = world_.GetComponent<RelationsComponent>(child);
 		return relations->parent;
 	}
 
@@ -67,14 +67,14 @@ public:
 	}
 
 	void MakeRoot(Entity child) {
-		auto child_relations = world_.Get<RelationsComponent>(child);
+		auto child_relations = world_.GetComponent<RelationsComponent>(child);
 		Entity parent = child_relations->parent;
 
 		if (parent.IsNull()) {
 			return;
 		}
 
-		auto parent_relations = world_.Get<RelationsComponent>(parent);
+		auto parent_relations = world_.GetComponent<RelationsComponent>(parent);
 		std::vector<Entity>& children = parent_relations->children;
 
 		auto it = std::find(children.begin(), children.end(), child);
@@ -82,12 +82,12 @@ public:
 	}
 
 	const std::vector<Entity>& GetChildren(Entity entity) const {
-		auto relations = world_.Get<RelationsComponent>(entity);
+		auto relations = world_.GetComponent<RelationsComponent>(entity);
 		return relations->children;
 	}
 
 	bool IsChildrenOf(Entity child, Entity parent) const {
-		auto temp = world_.Get<RelationsComponent>(child);
+		auto temp = world_.GetComponent<RelationsComponent>(child);
 
 		do {
 			if (temp->parent.IsNull()) {
@@ -98,7 +98,7 @@ public:
 				return true;
 			}
 
-			temp = world_.Get<RelationsComponent>(temp->parent);
+			temp = world_.GetComponent<RelationsComponent>(temp->parent);
 		} while (true);
 	}
 
@@ -106,7 +106,7 @@ private:
 	World& world_;
 
 	void AssertHasComponent(Entity entity) const {
-		AOE_ASSERT_MSG(world_.Has<TComponent>(entity), "Entity doesn't contain relaited component.");
+		AOE_ASSERT_MSG(world_.HasComponent<TComponent>(entity), "Entity doesn't contain relaited component.");
 	}
 
 	void AssertHasRelations(Entity entity) const {
@@ -115,10 +115,10 @@ private:
 
 	auto GetOrCreateRelations(Entity entity) const {
 		if (!HasRelations(entity)) {
-			world_.Add<RelationsComponent>(entity);
+			world_.AddComponent<RelationsComponent>(entity);
 		}
 
-		return world_.Get<RelationsComponent>(entity);
+		return world_.GetComponent<RelationsComponent>(entity);
 	}
 
 	void OnRelatedComponentRemoved(Entity entity) {
@@ -130,10 +130,10 @@ private:
 	}
 
 	void BreakHierarchy(Entity entity) {
-		auto relations = world_.Get<RelationsComponent>(entity);
+		auto relations = world_.GetComponent<RelationsComponent>(entity);
 
 		for (Entity child : relations->children) {
-			auto child_relations = world_.Get<RelationsComponent>(child);
+			auto child_relations = world_.GetComponent<RelationsComponent>(child);
 			child_relations->parent = Entity::Null();
 		}
 
@@ -141,7 +141,7 @@ private:
 			return;
 		}
 
-		auto parent_relations = world_.Get<RelationsComponent>(relations->parent);
+		auto parent_relations = world_.GetComponent<RelationsComponent>(relations->parent);
 		parent_relations->children.erase(std::find(
 			parent_relations->children.begin(),
 			parent_relations->children.end(),

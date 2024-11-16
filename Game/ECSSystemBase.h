@@ -27,7 +27,7 @@ protected:
 	template<typename TComponent>
 	EventBase<Entity>& ComponentRemoved();
 
-	bool IsValid(Entity entity) const;
+	bool IsEntityValid(Entity entity) const;
 	Entity CreateEntity();
 	void DestroyEntity(Entity entity);
 
@@ -62,27 +62,27 @@ EventBase<Entity>& ECSSystemBase::ComponentRemoved() {
 
 template<typename TComponent>
 bool ECSSystemBase::HasComponent(Entity entity) const {
-	return world_->Has<TComponent>(entity);
+	return world_->HasComponent<TComponent>(entity);
 }
 
 template<typename TComponent, typename ...TArgs>
 void ECSSystemBase::AddComponent(Entity entity, TArgs&&... args) {
-	world_->Add<TComponent>(entity, std::forward<TArgs>(args)...);
+	world_->AddComponent<TComponent>(entity, std::forward<TArgs>(args)...);
 }
 
 template<typename TComponent>
 CH<TComponent> ECSSystemBase::GetComponent(Entity entity) {
-	return world_->Get<TComponent>(entity);
+	return world_->GetComponent<TComponent>(entity);
 }
 
 template<typename TComponent>
 void ECSSystemBase::RemoveComponent(Entity entity) {
-	world_->Remove<TComponent>(entity);
+	world_->RemoveComponent<TComponent>(entity);
 }
 
 template <typename ...TComponents>
 auto ECSSystemBase::FilterEntities() {
-	return world_->GetFilter<TComponents...>();
+	return world_->FilterEntities<TComponents...>();
 }
 
 } // namespace aoe

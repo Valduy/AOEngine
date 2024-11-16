@@ -16,7 +16,7 @@ public:
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity)
 	{
-		auto transform_component = world.Get<TransformComponent>(entity);
+		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
 			return transform_component->transform;
@@ -36,7 +36,7 @@ public:
 		Entity entity,
 		Transform transform)
 	{
-		auto transform_component = world.Get<TransformComponent>(entity);
+		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
 			transform_component->transform = transform;
@@ -56,7 +56,7 @@ public:
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity)
 	{
-		auto transform_component = world.Get<TransformComponent>(entity);
+		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
 			return transform_component->transform.position;
@@ -73,7 +73,7 @@ public:
 		Entity entity,
 		Vector3f position)
 	{
-		auto transform_component = world.Get<TransformComponent>(entity);
+		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
 			transform_component->transform.position = position;
@@ -90,7 +90,7 @@ public:
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity)
 	{
-		auto transform_component = world.Get<TransformComponent>(entity);
+		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
 			return transform_component->transform.rotation;
@@ -107,7 +107,7 @@ public:
 		Entity entity,
 		Quaternion rotation)
 	{
-		auto transform_component = world.Get<TransformComponent>(entity);
+		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
 			transform_component->transform.rotation = rotation;
@@ -124,7 +124,7 @@ public:
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity)
 	{
-		auto transform_component = world.Get<TransformComponent>(entity);
+		auto transform_component = world.GetComponent<TransformComponent>(entity);
 		Matrix4f world_matrix = transform_component->transform.ToMatrix();
 
 		if (IsRoot(world, relationeer, entity)) {

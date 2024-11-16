@@ -13,7 +13,7 @@ World* ECSSystemBase::GetWorld() {
 }
 
 void ECSSystemBase::Initialize(const aoe::ServiceProvider& service_provider) {
-	world_ = service_provider.GetService<World>();
+	world_ = service_provider.TryGetService<World>();
 	AOE_ASSERT_MSG(world_ != nullptr, "There is no World service.");
 }
 
@@ -25,16 +25,16 @@ EventBase<Entity>& ECSSystemBase::EntityDestroyed() {
 	return world_->EntityDestroyed;
 }
 
-bool ECSSystemBase::IsValid(Entity entity) const {
-	return world_->IsValid(entity);
+bool ECSSystemBase::IsEntityValid(Entity entity) const {
+	return world_->IsEntityValid(entity);
 }
 
 Entity ECSSystemBase::CreateEntity() {
-	return world_->Create();
+	return world_->CreateEntity();
 }
 
 void ECSSystemBase::DestroyEntity(Entity entity) {
-	world_->Destroy(entity);
+	world_->DestroyEntity(entity);
 }
 
 } // namespace aoe

@@ -9,7 +9,7 @@ namespace aoe {
 void FlyCameraTickSystem::Initialize(const aoe::ServiceProvider& service_provider) {
 	ECSSystemBase::Initialize(service_provider);
 
-	application_ = service_provider.GetService<Application>();
+	application_ = service_provider.TryGetService<Application>();
 	AOE_ASSERT_MSG(application_ != nullptr, "There is no Application service.");
 }
 

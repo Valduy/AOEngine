@@ -16,7 +16,7 @@ DX11PointLightPassTickSystem::DX11PointLightPassTickSystem()
 void DX11PointLightPassTickSystem::Initialize(const ServiceProvider& service_provider) {
 	DX11RenderPassSystemBase::Initialize(service_provider);
 
-	model_manager_ = service_provider.GetService<DX11ModelManager>();
+	model_manager_ = service_provider.TryGetService<DX11ModelManager>();
 	AOE_ASSERT_MSG(model_manager_ != nullptr, "There is no DX11ModelManager service.");
 
 	sphere_id = model_manager_->Load(L"Content/Sphere.fbx");

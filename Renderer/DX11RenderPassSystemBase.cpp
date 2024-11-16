@@ -20,10 +20,10 @@ Relationeer<TransformComponent>* DX11RenderPassSystemBase::GetRelationeer() {
 void DX11RenderPassSystemBase::Initialize(const aoe::ServiceProvider& service_provider) {
 	ECSSystemBase::Initialize(service_provider);
 
-	render_context_ = service_provider.GetService<DX11RenderContext>();
+	render_context_ = service_provider.TryGetService<DX11RenderContext>();
 	AOE_ASSERT_MSG(render_context_ != nullptr, "There is no DX11RenderContext service.");
 
-	relationeer_ = service_provider.GetService<Relationeer<TransformComponent>>();
+	relationeer_ = service_provider.TryGetService<Relationeer<TransformComponent>>();
 	AOE_ASSERT_MSG(relationeer_ != nullptr, "There is no Relationeer<TransformComponent> service.");
 }
 
