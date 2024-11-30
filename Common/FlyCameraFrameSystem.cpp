@@ -25,7 +25,7 @@ Vector3f FlyCameraFrameSystem::GetMovement(const Transform& transform, CH<FlyCam
 	movement += transform.GetUp() * y_axis;
 	movement += transform.GetForward() * z_axis;
 
-	return Math::Equal(movement.Length(), 0)
+	return Math::IsEqual(movement.Length(), 0)
 		? Math::kZeros3f
 		: movement.Normalized() * fly_camera_component->speed * dt;
 }

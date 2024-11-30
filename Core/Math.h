@@ -84,7 +84,9 @@ public:
 	template<typename T>
 	static int Sign(T value);
 
-	static bool Equal(float lhs, float rhs, float epsilon = kEpsilon);
+	static bool IsEqual(float lhs, float rhs, float epsilon = kEpsilon);
+	static bool IsEqual(const Vector2f& lhs, const Vector2f& rhs, float epsilon = kEpsilon);
+	static float Pow(float value, float power);
 	static float Abs(float value);
 	static float Min(float lhs, float rhs);
 	static float Max(float lhs, float rhs);

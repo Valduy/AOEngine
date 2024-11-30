@@ -21,6 +21,7 @@ void DX11PostRenderPassTickSystem::ClearContext() {
 	aoe::DX11GPUContext context = aoe::DX11GPUDevice::Instance().GetContext();
 	context.ClearRenderTarget(GetRenderContext()->GetRenderTargetView(), background_color);
 	context.ClearRenderTarget(GetRenderContext()->GetDiffuseTextureView(), background_color);
+	context.ClearRenderTarget(GetRenderContext()->GetSpecularTextureView(), background_color);
 	context.ClearRenderTarget(GetRenderContext()->GetNormalTextureView(), background_color);
 	context.ClearRenderTarget(GetRenderContext()->GetPositionTextureView(), background_color);
 	context.ClearRenderTarget(GetRenderContext()->GetAccumulatorTextureView(), background_color);

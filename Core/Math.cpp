@@ -50,8 +50,17 @@ const Vector4i Math::kAxisW4i = mathfu::kAxisW4i;
 
 const Quaternion Math::kQIdentity = mathfu::kQuatIdentityf;
 
-bool Math::Equal(float lhs, float rhs, float epsilon) {
+bool Math::IsEqual(float lhs, float rhs, float epsilon) {
 	return Abs(lhs - rhs) < epsilon;
+}
+
+bool Math::IsEqual(const Vector2f& lhs, const Vector2f& rhs, float epsilon) {
+	return Math::IsEqual(lhs.x, rhs.x, epsilon) 
+		&& Math::IsEqual(lhs.y, rhs.y, epsilon);
+}
+
+float Math::Pow(float value, float power) {
+	return pow(value, power);
 }
 
 float Math::Min(float lhs, float rhs) {
