@@ -158,6 +158,7 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Random.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="StringHelper.h" />
   </ItemGroup>

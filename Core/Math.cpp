@@ -63,16 +63,16 @@ float Math::Pow(float value, float power) {
 	return pow(value, power);
 }
 
-float Math::Min(float lhs, float rhs) {
-	return lhs < rhs ? lhs : rhs;
+float Math::Ceil(float value) {
+	return std::ceilf(value);
 }
 
-float Math::Abs(float value) {
-	return fabs(value);
+int Math::CeilToInt(float value) {
+	return static_cast<int>(Ceil(value));
 }
 
-float Math::Max(float lhs, float rhs) {
-	return lhs > rhs ? lhs : rhs;
+float Math::Sqrt(float value) {
+	return std::sqrt(value);
 }
 
 float Math::Sin(float angle) {

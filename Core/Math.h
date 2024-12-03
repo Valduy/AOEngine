@@ -78,18 +78,28 @@ public:
 
 	Math() = delete;
 
+	static bool IsEqual(float lhs, float rhs, float epsilon = kEpsilon);
+	static bool IsEqual(const Vector2f& lhs, const Vector2f& rhs, float epsilon = kEpsilon);
+
 	template<typename T>
 	static T Clamp(T value, T min, T max);
 
 	template<typename T>
 	static int Sign(T value);
 
-	static bool IsEqual(float lhs, float rhs, float epsilon = kEpsilon);
-	static bool IsEqual(const Vector2f& lhs, const Vector2f& rhs, float epsilon = kEpsilon);
+	template<typename T>
+	static T Abs(T value);
+	
+	template<typename T>
+	static T Min(T lhs, T rhs);
+
+	template<typename T>
+	static T Max(T lhs, T rhs);
+
 	static float Pow(float value, float power);
-	static float Abs(float value);
-	static float Min(float lhs, float rhs);
-	static float Max(float lhs, float rhs);
+	static float Ceil(float value);
+	static int CeilToInt(float value);
+	static float Sqrt(float value);
 	static float Sin(float angle);
 	static float Cos(float angle);
 };
@@ -109,6 +119,21 @@ static T Math::Clamp(T value, T min, T max) {
 template<typename T>
 static int Math::Sign(T value) {
 	return (0 < value) - (value < 0);
+}
+
+template<typename T>
+static T Math::Abs(T value) {
+	return value >= 0 ? value : -value;
+}
+
+template<typename T>
+static T Math::Min(T lhs, T rhs) {
+	return lhs < rhs ? lhs : rhs;
+}
+
+template<typename T>
+static T Math::Max(T lhs, T rhs) {
+	return lhs > rhs ? lhs : rhs;
 }
 
 } // namespace aoe

@@ -57,38 +57,20 @@ protected:
 		fly_camera_component->speed = 6.0f;
 		fly_camera_component->sensitivity = 0.002f;
 
-		std::vector<Vector3f> points = {
-			{ -1.0f, 0.0f, -1.0f },
-			{ -1.0f, 0.0f, 1.0f },
-			{  1.0f, 0.0f, 1.0f },
-			{  1.0f, 0.0f, -1.0f },
+		aoe::Random random(2);
+		std::vector<Vector2f> random_points = Algorithms::PoissonDisk2D(
+			random, { -4, -4 }, { 4, 4 }, 0.4f, 5);
 
-			{ 0.5f, 0.0f, 0.7f },
-			{ 0.0f, 0.0f, -1.2f },
-			{ -0.3f, 0.0f, 0.1f },
-			{  -0.1f, 0.0f, -0.4f },
-			{  0.7f, 0.0f, -0.5f },
-		};
-
-		for (const Vector3f& point : points) {
+		for (const Vector2f& point : random_points) {
 			Entity sphere = CreateSphere(world, model_manager, texture_manager);
 			auto transform_component = world.GetComponent<TransformComponent>(sphere);
-			transform_component->transform.position = point;
+			transform_component->transform.position = { point.x, 0.0f, point.y };
 			transform_component->transform.scale = { 0.2f, 0.2f, 0.2f };
 		}
 
-		std::vector<Vector2f> plane_points(points.size());
-		std::transform(points.begin(), points.end(), plane_points.begin(), 
-			[](const Vector3f& v) { 
-				return Vector2f(v.x, v.z); 
-			});
+		std::vector<Triangle2D> rnd_triangulation = Algorithms::BowyerWatson(random_points);
 
-		//Triangle2D super_triangle = Algorithms::FindSuperTriangle(plane_points);
-		//CreateTriangle(world, super_triangle);
-
-		std::vector<Triangle2D> triangulation = Algorithms::Delaunay2D(plane_points);
-
-		for (const Triangle2D& triangle : triangulation) {
+		for (const Triangle2D& triangle : rnd_triangulation) {
 			CreateTriangle(world, triangle);
 		}
 	}

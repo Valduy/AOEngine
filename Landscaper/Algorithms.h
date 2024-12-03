@@ -6,6 +6,7 @@
 #include <array>
 
 #include "../Core/Math.h"
+#include "../Core/Random.h"
 
 struct Circle2D {
 	aoe::Vector2f center;
@@ -84,12 +85,60 @@ struct Triangle2D {
 	}
 };
 
+template<typename T>
+class Grid2D {
+public:
+	Grid2D(int width, int height)
+		: width_(width)
+		, height_(height)
+	{
+		AOE_ASSERT_MSG(width_ >= 0, "Width must be positive.");
+		AOE_ASSERT_MSG(height_ >= 0, "Height must be positive.");
+
+		grid_.reserve(width_);
+		
+		// Single vector???
+		for (size_t y = 0; y < height_; ++y) {
+			grid_.push_back(std::vector<T>(width_));
+		}
+	}
+
+	int GetWidth() const {
+		return width_;
+	}
+
+	int GetHeight() const {
+		return height_;
+	}
+
+	T& operator()(const int x, const int y) {
+		return grid_[x][y];
+	}
+
+	const T& operator()(const int x, const int y) const {
+		return grid_[x][y];
+	}
+
+	T& operator[](const aoe::Vector2i& position) {
+		return grid_[position.x][position.y];
+	}
+
+	const T& operator[](const aoe::Vector2i& position) const {
+		return grid_[position.x][position.y];
+	}
+
+private:
+	const int width_;
+	const int height_;
+	std::vector<std::vector<T>> grid_;
+};
+
 class Algorithms {
 public:
 	Algorithms() = delete;
 
 	// Bowyer-Watson triangulation algorithm. Result may be not perfectly 'Delaunay'.
-	static std::vector<Triangle2D> Delaunay2D(const std::vector<aoe::Vector2f>& points) {
+	static std::vector<Triangle2D> BowyerWatson(const std::vector<aoe::Vector2f>& points) {
 		std::vector<Triangle2D> triangulation;
 		std::vector<Triangle2D> bad_triangles;
 		std::vector<Edge2D> polygon;
@@ -170,10 +219,8 @@ public:
 	}
 
 	static Circle2D FindBoundingCircle(const std::vector<aoe::Vector2f>& points) {
-		if (points.size() == 0) {
-			throw std::runtime_error("Can't find bounding circle for empty points set.");
-		}
-
+		AOE_ASSERT_MSG(points.size() > 0, "Can't find bounding circle for empty points set.");
+		
 		aoe::Vector2f centroid = FindCentroid(points);
 		aoe::Vector2f farthest = *std::max_element(points.begin(), points.end(),
 			[centroid](const aoe::Vector2f& lhs, const aoe::Vector2f& rhs) {
@@ -194,6 +241,7 @@ public:
 	static bool IsInBoundingCircle(const Triangle2D& triangle, const aoe::Vector2f& p) {
 		aoe::Vector2f p1, p2, p3;
 
+		// To prevent vertical lines and infinity k.
 		for (size_t i = 0; i < triangle.vertices.size(); ++i) {
 			p1 = triangle.vertices[(i + 0) % triangle.vertices.size()];
 			p2 = triangle.vertices[(i + 1) % triangle.vertices.size()];
@@ -229,5 +277,160 @@ public:
 
 		float rr = aoe::Math::Pow(p1.x - x0, 2) + aoe::Math::Pow(p1.y - y0, 2);
 		return aoe::Vector2f::DistanceSquared(p0, p) <= rr;
+	}
+
+	static std::vector<aoe::Vector2f> PoissonDisk2D(
+		aoe::Random& random,
+		const aoe::Vector2i& min,
+		const aoe::Vector2i& max,
+		const float min_distance,
+		const int points_per_iteration) 
+	{
+		AOE_ASSERT_MSG(min.x < max.x, "Invalid area.");
+		AOE_ASSERT_MSG(min.y < max.y, "Invalid area.");
+		AOE_ASSERT_MSG(min_distance > 0.0f, "Minimal distance between points must be positive.");
+		AOE_ASSERT_MSG(points_per_iteration > 0, "Points count per iteration must be positive.");
+
+		std::vector<aoe::Vector2f> result;
+		std::vector<aoe::Vector2f> processing;
+
+		const float cell_size = min_distance / aoe::Math::Sqrt(2.0f);
+		const int space_width = max.x - min.x;
+		const int space_height = max.y - min.y;
+
+		const int grid_width = aoe::Math::CeilToInt(static_cast<float>(space_width) / cell_size);
+		const int grid_height = aoe::Math::CeilToInt(static_cast<float>(space_height) / cell_size);
+
+		Grid2D<PoissonCell> grid(grid_width, grid_height);
+
+		int random_x = random.Next(min.x, max.x);
+		int random_y = random.Next(min.y, max.y);
+		aoe::Vector2f first_point(random_x, random_y);
+
+		result.push_back(first_point);
+		processing.push_back(first_point);
+
+		PoissonCell& initial_cell = grid[ToGridPosition(first_point, min, cell_size)];
+		initial_cell.is_distributed = true;
+		initial_cell.point = first_point;
+
+		while (!processing.empty()) {
+			aoe::Vector2f point = PopRandom(processing, random);
+			
+			for (size_t i = 0; i < points_per_iteration; ++i) {
+				aoe::Vector2f new_point = GeneratePointAround(random, point, min_distance);
+
+				if (!IsInFrame(min, max, new_point)) {
+					continue;
+				}
+
+				if (HasOverlupsWithNeighbours(grid, new_point, min, min_distance, cell_size)) {
+					continue;
+				}
+
+				result.push_back(new_point);
+				processing.push_back(new_point);
+
+				PoissonCell& cell = grid[ToGridPosition(new_point, min, cell_size)];
+				cell.is_distributed = true;
+				cell.point = new_point;
+			}
+		}
+
+		return result;
+	}
+
+	static bool IsInFrame(
+		const aoe::Vector2i& min, 
+		const aoe::Vector2i& max, 
+		const aoe::Vector2f& point) 
+	{
+		AOE_ASSERT_MSG(min.x < max.x, "Invalid area.");
+		AOE_ASSERT_MSG(min.y < max.y, "Invalid area.");
+
+		return min.x <= point.x && point.x <= max.x
+			&& min.y <= point.y && point.y <= max.y;
+	}
+
+	template<typename T>
+	static T PopRandom(std::vector<T>& vector, aoe::Random& random) {
+		AOE_ASSERT_MSG(vector.size() <= std::numeric_limits<int>::max(), "To big vector.");
+		int size = static_cast<int>(vector.size());
+
+		int random_index = random.Next(size);
+		auto it = std::next(vector.begin(), random_index);
+		T value = *it;
+
+		vector.erase(it);
+		return value;
+	}
+
+private:
+	struct PoissonCell {
+		bool is_distributed;
+		aoe::Vector2f point;
+
+		PoissonCell()
+			: is_distributed(false)
+			, point(aoe::Math::kZeros2f)
+		{}
+	};
+
+	static aoe::Vector2i ToGridPosition(
+		const aoe::Vector2f& position, 
+		const aoe::Vector2i& min, 
+		const float cell_size) 
+	{
+		const int x = static_cast<int>((position.x - min.x) / cell_size);
+		const int y = static_cast<int>((position.y - min.y) / cell_size);
+		return { x, y };
+	}
+
+	static aoe::Vector2f GeneratePointAround(
+		aoe::Random& random,
+		const aoe::Vector2f& point, 
+		const float min_distance) 
+	{
+		const float radius = min_distance * (1.0f + random.NextFloat());
+		const float angle = aoe::Math::k2Pi * random.NextFloat();
+
+		const float x = point.x + radius * aoe::Math::Cos(angle);
+		const float y = point.y + radius * aoe::Math::Sin(angle);
+
+		return { x, y };
+	}
+
+	static bool HasOverlupsWithNeighbours(
+		const Grid2D<PoissonCell>& grid,
+		const aoe::Vector2f& point,
+		const aoe::Vector2i& min,
+		const float min_distance,
+		const float cell_size) 
+	{
+		const aoe::Vector2i grid_position = ToGridPosition(point, min, cell_size);
+
+		const aoe::Vector2i grid_from(
+				aoe::Math::Max(0, grid_position.x - 2),
+				aoe::Math::Max(0, grid_position.y - 2));
+
+		const aoe::Vector2i grid_to(
+			aoe::Math::Min(grid.GetWidth() - 1, grid_position.x + 2),
+			aoe::Math::Min(grid.GetHeight() - 1, grid_position.y + 2));
+
+		for (size_t i = grid_from.x; i <= grid_to.x; ++i) {
+			for (size_t j = grid_from.y; j <= grid_to.y; ++j) {
+				const PoissonCell& cell = grid(i, j);
+
+				if (!cell.is_distributed) {
+					continue;
+				}
+
+				if (aoe::Vector2f::Distance(cell.point, point) < min_distance) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 };
