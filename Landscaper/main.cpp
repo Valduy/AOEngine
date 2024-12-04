@@ -57,9 +57,19 @@ protected:
 		fly_camera_component->speed = 6.0f;
 		fly_camera_component->sensitivity = 0.002f;
 
+		const int half_edge = 4;
+
 		aoe::Random random(2);
 		std::vector<Vector2f> random_points = Algorithms::PoissonDisk2D(
-			random, { -4, -4 }, { 4, 4 }, 0.4f, 5);
+			random, { -half_edge, -half_edge }, { half_edge, half_edge }, 0.4f, 5);
+
+		aoe::Vector2f centroid = Algorithms::FindCentroid(random_points);
+
+		auto it = std::remove_if(random_points.begin(), random_points.end(),
+			[&centroid](const aoe::Vector2f p) {
+				return aoe::Vector2f::Distance(centroid, p) > half_edge;
+			});
+		random_points.erase(it, random_points.end());
 
 		for (const Vector2f& point : random_points) {
 			Entity sphere = CreateSphere(world, model_manager, texture_manager);
@@ -68,9 +78,9 @@ protected:
 			transform_component->transform.scale = { 0.2f, 0.2f, 0.2f };
 		}
 
-		std::vector<Triangle2D> rnd_triangulation = Algorithms::BowyerWatson(random_points);
+		std::vector<Triangle2D> triangulation = Algorithms::BowyerWatson(random_points);
 
-		for (const Triangle2D& triangle : rnd_triangulation) {
+		for (const Triangle2D& triangle : triangulation) {
 			CreateTriangle(world, triangle);
 		}
 	}

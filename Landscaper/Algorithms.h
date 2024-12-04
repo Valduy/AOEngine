@@ -91,17 +91,8 @@ public:
 	Grid2D(int width, int height)
 		: width_(width)
 		, height_(height)
-	{
-		AOE_ASSERT_MSG(width_ >= 0, "Width must be positive.");
-		AOE_ASSERT_MSG(height_ >= 0, "Height must be positive.");
-
-		grid_.reserve(width_);
-		
-		// Single vector???
-		for (size_t y = 0; y < height_; ++y) {
-			grid_.push_back(std::vector<T>(width_));
-		}
-	}
+		, grid_(width_ * height_)
+	{}
 
 	int GetWidth() const {
 		return width_;
@@ -112,25 +103,36 @@ public:
 	}
 
 	T& operator()(const int x, const int y) {
-		return grid_[x][y];
+		return grid_[ToIndex(x, y)];
 	}
 
 	const T& operator()(const int x, const int y) const {
-		return grid_[x][y];
+		return grid_[ToIndex(x, y)];
 	}
 
 	T& operator[](const aoe::Vector2i& position) {
-		return grid_[position.x][position.y];
+		return grid_[ToIndex(position)];
 	}
 
 	const T& operator[](const aoe::Vector2i& position) const {
-		return grid_[position.x][position.y];
+		return grid_[ToIndex(position)];
 	}
 
 private:
 	const int width_;
 	const int height_;
-	std::vector<std::vector<T>> grid_;
+	std::vector<T> grid_;
+
+	size_t ToIndex(const int x, const int y) const {
+		AOE_ASSERT_MSG(x >= 0, "Component x is less than zero.");
+		AOE_ASSERT_MSG(y >= 0, "Component y is less than zero.");
+
+		return width_ * y + x;
+	}
+
+	size_t ToIndex(const aoe::Vector2i& position) const {
+		return ToIndex(position.x, position.y);
+	}
 };
 
 class Algorithms {
@@ -288,8 +290,8 @@ public:
 	{
 		AOE_ASSERT_MSG(min.x < max.x, "Invalid area.");
 		AOE_ASSERT_MSG(min.y < max.y, "Invalid area.");
-		AOE_ASSERT_MSG(min_distance > 0.0f, "Minimal distance between points must be positive.");
-		AOE_ASSERT_MSG(points_per_iteration > 0, "Points count per iteration must be positive.");
+		AOE_ASSERT_MSG(min_distance > 0.0f, "Minimal distance can't be less or equal to zero.");
+		AOE_ASSERT_MSG(points_per_iteration > 0, "Points count per iteration can't be less or equal to zero.");
 
 		std::vector<aoe::Vector2f> result;
 		std::vector<aoe::Vector2f> processing;
