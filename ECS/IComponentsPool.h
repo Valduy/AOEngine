@@ -7,7 +7,7 @@ namespace aoe {
 class IComponentsPool {
 public:
 	virtual ~IComponentsPool() = default;
-	virtual bool Has(Entity entity) = 0;
+	virtual bool Has(Entity entity) const = 0;
 	virtual void Remove(Entity entity) = 0;
 };
 

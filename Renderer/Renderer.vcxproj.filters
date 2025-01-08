@@ -247,26 +247,26 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Content\GeometryPass.hlsl">
+    <Text Include="Content\AmbientLightPass.hlsl">
       <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Content\TonePass.hlsl">
+    </Text>
+    <Text Include="Content\DebugPass.hlsl">
       <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Content\AmbientLightPass.hlsl">
+    </Text>
+    <Text Include="Content\DirectionalLightPass.hlsl">
       <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Content\GBuffer.hlsl">
+    </Text>
+    <Text Include="Content\GBuffer.hlsl">
       <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Content\DirectionalLightPass.hlsl">
+    </Text>
+    <Text Include="Content\GeometryPass.hlsl">
       <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Content\DebugPass.hlsl">
+    </Text>
+    <Text Include="Content\PointLightPass.hlsl">
       <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Content\PointLightPass.hlsl">
+    </Text>
+    <Text Include="Content\TonePass.hlsl">
       <Filter>Shaders</Filter>
-    </FxCompile>
+    </Text>
   </ItemGroup>
 </Project>

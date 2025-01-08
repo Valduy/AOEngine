@@ -1,3 +1,5 @@
+#include <unordered_set>
+
 #include "../Renderer/RenderComponent.h"
 #include "../Renderer/DirectionalLightComponent.h"
 #include "../Renderer/DebugUtils.h"
@@ -6,6 +8,155 @@
 #include "../Common/FlyCameraFrameSystem.h"
 
 #include "Algorithms.h"
+
+using NodeId = size_t;
+using NodesCollection = std::unordered_set<NodeId>;
+
+template<typename TData>
+class Graph {
+private:
+	class Node {
+		friend class Graph<TData>;
+	public:
+		template<typename... TArgs>
+		Node(TArgs&&... args)
+			: data(std::forward<TArgs>(args)...)
+			, arcs()
+		{}
+
+		TData& GetData() {
+			return data;
+		}
+
+		const TData& GetData() const {
+			return data;
+		}
+
+		const NodesCollection& GetArcs() const {
+			return arcs;
+		}
+
+	private:
+		TData data;
+		NodesCollection arcs;
+	};
+
+public:
+	using Iterator = std::unordered_map<NodeId, Node>::iterator;
+	using ConstIterator = std::unordered_map<NodeId, Node>::const_iterator;
+
+	void AddNode(NodeId id, const TData& data) {
+		EmplaceNode(id, data);
+	}
+
+	void AddNode(NodeId id, TData&& data) {
+		EmplaceNode(id, std::move(data));
+	}
+
+	template<typename... TArgs>
+	void EmplaceNode(NodeId id, TArgs&&... args) {
+		auto result = nodes_.try_emplace(id, std::forward<TArgs>(args)...);
+
+		if (result.second) {
+			nodes_ids_.insert(id);
+		}
+		else {
+			AOE_ASSERT_MSG(false, "Node `{}` already exists.", id);
+		}
+	}
+
+	void RemoveNode(NodeId id) {
+		auto it = nodes_.find(id);
+
+		if (it != nodes_.end()) {
+			nodes_.erase(it);
+			nodes_ids_.erase(id);
+		}
+
+		for (auto& [_, data] : nodes_) {
+			data.arcs.erase(id);
+		}
+	}
+
+	const NodesCollection& GetNodesIds() const {
+		return nodes_ids_;
+	}
+
+	const NodesCollection& GetArcs(NodeId id) const {
+		const Node& node = nodes_.at(id);
+		return node.arcs;
+	}
+
+	TData& GetData(NodeId id) {
+		Node& node = nodes_.at(id);
+		return node.data;
+	}
+
+	const TData& GetData(NodeId id) const {
+		const Node& node = nodes_.at(id);
+		return node.data;
+	}
+
+	bool HasArc(NodeId from, NodeId to) const {
+		const NodesCollection& arcs = GetArcs(from);
+		return arcs.contains(to);
+	}
+
+	void CreateArc(NodeId from, NodeId to) {
+		if (!HasArc(from, to)) {
+			Node& node = nodes_.at(from);
+			node.arcs.insert(to);
+		}
+	}
+
+	void BreakArc(NodeId from, NodeId to) {
+		Node& node = nodes_.at(from);
+		node.arcs.erase(to);
+	}
+
+	bool HasEdge(NodeId lhs, NodeId rhs) {
+		return HasArc(lhs, rhs)
+			&& HasArc(rhs, lhs);
+	}
+
+	void CreateEdge(NodeId lhs, NodeId rhs) {
+		CreateArc(lhs, rhs);
+		CreateArc(rhs, lhs);
+	}
+
+	void BreakEdge(NodeId lhs, NodeId rhs) {
+		BreakArc(lhs, rhs);
+		BreakArc(rhs, lhs);
+	}
+
+	Iterator begin() {
+		return nodes_.begin();
+	}
+
+	Iterator end() {
+		return nodes_.end();
+	}
+
+	ConstIterator cbegin() const {
+		return nodes_.cbegin();
+	}
+
+	ConstIterator cend() const {
+		return nodes_.cend();
+	}
+
+	Node& operator[](NodeId id) {
+		return nodes_.at(id);
+	}
+
+	const Node& operator[](NodeId id) const {
+		return nodes_.at(id);
+	}
+
+private:
+	NodesCollection nodes_ids_;
+	std::unordered_map<NodeId, Node> nodes_;
+};
 
 class LandscaperScene : public aoe::SceneBase {
 public:
@@ -35,8 +186,8 @@ protected:
 		DX11ModelManager& model_manager = service_provider.GetService<DX11ModelManager>();
 		DX11TextureManager& texture_manager = service_provider.GetService<DX11TextureManager>();
 
-		// DebugUtils::CreateGrid(world, { 20, 0, 20 }, {}, Colors::kWhite);
-		// DebugUtils::CreateAxis(world, relationeer);
+		//DebugUtils::CreateGrid(world, { 20, 0, 20 }, {}, Colors::kWhite);
+		//DebugUtils::CreateAxis(world, relationeer);
 
 		CreateDirectionalLight(world, Math::kDown);
 
@@ -63,7 +214,7 @@ protected:
 		std::vector<Vector2f> random_points = Algorithms::PoissonDisk2D(
 			random, { -half_edge, -half_edge }, { half_edge, half_edge }, 0.4f, 5);
 
-		aoe::Vector2f centroid = Algorithms::FindCentroid(random_points);
+		aoe::Vector2f centroid = Algorithms::FindCentroid(random_points.begin(), random_points.end());
 
 		auto it = std::remove_if(random_points.begin(), random_points.end(),
 			[&centroid](const aoe::Vector2f p) {
@@ -79,10 +230,115 @@ protected:
 		}
 
 		std::vector<Triangle2D> triangulation = Algorithms::BowyerWatson(random_points);
+		Graph<Triangle2D> graph = CreateTriangulationGraph(triangulation);
+		std::vector<NodeId> outline = FindOutline(graph);
+		
+		//for (const Triangle2D& triangle : triangulation) {
+		//	CreateTriangle(world, triangle);
+		//}
 
-		for (const Triangle2D& triangle : triangulation) {
-			CreateTriangle(world, triangle);
+		//std::sort(outline.begin(), outline.end(), 
+		//	[&triangulation, &centroid](const NodeId& lhs, const NodeId& rhs) {
+		//		const Triangle2D& lhs_triangle = triangulation[lhs];
+		//		const aoe::Vector2f lhs_centroid = Algorithms::FindCentroid(
+		//			lhs_triangle.vertices.begin(), 
+		//			lhs_triangle.vertices.end());
+
+		//		const Triangle2D& rhs_triangle = triangulation[rhs];
+		//		const aoe::Vector2f rhs_centroid = Algorithms::FindCentroid(
+		//			rhs_triangle.vertices.begin(),
+		//			rhs_triangle.vertices.end());
+
+		//		const int lhs_sign = aoe::Math::Sign(lhs_centroid.y);
+		//		const int rhs_sign = aoe::Math::Sign(rhs_centroid.y);
+
+		//		if (lhs_sign != rhs_sign) {
+		//			return lhs_sign > rhs_sign;
+		//		}
+
+		//		const aoe::Vector2f axis = aoe::Math::kAxisX2f;
+		//		const aoe::Vector2f lhs_direction = (lhs_centroid - centroid).Normalized();
+		//		const aoe::Vector2f rhs_direction = (rhs_centroid - centroid).Normalized();
+
+		//		const float lhs_angle = aoe::Math::Acos(aoe::Vector2f::DotProduct(axis, lhs_direction));
+		//		const float rhs_angle = aoe::Math::Acos(aoe::Vector2f::DotProduct(axis, rhs_direction));
+
+		//		if (lhs_sign > 0) {
+		//			return lhs_angle < rhs_angle;
+		//		} else {
+		//			return lhs_angle > rhs_angle;
+		//		}
+		//	});
+
+		//const float color_step = 1.0f / outline.size();
+		//float color_factor_b = 0;
+
+		//for (size_t i = 0; i < outline.size(); ++i) {
+		//	const NodeId id = outline[i];
+		//	const Triangle2D& triangle = triangulation[id];
+		//	const Vector2f triangle_centroid = Algorithms::FindCentroid(
+		//		triangle.vertices.begin(), 
+		//		triangle.vertices.end());
+
+		//	aoe::DebugUtils::CreateLine(
+		//		world,
+		//		{ { centroid.x, 0.0f, centroid.y }, { triangle_centroid.x, 0.0f, triangle_centroid.y } },
+		//		{},
+		//		{ 1.0f, 0.0f, color_factor_b });
+
+		//	color_factor_b += color_step;
+		//}
+
+		// TEST: remove outline triangles
+		for (NodeId id : outline) {
+			graph.RemoveNode(id);
 		}
+
+		for (auto& [id, node] : graph) {
+			CreateTriangle(world, node.GetData());
+		}
+	}
+
+	static Graph<Triangle2D> CreateTriangulationGraph(const std::vector<Triangle2D>& triangulation) {
+		Graph<Triangle2D> graph;
+
+		for (NodeId id = 0; id < triangulation.size(); ++id) {
+			const Triangle2D& triangle = triangulation[id];
+			graph.AddNode(id, triangle);
+		}
+
+		for (NodeId i = 0; i < triangulation.size(); ++i) {
+			const Triangle2D& node = triangulation[i];
+			
+			for (NodeId j = i + 1; j < triangulation.size(); ++j) {
+				const Triangle2D& neighbour = triangulation[j];
+
+				for (const Edge2D& edge : node.ToEdges()) {
+					if (neighbour.HasEdge(edge)) {
+						graph.CreateEdge(i, j);
+						break;
+					}
+				}
+			}
+		}
+
+		return graph;
+	}
+
+	static std::vector<NodeId> FindOutline(const Graph<Triangle2D>& graph) 
+	{
+		std::vector<NodeId> outline;
+		const NodesCollection& nodes_ids_ = graph.GetNodesIds();
+
+		for (NodeId id : nodes_ids_) {
+			const NodesCollection arcs = graph.GetArcs(id);
+
+			if (arcs.size() < 3) {
+				outline.push_back(id);
+			}
+		}
+
+		return outline;
 	}
 
 	static aoe::Entity CreateDirectionalLight(aoe::World& world, aoe::Vector3f direction) {

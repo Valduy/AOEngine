@@ -102,6 +102,8 @@ public:
 	static float Sqrt(float value);
 	static float Sin(float angle);
 	static float Cos(float angle);
+	static float Acos(float cos);
+	static float Asin(float sin);
 };
 
 template<typename T>

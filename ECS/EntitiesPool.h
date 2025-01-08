@@ -7,52 +7,9 @@
 namespace aoe {
 
 class EntitiesPool {
-private:
-	using InnerIterator = std::vector<Entity>::iterator;
-
 public:
-	class Iterator {
-	public:
-		using iterator_category = std::forward_iterator_tag;
-		using difference_type = std::ptrdiff_t;
-		using value_type = Entity;
-		using pointer = value_type*;
-		using reference = value_type&;
-
-		Iterator(InnerIterator it)
-			: it_(it)
-		{}
-
-		reference operator*() {
-			return *it_;
-		}
-
-		pointer operator->() {
-			return &(*it_);
-		}
-
-		Iterator& operator++() {
-			std::advance(it_, 1);
-			return *this;
-		}
-
-		Iterator operator++(int) {
-			Iterator temp = *this;
-			std::advance(it_, 1);
-			return temp;
-		}
-
-		friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
-			return lhs.it_ == rhs.it_;
-		}
-
-		friend bool operator!=(const Iterator lhs, const Iterator& rhs) {
-			return lhs.it_ != rhs.it_;
-		}
-
-	private:
-		InnerIterator it_;
-	};
+	using Iterator = std::vector<Entity>::iterator;
+	using ConstIterator = std::vector<Entity>::const_iterator;
 
 	EntitiesPool()
 		: sparse_()
@@ -101,13 +58,19 @@ public:
 	}
 
 	Iterator begin() {
-		auto it = dense_.begin();
-		return { it };
+		return dense_.begin();
 	}
 
 	Iterator end() {
-		auto it = std::next(dense_.begin(), bound_);
-		return { it };
+		return std::next(dense_.begin(), bound_);
+	}
+
+	ConstIterator cbegin() const {
+		return dense_.cbegin();
+	}
+
+	ConstIterator cend() const {
+		return std::next(dense_.cbegin(), bound_);
 	}
 
 private:

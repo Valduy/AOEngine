@@ -83,4 +83,12 @@ float Math::Cos(float angle) {
 	return std::cos(angle);
 }
 
+float Math::Acos(float cos) {
+	return std::acos(cos);
+}
+
+float Math::Asin(float sin) {
+	return std::asin(sin);
+}
+
 } // namespace aoe

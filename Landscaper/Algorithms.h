@@ -156,7 +156,7 @@ public:
 
 			// Find invalid triangles relative to a new point.
 			for (const Triangle2D& triangle : triangulation) {
-				if (Algorithms::IsInBoundingCircle(triangle, point)) {
+				if (Algorithms::IsInCircumcircle(triangle, point)) {
 					bad_triangles.push_back(triangle);
 				}
 			}
@@ -223,7 +223,7 @@ public:
 	static Circle2D FindBoundingCircle(const std::vector<aoe::Vector2f>& points) {
 		AOE_ASSERT_MSG(points.size() > 0, "Can't find bounding circle for empty points set.");
 		
-		aoe::Vector2f centroid = FindCentroid(points);
+		aoe::Vector2f centroid = FindCentroid(points.begin(), points.end());
 		aoe::Vector2f farthest = *std::max_element(points.begin(), points.end(),
 			[centroid](const aoe::Vector2f& lhs, const aoe::Vector2f& rhs) {
 				float to_lhs_distance = aoe::Vector2f::DistanceSquared(centroid, lhs);
@@ -235,12 +235,13 @@ public:
 		return { centroid, radius };
 	}
 
-	static aoe::Vector2f FindCentroid(const std::vector<aoe::Vector2f>& points) {\
-		aoe::Vector2f sum = std::accumulate(points.begin(), points.end(), aoe::Math::kZeros2f);
-		return sum / static_cast<float>(points.size());
+	template<typename TIterator>
+	static aoe::Vector2f FindCentroid(TIterator begin, TIterator end) {\
+		aoe::Vector2f sum = std::accumulate(begin, end, aoe::Math::kZeros2f);
+		return sum / static_cast<float>(std::distance(begin, end));
 	}
 
-	static bool IsInBoundingCircle(const Triangle2D& triangle, const aoe::Vector2f& p) {
+	static bool IsInCircumcircle(const Triangle2D& triangle, const aoe::Vector2f& p) {
 		aoe::Vector2f p1, p2, p3;
 
 		// To prevent vertical lines and infinity k.
@@ -419,8 +420,8 @@ private:
 			aoe::Math::Min(grid.GetWidth() - 1, grid_position.x + 2),
 			aoe::Math::Min(grid.GetHeight() - 1, grid_position.y + 2));
 
-		for (size_t i = grid_from.x; i <= grid_to.x; ++i) {
-			for (size_t j = grid_from.y; j <= grid_to.y; ++j) {
+		for (int i = grid_from.x; i <= grid_to.x; ++i) {
+			for (int j = grid_from.y; j <= grid_to.y; ++j) {
 				const PoissonCell& cell = grid(i, j);
 
 				if (!cell.is_distributed) {

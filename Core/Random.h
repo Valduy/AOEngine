@@ -19,7 +19,8 @@ public:
 	Random(int seed)
 		: device_()
 		, generator_(static_cast<IntType>(seed))
-		, int_distributor_(0.0f, 1.0f)
+		, int_distributor_()
+		, float_distributor_(0.0f, 1.0f)
 	{}
 
 	// Return random value.

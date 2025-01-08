@@ -5,13 +5,13 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)dependencies\assimp\lib\$(Configuration)\assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)dependencies\assimp\lib\$(Configuration)\assimp-vc143-mt*.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)\dependencies\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
-      <Command>XCOPY $(SolutionDir)dependencies\assimp\lib\$(Configuration)\assimp-vc143-mtd.dll $(TargetDir) /D /K /Y</Command>
+      <Command>XCOPY $(SolutionDir)Dependencies\assimp\lib\$(Configuration)\assimp-vc143-mt*.dll $(TargetDir) /D /K /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup />

@@ -30,36 +30,42 @@ public:
 		AOE_ASSERT_MSG(Has(id), "Try get no existing id.");
 
 		Lookup lookup = sparse_[id];
-		return dense_[lookup].second;
+		return dense_[lookup].data;
+	}
+
+	const TData& Get(Id id) const {
+		AOE_ASSERT_MSG(Has(id), "Try get no existing id.");
+
+		Lookup lookup = sparse_[id];
+		return dense_[lookup].data;
 	}
 
 	template<typename ...TArgs>
 	void Emplace(Id id, TArgs&&... args) {
-		TData data(std::forward<TArgs>(args)...);
-		Add(id, std::move(data));
-	}
-
-	void Add(Id id, const TData& data) {
-		TData copy(data);
-		Add(id, std::move(copy));
-	}
-
-	void Add(Id id, TData&& data) {
 		AOE_ASSERT_MSG(!Has(id), "Try to add an already existing id.");
 		AOE_ASSERT_MSG(bound_ <= dense_.size(), "Invalid dense bound.");
-		
+
 		if (sparse_.size() <= id) {
 			sparse_.resize(id + 1, kUndefined);
 		}
 
 		if (bound_ < dense_.size()) {
-			dense_[bound_] = { id, std::forward<TData>(data) };
-		} else {
-			dense_.emplace_back(id, std::forward<TData>(data));
+			dense_[bound_] = { id, std::forward<TArgs>(args)... };
+		}
+		else {
+			dense_.emplace_back(id, std::forward<TArgs>(args)...);
 		}
 
 		sparse_[id] = bound_;
 		bound_ += 1;
+	}
+
+	void Add(Id id, const TData& data) {
+		Emplace(id, data);
+	}
+
+	void Add(Id id, TData&& data) {
+		Emplace(id, std::move(data));
 	}
 
 	void Remove(Id id) {
@@ -70,7 +76,7 @@ public:
 		bound_ -= 1;
 
 		Lookup lookup = sparse_[id];
-		Id moved = dense_[bound_].first;
+		Id moved = dense_[bound_].id;
 
 		std::swap(dense_[lookup], dense_[bound_]);
 
@@ -79,12 +85,23 @@ public:
 	}
 
 private:
+	struct Node {
+		Id id;
+		TData data;
+
+		template<typename ...TArgs>
+		Node(Id id, TArgs&&... args)
+			: id(id)
+			, data(std::forward<TArgs>(args)...)
+		{}
+	};
+
 	using Lookup = int32_t;
 
 	static const Lookup kUndefined = -1;
 
 	std::vector<Lookup> sparse_;
-	std::vector<std::pair<Id, TData>> dense_;
+	std::vector<Node> dense_;
 
 	Lookup bound_;
 };
