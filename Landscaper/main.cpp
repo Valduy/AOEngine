@@ -1,4 +1,5 @@
 #include <unordered_set>
+#include <queue>
 
 #include "../Renderer/RenderComponent.h"
 #include "../Renderer/DirectionalLightComponent.h"
@@ -289,13 +290,22 @@ protected:
 		//	color_factor_b += color_step;
 		//}
 
-		// TEST: remove outline triangles
 		for (NodeId id : outline) {
 			graph.RemoveNode(id);
 		}
 
-		for (auto& [id, node] : graph) {
-			CreateTriangle(world, node.GetData());
+		std::vector<NodeId> roots = SelectRandomRoots(graph, random, 3);
+		std::vector<std::vector<NodeId>> plates = DistributeTrianglesBetweenPlates(graph, roots);
+
+		for (size_t i = 0; i < plates.size(); ++i) {
+			std::vector<NodeId>& plate = plates[i];
+			aoe::Vector3f color = aoe::Math::kZeros3f;
+			color[i] = 1.0f;
+
+			for (NodeId id : plate) {
+				const Triangle2D& triangle = graph.GetData(id);
+				CreateTriangle(world, triangle, color);
+			}
 		}
 	}
 
@@ -341,6 +351,89 @@ protected:
 		return outline;
 	}
 
+	struct PlateDistributionState {
+		std::unordered_set<NodeId> visited;
+		std::queue<NodeId> frontier;
+	};
+
+	static std::vector<NodeId> SelectRandomRoots(
+		const Graph<Triangle2D>& graph,
+		aoe::Random& random,
+		size_t count) 
+	{
+		std::vector<NodeId> roots(count);
+		const NodesCollection& nodes = graph.GetNodesIds();
+		auto begin = nodes.cbegin();
+
+		for (size_t i = 0; i < count; ++i) {
+			int number = random.Next(static_cast<int>(nodes.size() - 1));
+			auto it = std::next(begin, number);
+			roots[i] = *it;
+		}
+
+		return roots;
+	}
+
+	static std::vector<std::vector<NodeId>> DistributeTrianglesBetweenPlates(
+		const Graph<Triangle2D>& graph, 
+		const std::vector<NodeId>& roots) 
+	{
+		std::vector<std::vector<NodeId>> plates;
+		std::unordered_set<NodeId> distribution;
+		std::vector<PlateDistributionState> states(roots.size());
+
+		for (size_t i = 0; i < roots.size(); ++i) {
+			NodeId id = roots[i];
+			PlateDistributionState& state = states[i];
+			state.frontier.push(id);
+		}
+
+		bool is_finished = false;
+
+		while (!is_finished) {
+			is_finished = true;
+
+			for (PlateDistributionState& state : states) {
+				is_finished &= !ProcessPlateDistribution(graph, state, distribution);
+			}
+		}
+
+		for (PlateDistributionState& state : states) {
+			std::vector<NodeId>& plate = plates.emplace_back();
+			plate.assign(state.visited.begin(), state.visited.end());
+		}
+
+		return plates;
+	}
+
+	static bool ProcessPlateDistribution(
+		const Graph<Triangle2D>& graph,
+		PlateDistributionState& state,
+		std::unordered_set<NodeId>& distribution)
+	{
+		while (!state.frontier.empty()) {
+			NodeId node = state.frontier.front();
+			state.frontier.pop();
+
+			if (distribution.contains(node)) {
+				continue;
+			}
+
+			distribution.insert(node);
+			state.visited.insert(node);
+			
+			for (NodeId neighbour : graph.GetArcs(node)) {
+				if (!state.visited.contains(neighbour)) {
+					state.frontier.push(neighbour);
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	static aoe::Entity CreateDirectionalLight(aoe::World& world, aoe::Vector3f direction) {
 		using namespace aoe;
 
@@ -378,7 +471,11 @@ protected:
 		return sphere;
 	}
 
-	static aoe::Entity CreateTriangle(aoe::World& world, const Triangle2D& triangle) {
+	static aoe::Entity CreateTriangle(
+		aoe::World& world, 
+		const Triangle2D& triangle, 
+		aoe::Vector3f color = aoe::Colors::kGreen) 
+	{
 		using namespace aoe;
 
 		std::vector<Vector3f> line_points(4);
@@ -388,7 +485,7 @@ protected:
 			});
 		line_points[3] = line_points.front();
 
-		return DebugUtils::CreateLine(world, line_points);
+		return DebugUtils::CreateLine(world, line_points, {}, color);
 	}
 };
 
