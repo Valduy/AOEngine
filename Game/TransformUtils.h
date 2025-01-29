@@ -19,11 +19,11 @@ public:
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
-			return transform_component->transform;
+			return transform_component->GetTransform();
 		}
 
 		Entity parent = relationeer.GetParent(entity);
-		Matrix4f local_world_matrix = transform_component->transform.ToMatrix();
+		Matrix4f local_world_matrix = transform_component->GetWorldMatrix();
 		Matrix4f parent_world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
 		Matrix4f global_world_matrix = parent_world_matrix * local_world_matrix;
 
@@ -34,21 +34,21 @@ public:
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity,
-		Transform transform)
+		const Transform& transform)
 	{
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
-			transform_component->transform = transform;
+			transform_component->SetTransform(transform);
 			return;
 		}
 
 		Entity parent = relationeer.GetParent(entity);
-		Matrix4f global_world_matrix = transform_component->transform.ToMatrix();
+		Matrix4f global_world_matrix = transform.ToMatrix();
 		Matrix4f parent_world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
 		Matrix4f local_world_matrix = parent_world_matrix.Inverse() * global_world_matrix;
 
-		transform_component->transform = local_world_matrix;
+		transform_component->SetWorldMatrix(local_world_matrix);
 	}
 
 	static Vector3f GetGlobalPosition(
@@ -59,30 +59,30 @@ public:
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
-			return transform_component->transform.position;
+			return transform_component->GetPosition();
 		}
 
 		Entity parent = relationeer.GetParent(entity);
 		Matrix4f parent_world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
-		return parent_world_matrix * transform_component->transform.position;
+		return parent_world_matrix * transform_component->GetPosition();
 	}
 
 	static void SetGlobalPosition(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity,
-		Vector3f position)
+		const Vector3f& position)
 	{
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
-			transform_component->transform.position = position;
+			transform_component->SetPosition(position);
 			return;
 		}
 
 		Entity parent = relationeer.GetParent(entity);
 		Matrix4f parent_world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
-		transform_component->transform.position = parent_world_matrix.Inverse() * position;
+		transform_component->SetPosition(parent_world_matrix.Inverse() * position);
 	}
 
 	static Quaternion GetGlobalRotation(
@@ -93,30 +93,30 @@ public:
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
-			return transform_component->transform.rotation;
+			return transform_component->GetRotation();
 		}
 
 		Entity parent = relationeer.GetParent(entity);
 		Quaternion parent_rotation = GetGlobalRotation(world, relationeer, parent);
-		return parent_rotation * transform_component->transform.rotation;
+		return parent_rotation * transform_component->GetRotation();
 	}
 
 	static void SetGlobalRotation(
 		World& world,
 		Relationeer<TransformComponent>& relationeer,
 		Entity entity,
-		Quaternion rotation)
+		const Quaternion& rotation)
 	{
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
 		if (IsRoot(world, relationeer, entity)) {
-			transform_component->transform.rotation = rotation;
+			transform_component->SetRotation(rotation);
 			return;
 		}
 
 		Entity parent = relationeer.GetParent(entity);
 		Quaternion parent_rotation = GetGlobalRotation(world, relationeer, parent);
-		transform_component->transform.rotation = parent_rotation.Inverse() * rotation;
+		transform_component->SetRotation(parent_rotation.Inverse() * rotation);
 	}
 
 	static Matrix4f GetGlobalWorldMatrix(
@@ -125,7 +125,7 @@ public:
 		Entity entity)
 	{
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
-		Matrix4f world_matrix = transform_component->transform.ToMatrix();
+		const Matrix4f& world_matrix = transform_component->GetWorldMatrix();
 
 		if (IsRoot(world, relationeer, entity)) {
 			return world_matrix;

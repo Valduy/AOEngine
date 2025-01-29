@@ -22,7 +22,7 @@ void FlyCameraTickSystem::Update(float dt) {
 		UpdateAngles(fly_camera_component);
 
 		Quaternion rotation = Quaternion::FromEulerAngles(fly_camera_component->angles);
-		transform_component->transform.rotation = rotation;
+		transform_component->SetRotation(rotation);
 	}
 }
 

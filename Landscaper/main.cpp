@@ -1,5 +1,6 @@
 #include <unordered_set>
 #include <queue>
+#include <algorithm>
 
 #include "../Renderer/RenderComponent.h"
 #include "../Renderer/DirectionalLightComponent.h"
@@ -159,6 +160,94 @@ private:
 	std::unordered_map<NodeId, Node> nodes_;
 };
 
+class PerlinNoise2D {
+public:
+	PerlinNoise2D(aoe::Random& random, size_t size) 
+		: size_(size)
+		, permutation_()
+	{
+		AOE_ASSERT_MSG(size * 2 <= std::numeric_limits<size_t>::max(), "To big size.");
+
+		permutation_.reserve(size * 2);
+
+		for (size_t i = 0; i < size; i++) {
+			permutation_.push_back(i);
+		}
+		
+		std::shuffle(permutation_.begin(), permutation_.end(), random.GetEngine());
+
+		for (size_t i = 0; i < size; i++) {
+			permutation_.push_back(i);
+		}
+	}
+
+	float GetValue(float x, float y) const {
+		AOE_ASSERT_MSG(x >= 0, "Argument x can't be negative.");
+		AOE_ASSERT_MSG(y >= 0, "Argument y can't be negative.");
+
+		const int floor_x = static_cast<int>(aoe::Math::Floor(x));
+		const int floor_y = static_cast<int>(aoe::Math::Floor(y));
+
+		const int wrap_x = floor_x % size_;
+		const int wrap_y = floor_y % size_;
+
+		const float xf = x - floor_x;
+		const float yf = y - floor_y;
+
+		// Top - t; Bottom - b; Left - l; Right - r.
+		const aoe::Vector2f t_r_vector(xf - 1.0f, yf - 1.0f);
+		const aoe::Vector2f t_l_vector(xf, yf - 1.0f);
+		const aoe::Vector2f b_r_vector(xf - 1.0f, yf);
+		const aoe::Vector2f b_l_vector(xf, yf);
+
+		const size_t t_r_value = permutation_[permutation_[wrap_x + 1] + wrap_y + 1];
+		const size_t t_l_value = permutation_[permutation_[wrap_x] + wrap_y + 1];
+		const size_t b_r_value = permutation_[permutation_[wrap_x + 1] + wrap_y];
+		const size_t b_l_value = permutation_[permutation_[wrap_x] + wrap_y];
+		
+		const float t_r_dot = aoe::Vector2f::DotProduct(t_r_vector, GetConstantVector(t_r_value));
+		const float t_l_dot = aoe::Vector2f::DotProduct(t_l_vector, GetConstantVector(t_l_value));
+		const float b_r_dot = aoe::Vector2f::DotProduct(b_r_vector, GetConstantVector(b_r_value));
+		const float b_l_dot = aoe::Vector2f::DotProduct(b_l_vector, GetConstantVector(b_l_value));
+
+		const float u = Fade(xf);
+		const float v = Fade(yf);
+
+		return aoe::Math::Lerp(
+			aoe::Math::Lerp(b_l_dot, t_l_dot, v),
+			aoe::Math::Lerp(b_r_dot, t_r_dot, v), 
+			u);
+	}
+
+	float operator()(float x, float y) const {
+		return GetValue(x, y);
+	}
+
+private:
+	int size_;
+	std::vector<size_t> permutation_;
+
+	static aoe::Vector2f GetConstantVector(size_t corner) {
+		switch (corner % 4) {
+		case 0:
+			return { 1.0f, 1.0f };
+		case 1:
+			return { -1.0f, 1.0f };
+		case 2:
+			return { -1.0f, -1.0f };
+		case 3:
+			return { 1.0f, -1.0f };
+		default: 
+			AOE_ASSERT_MSG(false, "Unreachable code.");
+			return aoe::Math::kZeros2f;
+		}
+	}
+
+	static float Fade(float t) {
+		return ((6 * t - 15) * t + 10) * t * t * t;
+	}
+};
+
 class LandscaperScene : public aoe::SceneBase {
 public:
 	LandscaperScene(aoe::Application& application)
@@ -190,7 +279,7 @@ protected:
 		//DebugUtils::CreateGrid(world, { 20, 0, 20 }, {}, Colors::kWhite);
 		//DebugUtils::CreateAxis(world, relationeer);
 
-		CreateDirectionalLight(world, Math::kDown);
+		CreateDirectionalLight(world, Math::kDown + Math::kForward * 0.5f);
 
 		Entity camera = world.CreateEntity();
 		world.AddComponent<TransformComponent>(camera);
@@ -211,6 +300,7 @@ protected:
 
 		const int half_edge = 4;
 
+		// Test 4
 		aoe::Random random(2);
 		std::vector<Vector2f> random_points = Algorithms::PoissonDisk2D(
 			random, { -half_edge, -half_edge }, { half_edge, half_edge }, 0.4f, 5);
@@ -226,8 +316,8 @@ protected:
 		for (const Vector2f& point : random_points) {
 			Entity sphere = CreateSphere(world, model_manager, texture_manager);
 			auto transform_component = world.GetComponent<TransformComponent>(sphere);
-			transform_component->transform.position = { point.x, 0.0f, point.y };
-			transform_component->transform.scale = { 0.2f, 0.2f, 0.2f };
+			transform_component->SetPosition({ point.x, 0.0f, point.y });
+			transform_component->SetScale({ 0.2f, 0.2f, 0.2f });
 		}
 
 		std::vector<Triangle2D> triangulation = Algorithms::BowyerWatson(random_points);
@@ -307,6 +397,41 @@ protected:
 				CreateTriangle(world, triangle, color);
 			}
 		}
+
+		const size_t size = 8;
+		const size_t divs = 8;
+		const size_t res = size * divs;
+
+		float map[res][res];
+		PerlinNoise2D noise(random, size);
+		
+		for (size_t x = 0; x < size; ++x) {
+			for (size_t y = 0; y < size; ++y) {
+				float offset = 1.0f / divs;
+				
+				for (size_t div_x = 0; div_x < divs; ++div_x) {
+					for (size_t div_y = 0; div_y < divs; ++div_y) {
+						const float i = static_cast<float>(x) + offset + offset * div_x;
+						const float j = static_cast<float>(y) + offset + offset * div_y;
+						
+						float value = noise(i, j);
+						map[divs * x + div_x][divs * y + div_y] = value;
+					}
+				}
+			}
+		}
+
+		for (size_t x = 0; x < res - 1; ++x) {
+			for (size_t y = 0; y < res - 1; ++y) {
+				float value = map[x][y];
+				Entity cube = CreateCube(world, model_manager, texture_manager);
+				auto transform_component = world.GetComponent<TransformComponent>(cube);
+				Vector3f position(static_cast<float>(half_edge + x), 2 * value, static_cast<float>(half_edge + y));
+				transform_component->SetPosition(position);
+			}
+		}
+
+		auto test = 0;
 	}
 
 	static Graph<Triangle2D> CreateTriangulationGraph(const std::vector<Triangle2D>& triangulation) {
@@ -443,8 +568,9 @@ protected:
 
 		auto transform_component = world.GetComponent<TransformComponent>(directional_light);
 
-		Transform& transform = transform_component->transform;
-		transform.rotation = Quaternion::RotateFromTo(transform.GetForward(), direction.Normalized());
+		Transform transform = transform_component->GetTransform();
+		Quaternion rotation = Quaternion::RotateFromTo(transform.GetForward(), direction.Normalized());
+		transform_component->SetRotation(rotation);
 
 		return directional_light;
 	}
@@ -456,7 +582,7 @@ protected:
 	{
 		using namespace aoe;
 
-		ModelId model_id = model_manager.Load(L"/Content/Sphere.fbx", ModelLoaderOptions::kFlipUVs);
+		ModelId model_id = model_manager.Load(L"Content/Sphere.fbx", ModelLoaderOptions::kFlipUVs);
 		TextureId texture_id = texture_manager.kDefault;
 
 		Material material;
@@ -469,6 +595,28 @@ protected:
 		world.AddComponent<RenderComponent>(sphere, model_id, texture_id, material);
 
 		return sphere;
+	}
+
+	static aoe::Entity CreateCube(
+		aoe::World& world,
+		aoe::DX11ModelManager& model_manager,
+		aoe::DX11TextureManager& texture_manager)
+	{
+		using namespace aoe;
+
+		ModelId model_id = model_manager.Load(L"Content/Cube.fbx", ModelLoaderOptions::kFlipUVs);
+		TextureId texture_id = texture_manager.kDefault;
+
+		Material material;
+		material.diffuse = { 1.0f, 1.0f, 1.0f };
+		material.specular = { 0.8f, 0.8f, 0.8f };
+		material.shininess = 32.0f;
+
+		Entity cube = world.CreateEntity();
+		world.AddComponent<TransformComponent>(cube);
+		world.AddComponent<RenderComponent>(cube, model_id, texture_id, material);
+
+		return cube;
 	}
 
 	static aoe::Entity CreateTriangle(

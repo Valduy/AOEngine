@@ -67,8 +67,20 @@ float Math::Ceil(float value) {
 	return std::ceilf(value);
 }
 
+float Math::Floor(float value) {
+	return std::floorf(value);
+}
+
 int Math::CeilToInt(float value) {
 	return static_cast<int>(Ceil(value));
+}
+
+int Math::FloorToInt(float value) {
+	return static_cast<int>(Floor(value));
+}
+
+float Math::Lerp(float a, float b, float t) {
+	return std::lerp(a, b, t);
 }
 
 float Math::Sqrt(float value) {

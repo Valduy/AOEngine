@@ -9,8 +9,9 @@ void FlyCameraFrameSystem::Update(float dt) {
 		auto transform_component = GetComponent<TransformComponent>(camera);
 		auto fly_camera_component = GetComponent<FlyCameraComponent>(camera);
 
-		Vector3f movement = GetMovement(transform_component->transform, fly_camera_component, dt);
-		transform_component->transform.position += movement;
+		Vector3f movement = GetMovement(transform_component->GetTransform(), fly_camera_component, dt);
+		Vector3f position = transform_component->GetPosition() + movement;
+		transform_component->SetPosition(position);
 	}
 }
 

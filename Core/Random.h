@@ -9,6 +9,8 @@ namespace aoe {
 
 class Random {
 public:
+	using Engine = std::mt19937;
+
 	Random()
 		: device_()
 		, generator_()
@@ -22,6 +24,10 @@ public:
 		, int_distributor_()
 		, float_distributor_(0.0f, 1.0f)
 	{}
+
+	Engine& GetEngine() {
+		return generator_;
+	}
 
 	// Return random value.
 	int Next() {
@@ -49,10 +55,10 @@ public:
 	}
 
 private:
-	using IntType = std::mt19937::result_type;
+	using IntType = Engine::result_type;
 	
 	std::random_device device_;
-	std::mt19937 generator_;
+	Engine generator_;
 	std::uniform_int_distribution<IntType> int_distributor_;
 	std::uniform_real_distribution<float> float_distributor_;
 };

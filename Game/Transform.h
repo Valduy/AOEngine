@@ -15,13 +15,13 @@ struct Transform {
 		, scale(Math::kOnes3f)
 	{}
 
-	Transform(Vector3f position, Quaternion rotation, Vector3f scale)
+	Transform(const Vector3f& position, const Quaternion& rotation, const Vector3f& scale)
 		: position(position)
 		, rotation(rotation)
 		, scale(scale)
 	{}
 
-	Transform(Matrix4f world) 
+	Transform(const Matrix4f& world) 
 		: position(world.TranslationVector3D())
 		, rotation(Quaternion::FromMatrix(world))
 		, scale(world.ScaleVector3D())

@@ -98,7 +98,10 @@ public:
 
 	static float Pow(float value, float power);
 	static float Ceil(float value);
+	static float Floor(float value);
 	static int CeilToInt(float value);
+	static int FloorToInt(float value);
+	static float Lerp(float a, float b, float t);
 	static float Sqrt(float value);
 	static float Sin(float angle);
 	static float Cos(float angle);
