@@ -460,8 +460,7 @@ protected:
 		return graph;
 	}
 
-	static std::vector<NodeId> FindOutline(const Graph<Triangle2D>& graph) 
-	{
+	static std::vector<NodeId> FindOutline(const Graph<Triangle2D>& graph) {
 		std::vector<NodeId> outline;
 		const NodesCollection& nodes_ids_ = graph.GetNodesIds();
 

@@ -16,6 +16,8 @@ private:
 	using ComponentsPools = std::tuple<ComponentsPool<TComponents>*...>;
 	using InnerIterator = EntitiesPool::Iterator;
 
+	class ECSIdentifier : public IdentifierBase<ECSIdentifier> {};
+
 public:
 	template<typename... TComponents>
 	class Filter {
@@ -118,8 +120,8 @@ public:
 	{}
 
 	~World() {
-		for (auto it : component_pools_) {
-			delete it.second;
+		for (IComponentsPool* pool: component_pools_) {
+			delete pool;
 		}
 	}
 
@@ -191,8 +193,8 @@ public:
 				continue;
 			}
 
-			for (auto& it : component_pools_) {
-				it.second->Remove(entity.GetId());
+			for (IComponentsPool* pool : component_pools_) {
+				pool->Remove(entity.GetId());
 			}
 
 			EntityDestroyed.Notify(entity);
@@ -223,7 +225,7 @@ public:
 	}
 
 private:
-	std::unordered_map<TypeId, IComponentsPool*> component_pools_;
+	std::vector<IComponentsPool*> component_pools_;
 	EntitiesPool entities_pool_;
 	std::vector<Entity> to_destroy_;
 
@@ -243,14 +245,14 @@ private:
 
 	template<typename TComponent>
 	ComponentsPool<TComponent>* GetPool() const {
-		TypeId type_id = Identifier::GetTypeId<TComponent>();
-		auto it = component_pools_.find(type_id);
+		TypeId type_id = ECSIdentifier::GetTypeId<TComponent>();
 
-		if (it == component_pools_.end()) {
+		if (component_pools_.size() <= type_id) {
 			return nullptr;
 		}
 
-		return static_cast<ComponentsPool<TComponent>*>(it->second);
+		IComponentsPool* pool = component_pools_[type_id];
+		return static_cast<ComponentsPool<TComponent>*>(pool);
 	}
 
 	template<typename ...TComponents>
@@ -260,7 +262,12 @@ private:
 
 	template<typename TComponent>
 	ComponentsPool<TComponent>* CreatePool() {
-		TypeId type_id = Identifier::GetTypeId<TComponent>();
+		TypeId type_id = ECSIdentifier::GetTypeId<TComponent>();
+		
+		if (component_pools_.size() <= type_id) {
+			component_pools_.resize(type_id + 1, nullptr);
+		}
+
 		ComponentsPool<TComponent>* pool = new ComponentsPool<TComponent>();
 		component_pools_[type_id] = pool;
 		return pool;

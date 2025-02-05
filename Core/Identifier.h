@@ -4,21 +4,22 @@ namespace aoe {
 
 using TypeId = size_t;
 
-class Identifier {
+template<typename TOwner>
+class IdentifierBase {
 public:
-	static const TypeId kInvalidId = 0;
-
-	Identifier() = delete;
+	IdentifierBase() = delete;
 
 	template<typename T>
 	static TypeId GetTypeId() {
-		static TypeId id = ++current_id_;
+		static TypeId id = current_id_++;
 		return id;
 	}
 
 private:
-	static inline TypeId current_id_ = 1;
+	static inline TypeId current_id_ = 0;
 };
+
+class Identifier : public IdentifierBase<Identifier> {};
 
 } //  namespace aoe
 
