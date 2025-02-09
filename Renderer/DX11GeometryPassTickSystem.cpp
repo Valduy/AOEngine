@@ -60,11 +60,11 @@ void DX11GeometryPassTickSystem::Render() {
 		auto render_component = GetComponent<RenderComponent>(entity);
 		auto geometry_data_component = GetComponent<GeometryDataComponent>(entity);
 
-		const DX11ModelResources& model_resources = model_manager_->GetModelResources(render_component->model_id);
-		const DX11GPUTexture2D& texture_resources = texture_manager_->GetTextureResources(render_component->texture_id);
+		const DX11ModelResources& model_resources = model_manager_->GetModelResources(render_component->GetModelId());
+		const DX11GPUTexture2D& texture_resources = texture_manager_->GetTextureResources(render_component->GetTextureId());
 
 		context.SetConstantBuffer(GPUShaderType::kVertex, geometry_data_component->transform_data.buffer, 0);
-		context.SetConstantBuffer(GPUShaderType::kPixel, geometry_data_component->material_data.buffer, 1);
+		context.SetConstantBuffer(GPUShaderType::kPixel, render_component->GetMaterialData().buffer, 1);
 		context.SetShaderResource(GPUShaderType::kPixel, texture_resources.GetTextureView(), 0);
 
 		for (const DX11MeshResources& mesh_resource : model_resources.meshes_resources) {

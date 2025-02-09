@@ -24,8 +24,9 @@ void Executor::ResetDeltaTime() {
 void Executor::Tick() {
 	using namespace std::chrono;
 
-	time_point time = clock::now();
-	nanoseconds duration_ns = time - timestamp_;
+	const time_point time = clock::now();
+	const nanoseconds duration_ns = time - timestamp_;
+
 	float dt = duration_cast<duration<float>>(duration_ns).count();
 	size_t compinsations = 0;
 

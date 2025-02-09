@@ -66,7 +66,6 @@ struct DX11RenderData {
 
 struct GeometryDataComponent {
 	DX11RenderData<TransformData> transform_data;
-	DX11RenderData<MaterialData> material_data;
 };
 
 struct AmbientLightDataComponent {

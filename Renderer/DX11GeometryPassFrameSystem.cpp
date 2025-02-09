@@ -48,13 +48,7 @@ void DX11GeometryPassFrameSystem::UpdateRenderData(Entity camera) {
 		transform_data.world_view_projection = world_view_projection.Transpose();
 		transform_data.inverse_transpose_world = world.Inverse();
 
-		MaterialData material_data{};
-		material_data.diffuse = render_component->material.diffuse;
-		material_data.specular = render_component->material.specular;
-		material_data.shininess = render_component->material.shininess;
-
 		geometry_data_component->transform_data.Update(&transform_data);
-		geometry_data_component->material_data.Update(&material_data);
 	}
 }
 

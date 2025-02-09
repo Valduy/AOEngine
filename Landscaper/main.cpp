@@ -434,6 +434,15 @@ protected:
 		auto test = 0;
 	}
 
+	void PerTickUpdate(float dt) override {
+		AOE_LOG_INFO("{}", dt);
+		aoe::SceneBase::PerTickUpdate(dt);
+	}
+
+	void PerFrameUpdate(float dt) override {
+		aoe::SceneBase::PerFrameUpdate(dt);
+	}
+
 	static Graph<Triangle2D> CreateTriangulationGraph(const std::vector<Triangle2D>& triangulation) {
 		Graph<Triangle2D> graph;
 
