@@ -5,13 +5,14 @@
 #include "../Resources/DX11ModelManager.h"
 
 #include "DX11RenderPassSystemBase.h"
-#include "DX11RenderDataComponents.h"
+#include "DX11RenderData.h"
+#include "DX11BufferModels.h"
 
 namespace aoe {
 
-class DX11PointLightPassTickSystem : public DX11RenderPassSystemBase {
+class DX11PointLightPassSystem : public DX11RenderPassSystemBase {
 public:
-	DX11PointLightPassTickSystem();
+	DX11PointLightPassSystem();
 
 	void Initialize(const ServiceProvider& service_provider) override;
 	void Update(float dt) override;
@@ -24,6 +25,7 @@ private:
 	DX11ModelManager* model_manager_;
 	ModelId sphere_id;
 
+	void UpdateRenderData();
 	void Render(Entity camera);
 	void PrepareRenderContext();
 };

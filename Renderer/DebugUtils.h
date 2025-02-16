@@ -5,7 +5,7 @@
 #include "../Game/TransformUtils.h"
 
 #include "Colors.h"
-#include "LineComponent.h"
+#include "DX11LineComponent.h"
 
 namespace aoe {
 

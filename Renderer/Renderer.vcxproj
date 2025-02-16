@@ -154,25 +154,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AmbientLightComponent.h" />
+    <ClInclude Include="DX11AmbientLightComponent.h" />
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="CameraUtils.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="DebugUtils.h" />
-    <ClInclude Include="DirectionalLightComponent.h" />
-    <ClInclude Include="DX11AmbientLightPassTickSystem.h" />
-    <ClInclude Include="DX11DebugPassFrameSystem.h" />
-    <ClInclude Include="DX11DebugPassTickSystem.h" />
+    <ClInclude Include="DX11DirectionalLightComponent.h" />
+    <ClInclude Include="DX11AmbientLightPassSystem.h" />
+    <ClInclude Include="DX11DebugPassSystem.h" />
     <ClInclude Include="DX11DepthStates.h" />
-    <ClInclude Include="DX11DirectionalLightPassFrameSystem.h" />
-    <ClInclude Include="DX11DirectionalLightPassTickSystem.h" />
-    <ClInclude Include="DX11GeometryPassTickSystem.h" />
-    <ClInclude Include="DX11GeometryPassFrameSystem.h" />
-    <ClInclude Include="DX11PointLightPassFrameSystem.h" />
-    <ClInclude Include="DX11PointLightPassTickSystem.h" />
-    <ClInclude Include="DX11PostRenderPassTickSystem.h" />
-    <ClInclude Include="DX11PreLightPassTickSystem.h" />
-    <ClInclude Include="DX11PreRenderPassTickSystem.h" />
+    <ClInclude Include="DX11DirectionalLightPassSystem.h" />
+    <ClInclude Include="DX11GeometryPassSystem.h" />
+    <ClInclude Include="DX11PointLightPassSystem.h" />
+    <ClInclude Include="DX11PostRenderPassSystem.h" />
+    <ClInclude Include="DX11PreLightPassSystem.h" />
+    <ClInclude Include="DX11PreRenderPassSystem.h" />
     <ClInclude Include="DX11RasterizerStates.h" />
     <ClInclude Include="DX11GBuffer.h" />
     <ClInclude Include="DX11RenderContext.h" />
@@ -180,39 +176,35 @@
     <ClInclude Include="DX11RenderPassSystemBase.h" />
     <ClInclude Include="DX11ShaderHelper.h" />
     <ClInclude Include="DX11TextureScaler.h" />
-    <ClInclude Include="DX11TonePassTickSystem.h" />
+    <ClInclude Include="DX11TonePassSystem.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="LineComponent.h" />
+    <ClInclude Include="DX11LineComponent.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PointLightComponent.h" />
-    <ClInclude Include="RenderComponent.h" />
-    <ClInclude Include="DX11RenderDataComponents.h" />
+    <ClInclude Include="DX11PointLightComponent.h" />
+    <ClInclude Include="DX11RenderComponent.h" />
+    <ClInclude Include="DX11BufferModels.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CameraUtils.cpp" />
     <ClCompile Include="Colors.cpp" />
     <ClCompile Include="DebugUtils.cpp" />
-    <ClCompile Include="DX11AmbientLightPassTickSystem.cpp" />
-    <ClCompile Include="DX11DebugPassFrameSystem.cpp" />
-    <ClCompile Include="DX11DebugPassTickSystem.cpp" />
+    <ClCompile Include="DX11AmbientLightPassSystem.cpp" />
+    <ClCompile Include="DX11DebugPassSystem.cpp" />
     <ClCompile Include="DX11DepthStates.cpp" />
-    <ClCompile Include="DX11DirectionalLightPassFrameSystem.cpp" />
-    <ClCompile Include="DX11DirectionalLightPassTickSystem.cpp" />
+    <ClCompile Include="DX11DirectionalLightPassSystem.cpp" />
     <ClCompile Include="DX11GBuffer.cpp" />
-    <ClCompile Include="DX11GeometryPassFrameSystem.cpp" />
-    <ClCompile Include="DX11GeometryPassTickSystem.cpp" />
-    <ClCompile Include="DX11PointLightPassFrameSystem.cpp" />
-    <ClCompile Include="DX11PointLightPassTickSystem.cpp" />
-    <ClCompile Include="DX11PostRenderPassTickSystem.cpp" />
-    <ClCompile Include="DX11PreLightPassTickSystem.cpp" />
-    <ClCompile Include="DX11PreRenderPassTickSystem.cpp" />
+    <ClCompile Include="DX11GeometryPassSystem.cpp" />
+    <ClCompile Include="DX11PointLightPassSystem.cpp" />
+    <ClCompile Include="DX11PostRenderPassSystem.cpp" />
+    <ClCompile Include="DX11PreLightPassSystem.cpp" />
+    <ClCompile Include="DX11PreRenderPassSystem.cpp" />
     <ClCompile Include="DX11RasterizerStates.cpp" />
     <ClCompile Include="DX11RenderContext.cpp" />
     <ClCompile Include="DX11RenderPassSystemBase.cpp" />
     <ClCompile Include="DX11ShaderHelper.cpp" />
     <ClCompile Include="DX11TextureScaler.cpp" />
-    <ClCompile Include="DX11TonePassTickSystem.cpp" />
+    <ClCompile Include="DX11TonePassSystem.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

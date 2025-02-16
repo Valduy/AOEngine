@@ -2,8 +2,6 @@
 
 #include "../Core/Math.h"
 
-#include "DX11RenderData.h"
-
 namespace aoe {
 
 struct TransformData {

@@ -1,18 +1,14 @@
 #include "pch.h"
 
-#include "../Renderer/DX11GeometryPassFrameSystem.h"
-#include "../Renderer/DX11DirectionalLightPassFrameSystem.h"
-#include "../Renderer/DX11PointLightPassFrameSystem.h"
-#include "../Renderer/DX11DebugPassFrameSystem.h"
-#include "../Renderer/DX11PreRenderPassTickSystem.h"
-#include "../Renderer/DX11GeometryPassTickSystem.h"
-#include "../Renderer/DX11PreLightPassTickSystem.h"
-#include "../Renderer/DX11AmbientLightPassTickSystem.h"
-#include "../Renderer/DX11DirectionalLightPassTickSystem.h"
-#include "../Renderer/DX11PointLightPassTickSystem.h"
-#include "../Renderer/DX11TonePassTickSystem.h"
-#include "../Renderer/DX11DebugPassTickSystem.h"
-#include "../Renderer/DX11PostRenderPassTickSystem.h"
+#include "../Renderer/DX11PreRenderPassSystem.h"
+#include "../Renderer/DX11GeometryPassSystem.h"
+#include "../Renderer/DX11PreLightPassSystem.h"
+#include "../Renderer/DX11AmbientLightPassSystem.h"
+#include "../Renderer/DX11DirectionalLightPassSystem.h"
+#include "../Renderer/DX11PointLightPassSystem.h"
+#include "../Renderer/DX11TonePassSystem.h"
+#include "../Renderer/DX11DebugPassSystem.h"
+#include "../Renderer/DX11PostRenderPassSystem.h"
 
 #include "SceneBase.h"
 
@@ -67,26 +63,19 @@ void SceneBase::SetupServices(ServiceProvider& service_provider) {
 }
 
 void SceneBase::InitializeTickSystems(SystemsPool& tick_systems_pool) {
-	tick_systems_pool.PushSystem<DX11PreRenderPassTickSystem>();
-	tick_systems_pool.PushSystem<DX11GeometryPassTickSystem>();
-	tick_systems_pool.PushSystem<DX11PreLightPassTickSystem>();
-	tick_systems_pool.PushSystem<DX11AmbientLightPassTickSystem>();
-	tick_systems_pool.PushSystem<DX11DirectionalLightPassTickSystem>();
-	tick_systems_pool.PushSystem<DX11PointLightPassTickSystem>();
-	tick_systems_pool.PushSystem<DX11TonePassTickSystem>();
-	tick_systems_pool.PushSystem<DX11DebugPassTickSystem>();
-	tick_systems_pool.PushSystem<DX11PostRenderPassTickSystem>();
+	tick_systems_pool.PushSystem<DX11PreRenderPassSystem>();
+	tick_systems_pool.PushSystem<DX11GeometryPassSystem>();
+	tick_systems_pool.PushSystem<DX11PreLightPassSystem>();
+	tick_systems_pool.PushSystem<DX11AmbientLightPassSystem>();
+	tick_systems_pool.PushSystem<DX11DirectionalLightPassSystem>();
+	tick_systems_pool.PushSystem<DX11PointLightPassSystem>();
+	tick_systems_pool.PushSystem<DX11TonePassSystem>();
+	tick_systems_pool.PushSystem<DX11DebugPassSystem>();
+	tick_systems_pool.PushSystem<DX11PostRenderPassSystem>();
 }
 
-void SceneBase::InitializeFrameSystems(SystemsPool& frame_systems_pool) {
-	frame_systems_pool.PushSystem<DX11GeometryPassFrameSystem>();
-	frame_systems_pool.PushSystem<DX11DirectionalLightPassFrameSystem>();
-	frame_systems_pool.PushSystem<DX11PointLightPassFrameSystem>();
-	frame_systems_pool.PushSystem<DX11DebugPassFrameSystem>();
-}
+void SceneBase::InitializeFrameSystems(SystemsPool& frame_systems_pool) {}
 
-void SceneBase::SetupScene(ServiceProvider& service_provider) {
-
-}
+void SceneBase::SetupScene(ServiceProvider& service_provider) {}
 
 } // namespace aoe

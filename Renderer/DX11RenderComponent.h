@@ -3,19 +3,20 @@
 #include "../Resources/Resources.h"
 
 #include "Material.h"
-#include "DX11RenderDataComponents.h"
-#include "DX11GeometryPassFrameSystem.h"
+#include "DX11RenderData.h"
+#include "DX11BufferModels.h"
+#include "DX11GeometryPassSystem.h"
 
 namespace aoe {
 
-class DX11GeometryPassFrameSystem;
+class DX11GeometryPassSystem;
 
-class RenderComponent {
+class DX11RenderComponent {
 private:
-	friend class DX11GeometryPassFrameSystem;
+	friend class DX11GeometryPassSystem;
 
 public:
-	RenderComponent(ModelId model_id, TextureId texture_id, Material material)
+	DX11RenderComponent(ModelId model_id, TextureId texture_id, Material material)
 		: model_id_(model_id)
 		, texture_id_(texture_id)
 		, material_(std::move(material))

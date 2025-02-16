@@ -1,35 +1,35 @@
 #include "pch.h"
 
-#include "DX11AmbientLightPassTickSystem.h"
+#include "DX11AmbientLightPassSystem.h"
 #include "DX11ShaderHelper.h"
-#include "AmbientLightComponent.h"
+#include "DX11AmbientLightComponent.h"
 
 namespace aoe {
 
-DX11AmbientLightPassTickSystem::DX11AmbientLightPassTickSystem()
+DX11AmbientLightPassSystem::DX11AmbientLightPassSystem()
 	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/AmbientLightPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/AmbientLightPass.hlsl"))
 {}
 
-void DX11AmbientLightPassTickSystem::Update(float dt) {
+void DX11AmbientLightPassSystem::Update(float dt) {
 	if (HasCamera()) {
 		Render();
 	}
 }
 
-void DX11AmbientLightPassTickSystem::Render() {
+void DX11AmbientLightPassSystem::Render() {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	PrepareRenderContext();
 
-	for (Entity entity : FilterEntities<AmbientLightComponent>()) {
-		auto ambient_light_component = GetComponent<AmbientLightComponent>(entity);
+	for (Entity entity : FilterEntities<DX11AmbientLightComponent>()) {
+		auto ambient_light_component = GetComponent<DX11AmbientLightComponent>(entity);
 
 		context.SetConstantBuffer(GPUShaderType::kPixel, ambient_light_component->GetColorData().buffer, 0);
 		context.Draw(4);
 	}
 }
 
-void DX11AmbientLightPassTickSystem::PrepareRenderContext() {
+void DX11AmbientLightPassSystem::PrepareRenderContext() {
 	DX11RasterizerStateID rs_id{ GPUCullMode::kBack, GPUFillMode::kSolid };
 	const DX11GPURasterizerState& rasterizer_state = GetRenderContext()->GetRasterizerState(rs_id);
 

@@ -1,13 +1,14 @@
 #include "pch.h"
 
-#include "DX11GeometryPassTickSystem.h"
-#include "DX11RenderDataComponents.h"
+#include "DX11GeometryPassSystem.h"
+#include "DX11RenderData.h"
+#include "DX11BufferModels.h"
 #include "DX11ShaderHelper.h"
-#include "RenderComponent.h"
+#include "DX11RenderComponent.h"
 
 namespace aoe {
 
-DX11GeometryPassTickSystem::DX11GeometryPassTickSystem()
+DX11GeometryPassSystem::DX11GeometryPassSystem()
 	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/GeometryPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/GeometryPass.hlsl"))
 	, sampler_(CreateSamplerDescription())
@@ -17,7 +18,7 @@ DX11GeometryPassTickSystem::DX11GeometryPassTickSystem()
 	, texture_manager_(nullptr)
 {}
 
-void DX11GeometryPassTickSystem::Initialize(const ServiceProvider & service_provider) {
+void DX11GeometryPassSystem::Initialize(const ServiceProvider & service_provider) {
 	DX11RenderPassSystemBase::Initialize(service_provider);
 
 	model_manager_ = service_provider.TryGetService<DX11ModelManager>();
@@ -27,18 +28,19 @@ void DX11GeometryPassTickSystem::Initialize(const ServiceProvider & service_prov
 	AOE_ASSERT_MSG(texture_manager_ != nullptr, "There is no DX11TextureManager service.");
 }
 
-void DX11GeometryPassTickSystem::Update(float dt) {
+void DX11GeometryPassSystem::Update(float dt) {
 	if (HasCamera()) {
 		Entity camera = GetActualCamera();
+		UpdateRenderData();
 		Render(camera);
 	}
 }
 
-GPUSamplerDescription DX11GeometryPassTickSystem::CreateSamplerDescription() {
+GPUSamplerDescription DX11GeometryPassSystem::CreateSamplerDescription() {
 	return {};
 }
 
-GPUBlendStateDescription DX11GeometryPassTickSystem::CreateBlendStateDescription() {
+GPUBlendStateDescription DX11GeometryPassSystem::CreateBlendStateDescription() {
 	GPUBlendStateDescription blend_state_desc{};
 	blend_state_desc.is_alpha_to_coverage_enable = false;
 	blend_state_desc.is_independent_blend_enable = false;
@@ -54,7 +56,22 @@ GPUBlendStateDescription DX11GeometryPassTickSystem::CreateBlendStateDescription
 	return blend_state_desc;
 }
 
-void DX11GeometryPassTickSystem::Render(Entity camera) {
+void DX11GeometryPassSystem::UpdateRenderData() {
+	for (Entity entity : FilterEntities<TransformComponent, DX11RenderComponent>()) {
+		auto transform_component = GetComponent<TransformComponent>(entity);
+		auto render_component = GetComponent<DX11RenderComponent>(entity);
+
+		Matrix4f world = GetGlobalWorldMatrix(entity);
+
+		TransformData transform_data{};
+		transform_data.world = world.Transpose();
+		transform_data.world_it = world.Inverse();
+
+		render_component->transform_data_.Update(&transform_data);
+	}
+}
+
+void DX11GeometryPassSystem::Render(Entity camera) {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	PrepareRenderContext();
 
@@ -64,8 +81,8 @@ void DX11GeometryPassTickSystem::Render(Entity camera) {
 
 	context.SetConstantBuffer(GPUShaderType::kVertex, camera_data_.buffer, 0);
 
-	for (Entity entity : FilterEntities<TransformComponent, RenderComponent>()) {
-		auto render_component = GetComponent<RenderComponent>(entity);
+	for (Entity entity : FilterEntities<TransformComponent, DX11RenderComponent>()) {
+		auto render_component = GetComponent<DX11RenderComponent>(entity);
 		
 		const DX11ModelResources& model_resources = model_manager_->GetModelResources(render_component->GetModelId());
 		const DX11GPUTexture2D& texture_resources = texture_manager_->GetTextureResources(render_component->GetTextureId());
@@ -82,7 +99,7 @@ void DX11GeometryPassTickSystem::Render(Entity camera) {
 	}
 }
 
-void DX11GeometryPassTickSystem::PrepareRenderContext() {
+void DX11GeometryPassSystem::PrepareRenderContext() {
 	DX11RasterizerStateID rs_id{ GPUCullMode::kBack, GPUFillMode::kSolid };
 	const DX11GPURasterizerState& rasterizer_state = GetRenderContext()->GetRasterizerState(rs_id);
 

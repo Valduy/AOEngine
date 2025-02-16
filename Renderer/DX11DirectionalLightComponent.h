@@ -1,23 +1,24 @@
 #pragma once
 
 #include "Colors.h"
-#include "DX11RenderDataComponents.h"
-#include "DX11DirectionalLightPassFrameSystem.h"
+#include "DX11RenderData.h"
+#include "DX11BufferModels.h"
+#include "DX11DirectionalLightPassSystem.h"
 
 namespace aoe {
 
-class DX11DirectionalLightPassFrameSystem;
+class DX11DirectionalLightPassSystem;
 
-class DirectionalLightComponent {
+class DX11DirectionalLightComponent {
 private:
-	friend class DX11DirectionalLightPassFrameSystem;
+	friend class DX11DirectionalLightPassSystem;
 
 public:
-	DirectionalLightComponent()
-		: DirectionalLightComponent(Colors::kBlack)
+	DX11DirectionalLightComponent()
+		: DX11DirectionalLightComponent(Colors::kBlack)
 	{}
 
-	DirectionalLightComponent(Vector3f color)
+	DX11DirectionalLightComponent(Vector3f color)
 		: color_(color)
 	{
 		UpdateColorData();

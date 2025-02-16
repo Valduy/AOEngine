@@ -1,24 +1,36 @@
 #include "pch.h"
 
-#include "DX11DirectionalLightPassTickSystem.h"
+#include "DX11DirectionalLightPassSystem.h"
 #include "DX11ShaderHelper.h"
-#include "DirectionalLightComponent.h"
+#include "DX11DirectionalLightComponent.h"
 
 namespace aoe {
 
-DX11DirectionalLightPassTickSystem::DX11DirectionalLightPassTickSystem()
+DX11DirectionalLightPassSystem::DX11DirectionalLightPassSystem()
 	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/DirectionalLightPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/DirectionalLightPass.hlsl"))
 {}
 
-void DX11DirectionalLightPassTickSystem::Update(float dt) {
+void DX11DirectionalLightPassSystem::Update(float dt) {
 	if (HasCamera()) {
 		Entity camera = GetActualCamera();
+		UpdateRenderData();
 		Render(camera);
 	}
 }
 
-void DX11DirectionalLightPassTickSystem::Render(Entity camera) {
+void DX11DirectionalLightPassSystem::UpdateRenderData() {
+	for (Entity entity : FilterEntities<TransformComponent, DX11DirectionalLightComponent>()) {
+		auto directional_light_component = GetComponent<DX11DirectionalLightComponent>(entity);
+
+		Vector3fData data{};
+		data.value = GetGlobalTransform(entity).GetForward();
+
+		directional_light_component->transform_data_.Update(&data);
+	}
+}
+
+void DX11DirectionalLightPassSystem::Render(Entity camera) {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	PrepareRenderContext();
 
@@ -28,8 +40,8 @@ void DX11DirectionalLightPassTickSystem::Render(Entity camera) {
 
 	context.SetConstantBuffer(GPUShaderType::kPixel, camera_data_.buffer, 0);
 
-	for (Entity entity : FilterEntities<TransformComponent, DirectionalLightComponent>()) {
-		auto direction_light_component = GetComponent<DirectionalLightComponent>(entity);
+	for (Entity entity : FilterEntities<TransformComponent, DX11DirectionalLightComponent>()) {
+		auto direction_light_component = GetComponent<DX11DirectionalLightComponent>(entity);
 
 		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_component->GetTransformData().buffer, 1);
 		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_component->GetColorData().buffer, 2);
@@ -37,7 +49,7 @@ void DX11DirectionalLightPassTickSystem::Render(Entity camera) {
 	}
 }
 
-void DX11DirectionalLightPassTickSystem::PrepareRenderContext() {
+void DX11DirectionalLightPassSystem::PrepareRenderContext() {
 	DX11RasterizerStateID rs_id{ GPUCullMode::kBack, GPUFillMode::kSolid };
 	const DX11GPURasterizerState& rasterizer_state = GetRenderContext()->GetRasterizerState(rs_id);
 

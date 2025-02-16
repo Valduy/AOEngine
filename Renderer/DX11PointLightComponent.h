@@ -1,23 +1,24 @@
 #pragma once
 
 #include "Colors.h"
-#include "DX11RenderDataComponents.h"
-#include "DX11PointLightPassFrameSystem.h"
+#include "DX11RenderData.h"
+#include "DX11BufferModels.h"
+#include "DX11PointLightPassSystem.h"
 
 namespace aoe {
 
-class DX11PointLightPassFrameSystem;
+class DX11PointLightPassSystem;
 
-class PointLightComponent {
+class DX11PointLightComponent {
 private:
-	friend class DX11PointLightPassFrameSystem;
+	friend class DX11PointLightPassSystem;
 
 public:
-	PointLightComponent()
-		: PointLightComponent(Colors::kBlack)
+	DX11PointLightComponent()
+		: DX11PointLightComponent(Colors::kBlack)
 	{}
 
-	PointLightComponent(Vector3f color)
+	DX11PointLightComponent(Vector3f color)
 		: color_(color)
 	{
 		UpdateColorData();

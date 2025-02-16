@@ -1,17 +1,18 @@
 #pragma once
 
 #include "Colors.h"
-#include "DX11RenderDataComponents.h"
+#include "DX11RenderData.h"
+#include "DX11BufferModels.h"
 
 namespace aoe {
 
-class AmbientLightComponent {
+class DX11AmbientLightComponent {
 public:
-	AmbientLightComponent()
-		: AmbientLightComponent(Colors::kBlack)
+	DX11AmbientLightComponent()
+		: DX11AmbientLightComponent(Colors::kBlack)
 	{}
 
-	AmbientLightComponent(Vector3f color)
+	DX11AmbientLightComponent(Vector3f color)
 		: color_(color)
 	{
 		UpdateColorData();

@@ -2,20 +2,20 @@
 
 #include "../Graphics/DX11GPUContext.h"
 
-#include "DX11PostRenderPassTickSystem.h"
+#include "DX11PostRenderPassSystem.h"
 
 namespace aoe {
 
-void DX11PostRenderPassTickSystem::Update(float dt) {
+void DX11PostRenderPassSystem::Update(float dt) {
 	PresentFrame();
 	ClearContext();
 }
 
-void DX11PostRenderPassTickSystem::PresentFrame() {
+void DX11PostRenderPassSystem::PresentFrame() {
 	GetRenderContext()->PresentFrame();
 }
 
-void DX11PostRenderPassTickSystem::ClearContext() {
+void DX11PostRenderPassSystem::ClearContext() {
 	const float background_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	aoe::DX11GPUContext context = aoe::DX11GPUDevice::Instance().GetContext();

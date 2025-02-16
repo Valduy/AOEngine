@@ -8,9 +8,9 @@
 
 namespace aoe {
 
-class DX11DebugPassTickSystem : public DX11RenderPassSystemBase {
+class DX11DebugPassSystem : public DX11RenderPassSystemBase {
 public:
-	DX11DebugPassTickSystem();
+	DX11DebugPassSystem();
 
 	void Update(float dt) override;
 
@@ -19,6 +19,7 @@ private:
 	DX11GPUPixelShader pixel_shader_;
 	DX11RenderData<Matrix4f> camera_data_;
 
+	void UpdateRenderData();
 	void Render(Entity camera);
 	void PrepareRenderContext();
 };

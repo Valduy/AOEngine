@@ -32,7 +32,7 @@ Entity DebugUtils::CreateLine(
 	Entity entity = CreateTransformEntity(world, transform);
 
 	Line line({ Segment(std::move(points)), });
-	world.AddComponent<LineComponent>(entity, color, line);
+	world.AddComponent<DX11LineComponent>(entity, color, line);
 
 	return entity;
 }
@@ -69,7 +69,7 @@ Entity DebugUtils::CreateSphere(
 	Segment yaw = CreateCirclePoints(kRadius, Math::kZeros3f, { Math::kPiDiv2, 0.0f, 0.0f });
 
 	Line line({ roll, pitch, yaw });
-	world.AddComponent<LineComponent>(entity, color, std::move(line));
+	world.AddComponent<DX11LineComponent>(entity, color, std::move(line));
 
 	return entity;
 }
@@ -107,7 +107,7 @@ Entity DebugUtils::CreateCube(
 	});
 
 	Line line({ front, back, segment0, segment1, segment2, segment3, });
-	world.AddComponent<LineComponent>(entity, color, std::move(line));
+	world.AddComponent<DX11LineComponent>(entity, color, std::move(line));
 
 	return entity;
 }
@@ -169,7 +169,7 @@ Entity DebugUtils::CreateGrid(
 	}
 
 	Line line(segments);
-	world.AddComponent<LineComponent>(entity, color, std::move(line));
+	world.AddComponent<DX11LineComponent>(entity, color, std::move(line));
 
 	return entity;
 }

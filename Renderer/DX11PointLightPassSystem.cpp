@@ -1,12 +1,12 @@
 #include "pch.h"
 
-#include "DX11PointLightPassTickSystem.h"
+#include "DX11PointLightPassSystem.h"
 #include "DX11ShaderHelper.h"
-#include "PointLightComponent.h"
+#include "DX11PointLightComponent.h"
 
 namespace aoe {
 
-DX11PointLightPassTickSystem::DX11PointLightPassTickSystem()
+DX11PointLightPassSystem::DX11PointLightPassSystem()
 	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/PointLightPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/PointLightPass.hlsl"))
 	, camera_data_()
@@ -14,7 +14,7 @@ DX11PointLightPassTickSystem::DX11PointLightPassTickSystem()
 	, sphere_id(DX11ModelManager::kDefault)
 {}
 
-void DX11PointLightPassTickSystem::Initialize(const ServiceProvider& service_provider) {
+void DX11PointLightPassSystem::Initialize(const ServiceProvider& service_provider) {
 	DX11RenderPassSystemBase::Initialize(service_provider);
 
 	model_manager_ = service_provider.TryGetService<DX11ModelManager>();
@@ -23,14 +23,31 @@ void DX11PointLightPassTickSystem::Initialize(const ServiceProvider& service_pro
 	sphere_id = model_manager_->Load(L"Content/Sphere.fbx");
 }
 
-void DX11PointLightPassTickSystem::Update(float dt) {
+void DX11PointLightPassSystem::Update(float dt) {
 	if (HasCamera()) {
 		Entity camera = GetActualCamera();
+		UpdateRenderData();
 		Render(camera);
 	}
 }
 
-void DX11PointLightPassTickSystem::Render(Entity camera) {
+void DX11PointLightPassSystem::UpdateRenderData() {
+	for (Entity entity : FilterEntities<TransformComponent, DX11PointLightComponent>()) {
+		auto transform_component = GetComponent<TransformComponent>(entity);
+		auto point_light_component = GetComponent<DX11PointLightComponent>(entity);
+
+		Matrix4f world = GetGlobalWorldMatrix(entity);
+		Vector3f position = GetGlobalPosition(entity);
+
+		PointLightTransformData data{};
+		data.world = world.Transpose();
+		data.position = position;
+
+		point_light_component->transform_data_.Update(&data);
+	}
+}
+
+void DX11PointLightPassSystem::Render(Entity camera) {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	const DX11ModelResources& sphere_resources = model_manager_->GetModelResources(sphere_id);
 	PrepareRenderContext();
@@ -46,8 +63,8 @@ void DX11PointLightPassTickSystem::Render(Entity camera) {
 
 	context.SetConstantBuffer(GPUShaderType::kVertex, camera_data_.buffer, 0);
 
-	for (Entity entity : FilterEntities<PointLightComponent>()) {
-		auto point_light_data_component = GetComponent<PointLightComponent>(entity);
+	for (Entity entity : FilterEntities<DX11PointLightComponent>()) {
+		auto point_light_data_component = GetComponent<DX11PointLightComponent>(entity);
 
 		context.SetConstantBuffer(GPUShaderType::kVertex, point_light_data_component->GetTransformData().buffer, 1);
 		context.SetConstantBuffer(GPUShaderType::kPixel, point_light_data_component->GetColorData().buffer, 2);
@@ -60,7 +77,7 @@ void DX11PointLightPassTickSystem::Render(Entity camera) {
 	}
 }
 
-void DX11PointLightPassTickSystem::PrepareRenderContext() {
+void DX11PointLightPassSystem::PrepareRenderContext() {
 	DX11RasterizerStateID rs_id{ GPUCullMode::kFront, GPUFillMode::kSolid };
 	const DX11GPURasterizerState& rasterizer_state = GetRenderContext()->GetRasterizerState(rs_id);
 

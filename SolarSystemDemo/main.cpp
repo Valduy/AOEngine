@@ -1,13 +1,13 @@
 #include "../Game/TransformUtils.h"
-#include "../Renderer/AmbientLightComponent.h"
-#include "../Renderer/DirectionalLightComponent.h"
-#include "../Renderer/PointLightComponent.h"
-#include "../Renderer/LineComponent.h"
+#include "../Renderer/DX11AmbientLightComponent.h"
+#include "../Renderer/DX11DirectionalLightComponent.h"
+#include "../Renderer/DX11PointLightComponent.h"
+#include "../Renderer/DX11LineComponent.h"
 #include "../Renderer/CameraComponent.h"
 #include "../Renderer/Colors.h"
 #include "../Renderer/DebugUtils.h"
 #include "../Renderer/Material.h"
-#include "../Renderer/RenderComponent.h"
+#include "../Renderer/DX11RenderComponent.h"
 #include "../Resources/DX11ModelManager.h"
 #include "../Resources/DX11TextureManager.h"
 #include "../Common/SceneBase.h"
@@ -145,7 +145,7 @@ protected:
 
 		Entity astro_object = world.CreateEntity();
 		world.AddComponent<TransformComponent>(astro_object);
-		world.AddComponent<RenderComponent>(astro_object, model_id, texture_id, material);
+		world.AddComponent<DX11RenderComponent>(astro_object, model_id, texture_id, material);
 
 		Transform axis_transform{};
 		Entity axis = DebugUtils::CreateAxis(world, relationeer, axis_transform);
@@ -158,7 +158,7 @@ protected:
 		using namespace aoe;
 
 		Entity ambient_light = world.CreateEntity();
-		world.AddComponent<AmbientLightComponent>(ambient_light, Vector3f(0.25f, 0.25f, 0.25f));
+		world.AddComponent<DX11AmbientLightComponent>(ambient_light, Vector3f(0.25f, 0.25f, 0.25f));
 
 		return ambient_light;
 	}
@@ -168,7 +168,7 @@ protected:
 
 		Entity directional_light = world.CreateEntity();
 		world.AddComponent<TransformComponent>(directional_light);
-		world.AddComponent<DirectionalLightComponent>(directional_light, Vector3f(1.0f, 1.0f, 1.0f));
+		world.AddComponent<DX11DirectionalLightComponent>(directional_light, Vector3f(1.0f, 1.0f, 1.0f));
 
 		auto transform_component = world.GetComponent<TransformComponent>(directional_light);
 
@@ -187,7 +187,7 @@ protected:
 
 		Entity point_light = world.CreateEntity();
 		world.AddComponent<TransformComponent>(point_light);
-		world.AddComponent<PointLightComponent>(point_light, Vector3f(1.0f, 1.0f, 1.0f));
+		world.AddComponent<DX11PointLightComponent>(point_light, Vector3f(1.0f, 1.0f, 1.0f));
 
 		Entity sphere = DebugUtils::CreateSphere(world, {}, Colors::kWhite);
 		relationeer.SetParent(sphere, point_light);

@@ -4,7 +4,7 @@
 
 namespace aoe {
 
-class DX11PostRenderPassTickSystem : public DX11RenderPassSystemBase {
+class DX11PostRenderPassSystem : public DX11RenderPassSystemBase {
 public:
 	void Update(float dt) override;
 

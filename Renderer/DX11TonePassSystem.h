@@ -7,9 +7,9 @@
 
 namespace aoe {
 
-class DX11TonePassTickSystem : public DX11RenderPassSystemBase {
+class DX11TonePassSystem : public DX11RenderPassSystemBase {
 public:
-	DX11TonePassTickSystem();
+	DX11TonePassSystem();
 
 	void Update(float dt) override;
 

@@ -3,22 +3,23 @@
 #include <vector>
 
 #include "Colors.h"
-#include "DX11RenderDataComponents.h"
-#include "DX11DebugPassFrameSystem.h"
+#include "DX11RenderData.h"
+#include "DX11BufferModels.h"
+#include "DX11DebugPassSystem.h"
 
 namespace aoe {
 
 using Segment = std::vector<Vector3f>;
 using Line = std::vector<Segment>;
 
-class DX11DebugPassFrameSystem;
+class DX11DebugPassSystem;
 
-class LineComponent {
+class DX11LineComponent {
 private:
-	friend class DX11DebugPassFrameSystem;
+	friend class DX11DebugPassSystem;
 
 public:
-	LineComponent(Vector3f color, Line line)
+	DX11LineComponent(Vector3f color, Line line)
 		: color_(color)
 		, line_(std::move(line))
 		, color_data_()

@@ -2,21 +2,21 @@
 
 #include "../Graphics/DX11GPUContext.h"
 
-#include "DX11PreLightPassTickSystem.h"
+#include "DX11PreLightPassSystem.h"
 
 namespace aoe {
 
-DX11PreLightPassTickSystem::DX11PreLightPassTickSystem()
+DX11PreLightPassSystem::DX11PreLightPassSystem()
 	: blend_state_(CreateBlendStateDescription())
 {}
 
-void DX11PreLightPassTickSystem::Update(float dt) {
+void DX11PreLightPassSystem::Update(float dt) {
 	if (HasCamera()) {
 		PrepareRenderContext();
 	}
 }
 
-GPUBlendStateDescription DX11PreLightPassTickSystem::CreateBlendStateDescription() {
+GPUBlendStateDescription DX11PreLightPassSystem::CreateBlendStateDescription() {
 	GPUBlendStateDescription blend_state_desc{};
 	blend_state_desc.is_alpha_to_coverage_enable = false;
 	blend_state_desc.is_independent_blend_enable = false;
@@ -32,7 +32,7 @@ GPUBlendStateDescription DX11PreLightPassTickSystem::CreateBlendStateDescription
 	return blend_state_desc;
 }
 
-void DX11PreLightPassTickSystem::PrepareRenderContext() {
+void DX11PreLightPassSystem::PrepareRenderContext() {
 	DX11GPURenderTargets render_targets;
 	render_targets.render_target_views[0] = &GetRenderContext()->GetAccumulatorTextureView();
 	render_targets.depth_stencil_view = &GetRenderContext()->GetDepthBufferView();

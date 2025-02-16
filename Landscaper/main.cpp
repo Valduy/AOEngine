@@ -2,9 +2,9 @@
 #include <queue>
 #include <algorithm>
 
-#include "../Renderer/RenderComponent.h"
-#include "../Renderer/AmbientLightComponent.h"
-#include "../Renderer/DirectionalLightComponent.h"
+#include "../Renderer/DX11RenderComponent.h"
+#include "../Renderer/DX11AmbientLightComponent.h"
+#include "../Renderer/DX11DirectionalLightComponent.h"
 #include "../Renderer/DebugUtils.h"
 #include "../Common/SceneBase.h"
 #include "../Common/FlyCameraTickSystem.h"
@@ -571,7 +571,7 @@ protected:
 		using namespace aoe;
 
 		Entity ambient_light = world.CreateEntity();
-		world.AddComponent<AmbientLightComponent>(ambient_light, Vector3f(0.1f, 0.1f, 0.1f));
+		world.AddComponent<DX11AmbientLightComponent>(ambient_light, Vector3f(0.1f, 0.1f, 0.1f));
 
 		return ambient_light;
 	}
@@ -581,7 +581,7 @@ protected:
 
 		Entity directional_light = world.CreateEntity();
 		world.AddComponent<TransformComponent>(directional_light);
-		world.AddComponent<DirectionalLightComponent>(directional_light, Vector3f(1.0f, 1.0f, 1.0f));
+		world.AddComponent<DX11DirectionalLightComponent>(directional_light, Vector3f(1.0f, 1.0f, 1.0f));
 
 		auto transform_component = world.GetComponent<TransformComponent>(directional_light);
 
@@ -609,7 +609,7 @@ protected:
 
 		Entity sphere = world.CreateEntity();
 		world.AddComponent<TransformComponent>(sphere);
-		world.AddComponent<RenderComponent>(sphere, model_id, texture_id, material);
+		world.AddComponent<DX11RenderComponent>(sphere, model_id, texture_id, material);
 
 		return sphere;
 	}
@@ -631,7 +631,7 @@ protected:
 
 		Entity cube = world.CreateEntity();
 		world.AddComponent<TransformComponent>(cube);
-		world.AddComponent<RenderComponent>(cube, model_id, texture_id, material);
+		world.AddComponent<DX11RenderComponent>(cube, model_id, texture_id, material);
 
 		return cube;
 	}

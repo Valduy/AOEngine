@@ -31,29 +31,14 @@
     <Filter Include="Source Files\DX11\RenderPasses">
       <UniqueIdentifier>{093dce17-be03-4586-a2fb-6b54f8e659ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\DX11\RenderPasses\Tick">
-      <UniqueIdentifier>{55d10665-e3a9-4195-aee8-bc6f1c858b36}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\DX11\RenderPasses\Frame">
-      <UniqueIdentifier>{19d80008-47be-49c6-89eb-91b90a34c0c2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\DX11\RenderPasses\Frame\Light">
-      <UniqueIdentifier>{d6c07d6d-c0d0-424e-8d1a-04e1745c05d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\DX11\RenderPasses\Tick\Light">
+    <Filter Include="Header Files\DX11\RenderPasses\Light">
       <UniqueIdentifier>{df828ee9-8487-4378-ae9b-9c62a98ea354}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\DX11\RenderPasses\Tick">
-      <UniqueIdentifier>{c066f023-f990-4431-af2d-43524fa03f35}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\DX11\RenderPasses\Frame">
-      <UniqueIdentifier>{a087a858-d72c-4473-99ba-2fc322a1709a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\DX11\RenderPasses\Frame\Light">
-      <UniqueIdentifier>{31b0c987-5616-4ce1-a250-d22977ae6e7c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\DX11\RenderPasses\Tick\Light">
+    <Filter Include="Source Files\DX11\RenderPasses\Light">
       <UniqueIdentifier>{5732ea77-8449-4707-b600-49988f114a5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DX11\Components">
+      <UniqueIdentifier>{4d8d2564-c6d4-4935-b5c7-118e0e058545}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -75,14 +60,8 @@
     <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DX11RenderDataComponents.h">
+    <ClInclude Include="DX11BufferModels.h">
       <Filter>Header Files\DX11</Filter>
-    </ClInclude>
-    <ClInclude Include="AmbientLightComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectionalLightComponent.h">
-      <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="CameraUtils.h">
       <Filter>Header Files</Filter>
@@ -99,65 +78,59 @@
     <ClInclude Include="CameraComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="RenderComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="LineComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="Colors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DebugUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PointLightComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="DX11RenderPassSystemBase.h">
       <Filter>Header Files\DX11\RenderPasses</Filter>
     </ClInclude>
-    <ClInclude Include="DX11GeometryPassFrameSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Frame</Filter>
+    <ClInclude Include="DX11AmbientLightPassSystem.h">
+      <Filter>Header Files\DX11\RenderPasses\Light</Filter>
     </ClInclude>
-    <ClInclude Include="DX11GeometryPassTickSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Tick</Filter>
+    <ClInclude Include="DX11DirectionalLightPassSystem.h">
+      <Filter>Header Files\DX11\RenderPasses\Light</Filter>
     </ClInclude>
-    <ClInclude Include="DX11TonePassTickSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Tick</Filter>
+    <ClInclude Include="DX11PointLightPassSystem.h">
+      <Filter>Header Files\DX11\RenderPasses\Light</Filter>
     </ClInclude>
-    <ClInclude Include="DX11DebugPassFrameSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Frame</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11DebugPassTickSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Tick</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11PreRenderPassTickSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Tick</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11PostRenderPassTickSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Tick</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11DirectionalLightPassFrameSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Frame\Light</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11PointLightPassFrameSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Frame\Light</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11AmbientLightPassTickSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Tick\Light</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11DirectionalLightPassTickSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Tick\Light</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11PointLightPassTickSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Tick\Light</Filter>
-    </ClInclude>
-    <ClInclude Include="DX11PreLightPassTickSystem.h">
-      <Filter>Header Files\DX11\RenderPasses\Tick\Light</Filter>
+    <ClInclude Include="DX11PreLightPassSystem.h">
+      <Filter>Header Files\DX11\RenderPasses\Light</Filter>
     </ClInclude>
     <ClInclude Include="DX11RenderData.h">
       <Filter>Header Files\DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11DebugPassSystem.h">
+      <Filter>Header Files\DX11\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11GeometryPassSystem.h">
+      <Filter>Header Files\DX11\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11PostRenderPassSystem.h">
+      <Filter>Header Files\DX11\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11PreRenderPassSystem.h">
+      <Filter>Header Files\DX11\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11TonePassSystem.h">
+      <Filter>Header Files\DX11\RenderPasses</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11AmbientLightComponent.h">
+      <Filter>Header Files\DX11\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11DirectionalLightComponent.h">
+      <Filter>Header Files\DX11\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11LineComponent.h">
+      <Filter>Header Files\DX11\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11PointLightComponent.h">
+      <Filter>Header Files\DX11\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11RenderComponent.h">
+      <Filter>Header Files\DX11\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -194,44 +167,32 @@
     <ClCompile Include="DX11RenderPassSystemBase.cpp">
       <Filter>Source Files\DX11\RenderPasses</Filter>
     </ClCompile>
-    <ClCompile Include="DX11DirectionalLightPassFrameSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Frame\Light</Filter>
+    <ClCompile Include="DX11AmbientLightPassSystem.cpp">
+      <Filter>Source Files\DX11\RenderPasses\Light</Filter>
     </ClCompile>
-    <ClCompile Include="DX11PointLightPassFrameSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Frame\Light</Filter>
+    <ClCompile Include="DX11DirectionalLightPassSystem.cpp">
+      <Filter>Source Files\DX11\RenderPasses\Light</Filter>
     </ClCompile>
-    <ClCompile Include="DX11DebugPassFrameSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Frame</Filter>
+    <ClCompile Include="DX11PointLightPassSystem.cpp">
+      <Filter>Source Files\DX11\RenderPasses\Light</Filter>
     </ClCompile>
-    <ClCompile Include="DX11GeometryPassFrameSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Frame</Filter>
+    <ClCompile Include="DX11PreLightPassSystem.cpp">
+      <Filter>Source Files\DX11\RenderPasses\Light</Filter>
     </ClCompile>
-    <ClCompile Include="DX11AmbientLightPassTickSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Tick\Light</Filter>
+    <ClCompile Include="DX11DebugPassSystem.cpp">
+      <Filter>Source Files\DX11\RenderPasses</Filter>
     </ClCompile>
-    <ClCompile Include="DX11DirectionalLightPassTickSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Tick\Light</Filter>
+    <ClCompile Include="DX11GeometryPassSystem.cpp">
+      <Filter>Source Files\DX11\RenderPasses</Filter>
     </ClCompile>
-    <ClCompile Include="DX11PointLightPassTickSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Tick\Light</Filter>
+    <ClCompile Include="DX11PostRenderPassSystem.cpp">
+      <Filter>Source Files\DX11\RenderPasses</Filter>
     </ClCompile>
-    <ClCompile Include="DX11PreLightPassTickSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Tick\Light</Filter>
+    <ClCompile Include="DX11PreRenderPassSystem.cpp">
+      <Filter>Source Files\DX11\RenderPasses</Filter>
     </ClCompile>
-    <ClCompile Include="DX11DebugPassTickSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Tick</Filter>
-    </ClCompile>
-    <ClCompile Include="DX11GeometryPassTickSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Tick</Filter>
-    </ClCompile>
-    <ClCompile Include="DX11PostRenderPassTickSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Tick</Filter>
-    </ClCompile>
-    <ClCompile Include="DX11PreRenderPassTickSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Tick</Filter>
-    </ClCompile>
-    <ClCompile Include="DX11TonePassTickSystem.cpp">
-      <Filter>Source Files\DX11\RenderPasses\Tick</Filter>
+    <ClCompile Include="DX11TonePassSystem.cpp">
+      <Filter>Source Files\DX11\RenderPasses</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

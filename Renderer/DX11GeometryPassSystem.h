@@ -12,9 +12,9 @@
 
 namespace aoe {
 
-class DX11GeometryPassTickSystem : public DX11RenderPassSystemBase {
+class DX11GeometryPassSystem : public DX11RenderPassSystemBase {
 public:
-	DX11GeometryPassTickSystem();
+	DX11GeometryPassSystem();
 
 	void Initialize(const ServiceProvider& service_provider) override;
 	void Update(float dt) override;
@@ -32,6 +32,7 @@ private:
 	static GPUSamplerDescription CreateSamplerDescription();
 	static GPUBlendStateDescription CreateBlendStateDescription();
 
+	void UpdateRenderData();
 	void Render(Entity camera);
 	void PrepareRenderContext();
 };

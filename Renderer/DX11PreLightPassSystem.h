@@ -6,9 +6,9 @@
 
 namespace aoe {
 
-class DX11PreLightPassTickSystem : public DX11RenderPassSystemBase {
+class DX11PreLightPassSystem : public DX11RenderPassSystemBase {
 public:
-	DX11PreLightPassTickSystem();
+	DX11PreLightPassSystem();
 
 	void Update(float dt) override;
 
