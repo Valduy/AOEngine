@@ -4,6 +4,7 @@
 #include "../Graphics/DX11GPUPixelShader.h"
 
 #include "DX11RenderPassSystemBase.h"
+#include "DX11RenderData.h"
 
 namespace aoe {
 
@@ -16,8 +17,9 @@ public:
 private:
 	DX11GPUVertexShader vertex_shader_;
 	DX11GPUPixelShader pixel_shader_;
+	DX11RenderData<Matrix4f> camera_data_;
 
-	void Render();
+	void Render(Entity camera);
 	void PrepareRenderContext();
 };
 

@@ -1,7 +1,6 @@
 #include "pch.h"
 
 #include "../Renderer/DX11GeometryPassFrameSystem.h"
-#include "../Renderer/DX11AmbientLightPassFrameSystem.h"
 #include "../Renderer/DX11DirectionalLightPassFrameSystem.h"
 #include "../Renderer/DX11PointLightPassFrameSystem.h"
 #include "../Renderer/DX11DebugPassFrameSystem.h"
@@ -81,7 +80,6 @@ void SceneBase::InitializeTickSystems(SystemsPool& tick_systems_pool) {
 
 void SceneBase::InitializeFrameSystems(SystemsPool& frame_systems_pool) {
 	frame_systems_pool.PushSystem<DX11GeometryPassFrameSystem>();
-	frame_systems_pool.PushSystem<DX11AmbientLightPassFrameSystem>();
 	frame_systems_pool.PushSystem<DX11DirectionalLightPassFrameSystem>();
 	frame_systems_pool.PushSystem<DX11PointLightPassFrameSystem>();
 	frame_systems_pool.PushSystem<DX11DebugPassFrameSystem>();

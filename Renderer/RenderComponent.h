@@ -4,15 +4,23 @@
 
 #include "Material.h"
 #include "DX11RenderDataComponents.h"
+#include "DX11GeometryPassFrameSystem.h"
 
 namespace aoe {
 
+class DX11GeometryPassFrameSystem;
+
 class RenderComponent {
+private:
+	friend class DX11GeometryPassFrameSystem;
+
 public:
 	RenderComponent(ModelId model_id, TextureId texture_id, Material material)
 		: model_id_(model_id)
 		, texture_id_(texture_id)
 		, material_(std::move(material))
+		, material_data_()
+		, transform_data_()
 	{
 		UpdateMaterialData();
 	}
@@ -46,11 +54,16 @@ public:
 		return material_data_;
 	}
 
+	const DX11RenderData<TransformData>& GetTransformData() const {
+		return transform_data_;
+	}
+
 private:
 	ModelId model_id_;
 	TextureId texture_id_;
 	Material material_;
 	DX11RenderData<MaterialData> material_data_;
+	DX11RenderData<TransformData> transform_data_;
 
 	void UpdateMaterialData() {
 		MaterialData data{};

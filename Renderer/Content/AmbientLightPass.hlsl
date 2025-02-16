@@ -1,14 +1,12 @@
 #include "GBuffer.hlsl"
 
-struct LightData {
+struct ColorData {
     float3 color;
-    float dummy0;
-    float intensity;
-    float3 dummy1;
+    float dummy;
 };
 
-cbuffer LightBuffer : register(b0) {
-    LightData Ligth;
+cbuffer ColorBuffer : register(b0) {
+    ColorData Color;
 }
 
 Texture2D DiffuseMap  : register(t0);
@@ -25,7 +23,7 @@ struct PixelOut {
 };
 
 float4 CalculateLight(GBufferData gbuffer) {
-    float3 color = gbuffer.diffuse * Ligth.color * Ligth.intensity;
+    float3 color = gbuffer.diffuse * Color.color;
     return float4(color, 1.0f);
 }
 

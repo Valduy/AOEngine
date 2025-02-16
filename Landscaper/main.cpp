@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "../Renderer/RenderComponent.h"
+#include "../Renderer/AmbientLightComponent.h"
 #include "../Renderer/DirectionalLightComponent.h"
 #include "../Renderer/DebugUtils.h"
 #include "../Common/SceneBase.h"
@@ -279,6 +280,7 @@ protected:
 		//DebugUtils::CreateGrid(world, { 20, 0, 20 }, {}, Colors::kWhite);
 		//DebugUtils::CreateAxis(world, relationeer);
 
+		CreateAmbientLight(world);
 		CreateDirectionalLight(world, Math::kDown + Math::kForward * 0.5f);
 
 		Entity camera = world.CreateEntity();
@@ -430,8 +432,6 @@ protected:
 				transform_component->SetPosition(position);
 			}
 		}
-
-		auto test = 0;
 	}
 
 	void PerTickUpdate(float dt) override {
@@ -565,6 +565,15 @@ protected:
 		}
 
 		return false;
+	}
+
+	static aoe::Entity CreateAmbientLight(aoe::World& world) {
+		using namespace aoe;
+
+		Entity ambient_light = world.CreateEntity();
+		world.AddComponent<AmbientLightComponent>(ambient_light, Vector3f(0.1f, 0.1f, 0.1f));
+
+		return ambient_light;
 	}
 
 	static aoe::Entity CreateDirectionalLight(aoe::World& world, aoe::Vector3f direction) {

@@ -2,7 +2,6 @@
 
 #include "DX11DebugPassTickSystem.h"
 #include "DX11RenderDataComponents.h"
-#include "DX11LineResourcesComponent.h"
 #include "DX11ShaderHelper.h"
 #include "LineComponent.h"
 
@@ -11,25 +10,33 @@ namespace aoe {
 DX11DebugPassTickSystem::DX11DebugPassTickSystem()
 	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/DebugPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/DebugPass.hlsl"))
+	, camera_data_()
 {}
 
 void DX11DebugPassTickSystem::Update(float dt) {
 	if (HasCamera()) {
-		Render();
+		Entity camera = GetActualCamera();
+		Render(camera);
 	}
 }
 
-void DX11DebugPassTickSystem::Render() {
+void DX11DebugPassTickSystem::Render(Entity camera) {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	PrepareRenderContext();
 
-	for (Entity entity : FilterEntities<LineComponent, LineDataComponent, DX11LineResourcesComponent>()) {
-		auto line_data_component = GetComponent<LineDataComponent>(entity);
-		auto line_resources_component = GetComponent<DX11LineResourcesComponent>(entity);
+	Matrix4f view_projection = GetCameraMatrix(camera);
+	Matrix4f view_projection_t = view_projection.Transpose();
+	camera_data_.Update(&view_projection_t);
 
-		context.SetConstantBuffer(GPUShaderType::kVertex, line_data_component->line_data.buffer);
+	context.SetConstantBuffer(GPUShaderType::kVertex, camera_data_.buffer, 0);
 
-		for (const DX11GPUBuffer& vertex_buffer : line_resources_component->GetLineResources()) {
+	for (Entity entity : FilterEntities<TransformComponent, LineComponent>()) {
+		auto line_component = GetComponent<LineComponent>(entity);
+
+		context.SetConstantBuffer(GPUShaderType::kVertex, line_component->GetTransformData().buffer, 1);
+		context.SetConstantBuffer(GPUShaderType::kVertex, line_component->GetColorData().buffer, 2);
+
+		for (const DX11GPUBuffer& vertex_buffer : line_component->GetLineResources()) {
 			context.SetVertexBuffer(vertex_buffer);
 			context.Draw(vertex_buffer.GetElementsCount());
 		}

@@ -1,8 +1,8 @@
 #include "pch.h"
 
 #include "DX11AmbientLightPassTickSystem.h"
-#include "DX11RenderDataComponents.h"
 #include "DX11ShaderHelper.h"
+#include "AmbientLightComponent.h"
 
 namespace aoe {
 
@@ -21,10 +21,10 @@ void DX11AmbientLightPassTickSystem::Render() {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	PrepareRenderContext();
 
-	for (Entity entity : FilterEntities<AmbientLightDataComponent>()) {
-		auto ambient_light_data_component = GetComponent<AmbientLightDataComponent>(entity);
+	for (Entity entity : FilterEntities<AmbientLightComponent>()) {
+		auto ambient_light_component = GetComponent<AmbientLightComponent>(entity);
 
-		context.SetConstantBuffer(GPUShaderType::kPixel, ambient_light_data_component->light_data.buffer, 0);
+		context.SetConstantBuffer(GPUShaderType::kPixel, ambient_light_component->GetColorData().buffer, 0);
 		context.Draw(4);
 	}
 }

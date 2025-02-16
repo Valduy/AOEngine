@@ -1,7 +1,10 @@
+struct CameraData {
+    float4x4 view_projection;
+};
+
 struct TransformData {
     float4x4 world;
-    float4x4 world_view_projection;
-    float4x4 inverse_transpose_world;
+    float4x4 world_it;
 };
 
 struct MaterialData {
@@ -11,11 +14,15 @@ struct MaterialData {
     float shininess;
 };
 
-cbuffer TransformBuffer : register(b0) {
+cbuffer CameraBuffer : register(b0) {
+    CameraData Camera;
+};
+
+cbuffer TransformBuffer : register(b1) {
     TransformData Transform;
 };
 
-cbuffer MaterialBuffer : register(b1) {
+cbuffer MaterialBuffer : register(b2) {
     MaterialData Material;
 };
 
@@ -43,12 +50,13 @@ struct PixelOut {
 };
 
 PixelIn VertexMain(VertexIn input) {
+    float4x4 world_view_projection = mul(Transform.world, Camera.view_projection);
     float4 position = float4(input.position, 1.0);
     float4 normal = float4(input.normal, 0.0);
     
     PixelIn output;
-    output.position = mul(position, Transform.world_view_projection);
-    output.normal = mul(normal, Transform.inverse_transpose_world);
+    output.position = mul(position, world_view_projection);
+    output.normal = mul(normal, Transform.world_it);
     output.uv = input.uv;
     output.world_position = mul(position, Transform.world);
     

@@ -160,7 +160,6 @@
     <ClInclude Include="Colors.h" />
     <ClInclude Include="DebugUtils.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
-    <ClInclude Include="DX11AmbientLightPassFrameSystem.h" />
     <ClInclude Include="DX11AmbientLightPassTickSystem.h" />
     <ClInclude Include="DX11DebugPassFrameSystem.h" />
     <ClInclude Include="DX11DebugPassTickSystem.h" />
@@ -169,7 +168,6 @@
     <ClInclude Include="DX11DirectionalLightPassTickSystem.h" />
     <ClInclude Include="DX11GeometryPassTickSystem.h" />
     <ClInclude Include="DX11GeometryPassFrameSystem.h" />
-    <ClInclude Include="DX11LineResourcesComponent.h" />
     <ClInclude Include="DX11PointLightPassFrameSystem.h" />
     <ClInclude Include="DX11PointLightPassTickSystem.h" />
     <ClInclude Include="DX11PostRenderPassTickSystem.h" />
@@ -178,13 +176,13 @@
     <ClInclude Include="DX11RasterizerStates.h" />
     <ClInclude Include="DX11GBuffer.h" />
     <ClInclude Include="DX11RenderContext.h" />
+    <ClInclude Include="DX11RenderData.h" />
     <ClInclude Include="DX11RenderPassSystemBase.h" />
     <ClInclude Include="DX11ShaderHelper.h" />
     <ClInclude Include="DX11TextureScaler.h" />
     <ClInclude Include="DX11TonePassTickSystem.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="LineComponent.h" />
-    <ClInclude Include="Line.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PointLightComponent.h" />
@@ -195,7 +193,6 @@
     <ClCompile Include="CameraUtils.cpp" />
     <ClCompile Include="Colors.cpp" />
     <ClCompile Include="DebugUtils.cpp" />
-    <ClCompile Include="DX11AmbientLightPassFrameSystem.cpp" />
     <ClCompile Include="DX11AmbientLightPassTickSystem.cpp" />
     <ClCompile Include="DX11DebugPassFrameSystem.cpp" />
     <ClCompile Include="DX11DebugPassTickSystem.cpp" />

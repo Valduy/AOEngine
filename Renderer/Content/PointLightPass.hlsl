@@ -1,24 +1,32 @@
 #include "GBuffer.hlsl"
 
-struct TransformData {
-    float4x4 world_view_projection;
-};
-
-struct LightData {
+struct CameraData {
+    float4x4 view_projection;
     float3 view_position;
-    float dummy0;
-    float3 position;
-    float dummy1;
-    float3 color;
-    float dummy2;
+    float dummy;
 };
 
-cbuffer TransformBuffer : register(b0) {
+struct TransformData {
+    float4x4 world;
+    float3 position;
+    float dummy;
+};
+
+struct ColorData {
+    float3 color;
+    float dummy;
+};
+
+cbuffer CameraBuffer : register(b0) {
+    CameraData Camera;
+};
+
+cbuffer TransformBuffer : register(b1) {
     TransformData Transform;
 };
 
-cbuffer LightBuffer : register(b1) {
-    LightData Light;
+cbuffer ColorBuffer : register(b2) {
+    ColorData Color;
 };
 
 Texture2D DiffuseMap  : register(t0);
@@ -33,34 +41,39 @@ struct VertexIn {
 };
 
 struct PixelIn {
-    float4 position : SV_POSITION0;
+    float4 position       : SV_POSITION0;
+    float3 light_position : POSITION0;
+    float3 view_position  : POSITION1;
 };
 
 struct PixelOut {
     float4 accumulator : SV_TARGET0;
 };
 
-float4 CalculateLight(GBufferData gbuffer) {
-    float3 light_direction = normalize(gbuffer.position - Light.position);
+float4 CalculateLight(GBufferData gbuffer, float3 light_position, float3 view_position) {
+    float3 light_direction = normalize(gbuffer.position - light_position);
     
     float3 normal = normalize(gbuffer.normal);
     float diffuse_factor = saturate(dot(-light_direction, normal));
     float3 diffuse = diffuse_factor * gbuffer.diffuse;
     
-    float3 to_view_direction = normalize(Light.view_position - gbuffer.position);
+    float3 to_view_direction = normalize(view_position - gbuffer.position);
     float3 reflection_direction = normalize(reflect(light_direction, normal));
     float specular_factor = pow(max(0.0f, dot(to_view_direction, reflection_direction)), gbuffer.shininess);
     float3 specular = specular_factor * gbuffer.specular;
     
-    float3 color = (diffuse + specular) * Light.color;
+    float3 color = (diffuse + specular) * Color.color;
     return float4(color, 1.0);
 }
 
 PixelIn VertexMain(VertexIn input) {
+    float4x4 world_view_projection = mul(Transform.world, Camera.view_projection);
     float4 position = float4(input.position, 1.0);
     
     PixelIn output;
-    output.position = mul(position, Transform.world_view_projection);
+    output.position = mul(position, world_view_projection);
+    output.light_position = Transform.position;
+    output.view_position = Camera.view_position;
     
     return output;
 };
@@ -71,7 +84,7 @@ PixelOut PixelMain(PixelIn input) {
     GBufferData gbuffer = ReadGBufferData(DiffuseMap, SpecularMap, NormalMap, PositionMap, uv);
     
     PixelOut output;
-    output.accumulator = CalculateLight(gbuffer);
+    output.accumulator = CalculateLight(gbuffer, input.light_position, input.view_position);
     
     return output;
 }

@@ -1,8 +1,8 @@
 #include "pch.h"
 
 #include "DX11DirectionalLightPassTickSystem.h"
-#include "DX11RenderDataComponents.h"
 #include "DX11ShaderHelper.h"
+#include "DirectionalLightComponent.h"
 
 namespace aoe {
 
@@ -13,18 +13,26 @@ DX11DirectionalLightPassTickSystem::DX11DirectionalLightPassTickSystem()
 
 void DX11DirectionalLightPassTickSystem::Update(float dt) {
 	if (HasCamera()) {
-		Render();
+		Entity camera = GetActualCamera();
+		Render(camera);
 	}
 }
 
-void DX11DirectionalLightPassTickSystem::Render() {
+void DX11DirectionalLightPassTickSystem::Render(Entity camera) {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	PrepareRenderContext();
 
-	for (Entity entity : FilterEntities<TransformComponent, DirectionalLightDataComponent>()) {
-		auto direction_light_data_component = GetComponent<DirectionalLightDataComponent>(entity);
+	Vector3fData data{};
+	data.value = GetGlobalPosition(camera);
+	camera_data_.Update(&data);
 
-		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_data_component->light_data.buffer, 0);
+	context.SetConstantBuffer(GPUShaderType::kPixel, camera_data_.buffer, 0);
+
+	for (Entity entity : FilterEntities<TransformComponent, DirectionalLightComponent>()) {
+		auto direction_light_component = GetComponent<DirectionalLightComponent>(entity);
+
+		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_component->GetTransformData().buffer, 1);
+		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_component->GetColorData().buffer, 2);
 		context.Draw(4);
 	}
 }

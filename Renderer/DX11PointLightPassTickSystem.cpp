@@ -1,14 +1,15 @@
 #include "pch.h"
 
 #include "DX11PointLightPassTickSystem.h"
-#include "DX11RenderDataComponents.h"
 #include "DX11ShaderHelper.h"
+#include "PointLightComponent.h"
 
 namespace aoe {
 
 DX11PointLightPassTickSystem::DX11PointLightPassTickSystem()
 	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/PointLightPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/PointLightPass.hlsl"))
+	, camera_data_()
 	, model_manager_(nullptr)
 	, sphere_id(DX11ModelManager::kDefault)
 {}
@@ -24,20 +25,32 @@ void DX11PointLightPassTickSystem::Initialize(const ServiceProvider& service_pro
 
 void DX11PointLightPassTickSystem::Update(float dt) {
 	if (HasCamera()) {
-		Render();
+		Entity camera = GetActualCamera();
+		Render(camera);
 	}
 }
 
-void DX11PointLightPassTickSystem::Render() {
+void DX11PointLightPassTickSystem::Render(Entity camera) {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	const DX11ModelResources& sphere_resources = model_manager_->GetModelResources(sphere_id);
 	PrepareRenderContext();
 
-	for (Entity entity : FilterEntities<PointLightDataComponent>()) {
-		auto point_light_data_component = GetComponent<PointLightDataComponent>(entity);
+	Matrix4f view_projection = GetCameraMatrix(camera);
+	Vector3f view_position = GetGlobalPosition(camera);
 
-		context.SetConstantBuffer(GPUShaderType::kVertex, point_light_data_component->transform_data.buffer, 0);
-		context.SetConstantBuffer(GPUShaderType::kPixel, point_light_data_component->light_data.buffer, 1);
+	PointLightCameraData data{};
+	data.view_projection = view_projection.Transpose();
+	data.view_position = view_position;
+
+	camera_data_.Update(&data);
+
+	context.SetConstantBuffer(GPUShaderType::kVertex, camera_data_.buffer, 0);
+
+	for (Entity entity : FilterEntities<PointLightComponent>()) {
+		auto point_light_data_component = GetComponent<PointLightComponent>(entity);
+
+		context.SetConstantBuffer(GPUShaderType::kVertex, point_light_data_component->GetTransformData().buffer, 1);
+		context.SetConstantBuffer(GPUShaderType::kPixel, point_light_data_component->GetColorData().buffer, 2);
 
 		for (const DX11MeshResources& mesh_resource : sphere_resources.meshes_resources) {
 			context.SetVertexBuffer(mesh_resource.vertex_buffer);

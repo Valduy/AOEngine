@@ -50,53 +50,54 @@ protected:
 
 		Entity sun = CreateAstroObject(world, relationeer, model_manager, texture_manager, L"/Content/Glowstone.png");
 		auto sun_transform = world.GetComponent<TransformComponent>(sun);
-		sun_transform->transform.scale = { 2.0, 2.0, 2.0 };
+		sun_transform->SetScale({ 2.0, 2.0, 2.0 });
 		world.AddComponent<RotationComponent>(sun, Math::kUp, 0.4f);
 
 		Entity sun_light = CreatePointLight(world, relationeer);
 		auto sun_light_transform = world.GetComponent<TransformComponent>(sun_light);
-		sun_light_transform->transform.scale = { 5.0f, 5.0f, 5.0f };
-
+		sun_light_transform->SetScale({ 5.0f, 5.0f, 5.0f });
+		
 		relationeer.SetParent(sun_light, sun);
 
 		Entity cobblestone = CreateAstroObject(world, relationeer, model_manager, texture_manager, L"/Content/Cobblestone.png");
 		auto cobblestone_transform = world.GetComponent<TransformComponent>(cobblestone);
-		cobblestone_transform->transform.position = { 0.0f, 0.0f, 2.0f };
-		cobblestone_transform->transform.scale = { 0.6f, 0.6f, 0.6f };
+		cobblestone_transform->SetPosition({ 0.0f, 0.0f, 2.0f });
+		cobblestone_transform->SetScale({ 0.6f, 0.6f, 0.6f });
 		world.AddComponent<RotationComponent>(cobblestone, Math::kUp, 0.6f);
 
 		relationeer.SetParent(cobblestone, sun);
 
 		Entity dirt = CreateAstroObject(world, relationeer, model_manager, texture_manager, L"/Content/Dirt.png");
 		auto dirt_transform = world.GetComponent<TransformComponent>(dirt);
-		dirt_transform->transform.position = { 2.5f, 0.0f, 2.5f };
-		dirt_transform->transform.scale = { 0.5f, 0.5f, 0.5f };
-		dirt_transform->transform.rotation = Quaternion::FromAngleAxis(30.0f * Math::kDeg2Rad, Math::kRight);
-		world.AddComponent<RotationComponent>(dirt, dirt_transform->transform.GetUp(), 1.0f);
+		dirt_transform->SetPosition({ 2.5f, 0.0f, 2.5f });
+		dirt_transform->SetScale({ 0.5f, 0.5f, 0.5f });
+		dirt_transform->SetRotation(Quaternion::FromAngleAxis(30.0f * Math::kDeg2Rad, Math::kRight));
+		world.AddComponent<RotationComponent>(dirt, dirt_transform->GetTransform().GetUp(), 1.0f);
 
 		relationeer.SetParent(dirt, sun);
 
 		Entity endstone = CreateAstroObject(world, relationeer, model_manager, texture_manager, L"/Content/Endstone.png");
 		auto endstone_transform = world.GetComponent<TransformComponent>(endstone);
-		endstone_transform->transform.position = { 0.0f, 0.0f, 1.5f };
-		endstone_transform->transform.scale = { 0.6f, 0.6f, 0.6f };
+		endstone_transform->SetPosition({ 0.0f, 0.0f, 1.5f });
+		endstone_transform->SetScale({ 0.6f, 0.6f, 0.6f });
 		world.AddComponent<RotationComponent>(endstone, Math::kUp, 1.5f);
 
 		relationeer.SetParent(endstone, dirt);
 
 		Entity sand = CreateAstroObject(world, relationeer, model_manager, texture_manager, L"/Content/Sand.png");
 		auto sand_transform = world.GetComponent<TransformComponent>(sand);
-		sand_transform->transform.position = { -3.0f, 0.0f, -3.0f };
-		sand_transform->transform.scale = { 0.7f, 0.7f, 0.7f };
-		sand_transform->transform.rotation = Quaternion::FromAngleAxis(30.0f * Math::kDeg2Rad, Math::kForward);
-		world.AddComponent<RotationComponent>(sand, sand_transform->transform.GetUp(), 0.8f);
+		sand_transform->SetPosition({ -3.0f, 0.0f, -3.0f });
+		sand_transform->SetScale({ 0.7f, 0.7f, 0.7f });
+		sand_transform->SetRotation(Quaternion::FromAngleAxis(30.0f * Math::kDeg2Rad, Math::kForward));
+		world.AddComponent<RotationComponent>(sand, sand_transform->GetTransform().GetUp(), 0.8f);
 
 		relationeer.SetParent(sand, sun);
 
 		Entity hellstone = CreateAstroObject(world, relationeer, model_manager, texture_manager, L"/Content/Hellstone.png");
 		auto hellston_transform = world.GetComponent<TransformComponent>(hellstone);
-		hellston_transform->transform.position = { 1.2f, 0.0f, 0.0f };
-		hellston_transform->transform.scale = { 0.4f, 0.4f, 0.4f };
+		
+		hellston_transform->SetPosition({ 1.2f, 0.0f, 0.0f });
+		hellston_transform->SetScale({0.4f, 0.4f, 0.4f});
 		world.AddComponent<RotationComponent>(hellstone, Math::kUp, 2.0f);
 
 		relationeer.SetParent(hellstone, sand);
@@ -157,7 +158,7 @@ protected:
 		using namespace aoe;
 
 		Entity ambient_light = world.CreateEntity();
-		world.AddComponent<AmbientLightComponent>(ambient_light, Vector3f(1.0f, 1.0f, 1.0f), 0.25f);
+		world.AddComponent<AmbientLightComponent>(ambient_light, Vector3f(0.25f, 0.25f, 0.25f));
 
 		return ambient_light;
 	}
@@ -171,8 +172,9 @@ protected:
 
 		auto transform_component = world.GetComponent<TransformComponent>(directional_light);
 
-		Transform& transform = transform_component->transform;
+		Transform transform = transform_component->GetTransform();
 		transform.rotation = Quaternion::RotateFromTo(transform.GetForward(), direction.Normalized());
+		transform_component->SetTransform(transform);
 
 		return directional_light;
 	}

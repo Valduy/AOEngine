@@ -14,12 +14,12 @@ public:
 			auto transform_component = GetComponent<TransformComponent>(entity);
 			auto rotation_component = GetComponent<RotationComponent>(entity);
 
-			Transform& transform = transform_component->transform;
 			Quaternion rotator = Quaternion::FromAngleAxis(
 				rotation_component->speed * Math::kDeg2Rad, 
 				rotation_component->axis);
 			
-			transform.rotation = rotator * transform.rotation;
+			Quaternion rotation = rotator * transform_component->GetRotation();
+			transform_component->SetRotation(rotation);
 		}
 	}
 };

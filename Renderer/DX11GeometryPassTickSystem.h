@@ -8,6 +8,7 @@
 #include "../Resources/DX11TextureManager.h"
 
 #include "DX11RenderPassSystemBase.h"
+#include "DX11RenderData.h"
 
 namespace aoe {
 
@@ -23,6 +24,7 @@ private:
 	DX11GPUPixelShader pixel_shader_;
 	DX11GPUSampler sampler_;
 	DX11GPUBlendState blend_state_;
+	DX11RenderData<Matrix4f> camera_data_;
 
 	DX11ModelManager* model_manager_;
 	DX11TextureManager* texture_manager_;
@@ -30,7 +32,7 @@ private:
 	static GPUSamplerDescription CreateSamplerDescription();
 	static GPUBlendStateDescription CreateBlendStateDescription();
 
-	void Render();
+	void Render(Entity camera);
 	void PrepareRenderContext();
 };
 

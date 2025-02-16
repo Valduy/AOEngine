@@ -1,16 +1,30 @@
 #include "GBuffer.hlsl"
 
-struct LightData {
+struct CameraData {
     float3 view_position;
-    float dummy0;
-    float3 direction;
-    float dummy1;
-    float3 color;
-    float dummy2;
+    float dummy;
 };
 
-cbuffer LightBuffer : register(b0) {
-    LightData Light;
+struct TransformData {
+    float3 direction;
+    float dummy;
+};
+
+struct ColorData {
+    float3 color;
+    float dummy;
+};
+
+cbuffer CameraBuffer : register(b0) {
+    CameraData Camera;
+}
+
+cbuffer TransformBuffer : register(b1) {
+    TransformData Transform;
+}
+
+cbuffer ColorBuffer : register(b2) {
+    ColorData Color;
 }
 
 Texture2D DiffuseMap  : register(t0);
@@ -28,15 +42,15 @@ struct PixelOut {
 
 float4 CalculateLight(GBufferData gbuffer) {
     float3 normal = normalize(gbuffer.normal);
-    float diffuse_factor = saturate(dot(-Light.direction, normal));
+    float diffuse_factor = saturate(dot(-Transform.direction, normal));
     float3 diffuse = diffuse_factor * gbuffer.diffuse;
     
-    float3 to_view_direction = normalize(Light.view_position - gbuffer.position);
-    float3 reflection_direction = normalize(reflect(Light.direction, normal));
+    float3 to_view_direction = normalize(Camera.view_position - gbuffer.position);
+    float3 reflection_direction = normalize(reflect(Transform.direction, normal));
     float specular_factor = pow(max(0.0f, dot(to_view_direction, reflection_direction)), gbuffer.shininess);
     float3 specular = specular_factor * gbuffer.specular;
 
-    float3 color = (diffuse + specular) * Light.color;
+    float3 color = (diffuse + specular) * Color.color;
     return float4(color, 1.0);
 }
 

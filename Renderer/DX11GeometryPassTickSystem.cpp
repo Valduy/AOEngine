@@ -12,6 +12,7 @@ DX11GeometryPassTickSystem::DX11GeometryPassTickSystem()
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/GeometryPass.hlsl"))
 	, sampler_(CreateSamplerDescription())
 	, blend_state_(CreateBlendStateDescription())
+	, camera_data_()
 	, model_manager_(nullptr)
 	, texture_manager_(nullptr)
 {}
@@ -28,7 +29,8 @@ void DX11GeometryPassTickSystem::Initialize(const ServiceProvider & service_prov
 
 void DX11GeometryPassTickSystem::Update(float dt) {
 	if (HasCamera()) {
-		Render();
+		Entity camera = GetActualCamera();
+		Render(camera);
 	}
 }
 
@@ -52,19 +54,24 @@ GPUBlendStateDescription DX11GeometryPassTickSystem::CreateBlendStateDescription
 	return blend_state_desc;
 }
 
-void DX11GeometryPassTickSystem::Render() {
+void DX11GeometryPassTickSystem::Render(Entity camera) {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	PrepareRenderContext();
 
-	for (Entity entity : FilterEntities<RenderComponent, GeometryDataComponent>()) {
-		auto render_component = GetComponent<RenderComponent>(entity);
-		auto geometry_data_component = GetComponent<GeometryDataComponent>(entity);
+	Matrix4f view_projection = GetCameraMatrix(camera);
+	Matrix4f view_projection_t = view_projection.Transpose();
+	camera_data_.Update(&view_projection_t);
 
+	context.SetConstantBuffer(GPUShaderType::kVertex, camera_data_.buffer, 0);
+
+	for (Entity entity : FilterEntities<TransformComponent, RenderComponent>()) {
+		auto render_component = GetComponent<RenderComponent>(entity);
+		
 		const DX11ModelResources& model_resources = model_manager_->GetModelResources(render_component->GetModelId());
 		const DX11GPUTexture2D& texture_resources = texture_manager_->GetTextureResources(render_component->GetTextureId());
 
-		context.SetConstantBuffer(GPUShaderType::kVertex, geometry_data_component->transform_data.buffer, 0);
-		context.SetConstantBuffer(GPUShaderType::kPixel, render_component->GetMaterialData().buffer, 1);
+		context.SetConstantBuffer(GPUShaderType::kVertex, render_component->GetTransformData().buffer, 1);
+		context.SetConstantBuffer(GPUShaderType::kPixel, render_component->GetMaterialData().buffer, 2);
 		context.SetShaderResource(GPUShaderType::kPixel, texture_resources.GetTextureView(), 0);
 
 		for (const DX11MeshResources& mesh_resource : model_resources.meshes_resources) {
