@@ -153,7 +153,9 @@
     <ClInclude Include="ServiceProvider.h" />
     <ClInclude Include="SystemsPool.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="TransformChangedComponent.h" />
     <ClInclude Include="TransformComponent.h" />
+    <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="TransformUtils.h" />
   </ItemGroup>
   <ItemGroup>

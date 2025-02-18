@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "../Game/TransformChangedComponent.h"
+
 #include "DX11GeometryPassSystem.h"
 #include "DX11RenderData.h"
 #include "DX11BufferModels.h"
@@ -57,11 +59,11 @@ GPUBlendStateDescription DX11GeometryPassSystem::CreateBlendStateDescription() {
 }
 
 void DX11GeometryPassSystem::UpdateRenderData() {
-	for (Entity entity : FilterEntities<TransformComponent, DX11RenderComponent>()) {
+	for (Entity entity : FilterEntities<TransformComponent, TransformChangedComponent, DX11RenderComponent>()) {
 		auto transform_component = GetComponent<TransformComponent>(entity);
 		auto render_component = GetComponent<DX11RenderComponent>(entity);
 
-		Matrix4f world = GetGlobalWorldMatrix(entity);
+		const Matrix4f& world = transform_component->GetGlobalWorldMatrix();
 
 		TransformData transform_data{};
 		transform_data.world = world.Transpose();

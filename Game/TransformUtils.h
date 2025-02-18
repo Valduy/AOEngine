@@ -18,7 +18,7 @@ public:
 	{
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
-		if (IsRoot(world, relationeer, entity)) {
+		if (relationeer.IsRoot(entity)) {
 			return transform_component->GetTransform();
 		}
 
@@ -38,7 +38,7 @@ public:
 	{
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
-		if (IsRoot(world, relationeer, entity)) {
+		if (relationeer.IsRoot(entity)) {
 			transform_component->SetTransform(transform);
 			return;
 		}
@@ -58,7 +58,7 @@ public:
 	{
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
-		if (IsRoot(world, relationeer, entity)) {
+		if (relationeer.IsRoot(entity)) {
 			return transform_component->GetPosition();
 		}
 
@@ -75,7 +75,7 @@ public:
 	{
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
-		if (IsRoot(world, relationeer, entity)) {
+		if (relationeer.IsRoot(entity)) {
 			transform_component->SetPosition(position);
 			return;
 		}
@@ -92,7 +92,7 @@ public:
 	{
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
-		if (IsRoot(world, relationeer, entity)) {
+		if (relationeer.IsRoot(entity)) {
 			return transform_component->GetRotation();
 		}
 
@@ -109,7 +109,7 @@ public:
 	{
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 
-		if (IsRoot(world, relationeer, entity)) {
+		if (relationeer.IsRoot(entity)) {
 			transform_component->SetRotation(rotation);
 			return;
 		}
@@ -127,7 +127,7 @@ public:
 		auto transform_component = world.GetComponent<TransformComponent>(entity);
 		const Matrix4f& world_matrix = transform_component->GetWorldMatrix();
 
-		if (IsRoot(world, relationeer, entity)) {
+		if (relationeer.IsRoot(entity)) {
 			return world_matrix;
 		}
 
@@ -135,16 +135,6 @@ public:
 		Matrix4f parent_world_matrix = GetGlobalWorldMatrix(world, relationeer, parent);
 		return parent_world_matrix * world_matrix;
 	}
-
-private:
-	static bool IsRoot(
-		World& world,
-		Relationeer<TransformComponent>& relationeer,
-		Entity entity)
-	{
-		return !relationeer.HasRelations(entity) || relationeer.GetParent(entity).IsNull();
-	}
-
 };
 
 } // namespace aoe

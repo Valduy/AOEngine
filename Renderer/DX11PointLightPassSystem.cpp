@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "../Game/TransformChangedComponent.h"
+
 #include "DX11PointLightPassSystem.h"
 #include "DX11ShaderHelper.h"
 #include "DX11PointLightComponent.h"
@@ -32,12 +34,12 @@ void DX11PointLightPassSystem::Update(float dt) {
 }
 
 void DX11PointLightPassSystem::UpdateRenderData() {
-	for (Entity entity : FilterEntities<TransformComponent, DX11PointLightComponent>()) {
+	for (Entity entity : FilterEntities<TransformComponent, TransformChangedComponent, DX11PointLightComponent>()) {
 		auto transform_component = GetComponent<TransformComponent>(entity);
 		auto point_light_component = GetComponent<DX11PointLightComponent>(entity);
 
-		Matrix4f world = GetGlobalWorldMatrix(entity);
-		Vector3f position = GetGlobalPosition(entity);
+		const Matrix4f world = GetGlobalWorldMatrix(entity);
+		const Vector3f position = GetGlobalPosition(entity);
 
 		PointLightTransformData data{};
 		data.world = world.Transpose();

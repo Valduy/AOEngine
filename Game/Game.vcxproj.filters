@@ -45,6 +45,12 @@
     <ClInclude Include="ECSCompositeSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TransformSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformChangedComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

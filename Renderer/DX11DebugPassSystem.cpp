@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "../Game/TransformChangedComponent.h"
+
 #include "DX11DebugPassSystem.h"
 #include "DX11RenderData.h"
 #include "DX11ShaderHelper.h"
@@ -22,11 +24,12 @@ void DX11DebugPassSystem::Update(float dt) {
 }
 
 void DX11DebugPassSystem::UpdateRenderData() {
-	for (Entity entity : FilterEntities<TransformComponent, DX11LineComponent>()) {
+	for (Entity entity : FilterEntities<TransformComponent, TransformChangedComponent, DX11LineComponent>()) {
+		auto transform_component = GetComponent<TransformComponent>(entity);
 		auto line_component = GetComponent<DX11LineComponent>(entity);
 
-		Matrix4f world = GetGlobalWorldMatrix(entity);
-		Matrix4f world_t = world.Transpose();
+		const Matrix4f& world = transform_component->GetGlobalWorldMatrix();
+		const Matrix4f world_t = world.Transpose();
 
 		line_component->transform_data_.Update(&world_t);
 	}

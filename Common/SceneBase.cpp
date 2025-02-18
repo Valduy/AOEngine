@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include "../Game/TransformSystem.h"
 #include "../Renderer/DX11PreRenderPassSystem.h"
 #include "../Renderer/DX11GeometryPassSystem.h"
 #include "../Renderer/DX11PreLightPassSystem.h"
@@ -63,6 +64,7 @@ void SceneBase::SetupServices(ServiceProvider& service_provider) {
 }
 
 void SceneBase::InitializeTickSystems(SystemsPool& tick_systems_pool) {
+	tick_systems_pool.PushSystem<TransformSystem>();
 	tick_systems_pool.PushSystem<DX11PreRenderPassSystem>();
 	tick_systems_pool.PushSystem<DX11GeometryPassSystem>();
 	tick_systems_pool.PushSystem<DX11PreLightPassSystem>();

@@ -13,7 +13,7 @@ struct DX11RenderData {
 		: buffer(DX11GPUBuffer::Create<TData>({ GPUBufferType::kConstantBuffer, GPUResourceUsage::kDynamic }))
 	{}
 
-	void Update(TData* data) {
+	void Update(const TData* data) {
 		DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 		context.UpdateBuffer<TData>(buffer, data, 1);
 	}

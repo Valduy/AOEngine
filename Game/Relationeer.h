@@ -86,6 +86,10 @@ public:
 		return relations->children;
 	}
 
+	bool IsRoot(Entity entity) {
+		return !HasRelations(entity) || GetParent(entity).IsNull();
+	}
+
 	bool IsChildrenOf(Entity child, Entity parent) const {
 		auto temp = world_.GetComponent<RelationsComponent>(child);
 

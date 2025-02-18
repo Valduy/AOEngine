@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "../Game/TransformChangedComponent.h"
+
 #include "DX11DirectionalLightPassSystem.h"
 #include "DX11ShaderHelper.h"
 #include "DX11DirectionalLightComponent.h"
@@ -20,11 +22,14 @@ void DX11DirectionalLightPassSystem::Update(float dt) {
 }
 
 void DX11DirectionalLightPassSystem::UpdateRenderData() {
-	for (Entity entity : FilterEntities<TransformComponent, DX11DirectionalLightComponent>()) {
+	for (Entity entity : FilterEntities<TransformComponent, TransformChangedComponent, DX11DirectionalLightComponent>()) {
+		auto transform_component = GetComponent<TransformComponent>(entity);
 		auto directional_light_component = GetComponent<DX11DirectionalLightComponent>(entity);
 
+		const Vector3f forward = transform_component->GetGlobalWorldMatrix() * Math::kForward;
+
 		Vector3fData data{};
-		data.value = GetGlobalTransform(entity).GetForward();
+		data.value = forward;
 
 		directional_light_component->transform_data_.Update(&data);
 	}
