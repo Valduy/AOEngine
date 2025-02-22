@@ -423,12 +423,20 @@ protected:
 			}
 		}
 
+		const float max_height = 8;
+
 		for (size_t x = 0; x < res - 1; ++x) {
 			for (size_t y = 0; y < res - 1; ++y) {
-				float value = map[x][y];
+				float value = (map[x][y] + 1.0f) / 2.0f;
+				
 				Entity cube = CreateCube(world, model_manager, texture_manager);
 				auto transform_component = world.GetComponent<TransformComponent>(cube);
-				Vector3f position(static_cast<float>(half_edge + x), 2 * value, static_cast<float>(half_edge + y));
+				
+				Vector3f position(
+					static_cast<float>(half_edge + x), 
+					value * max_height, 
+					static_cast<float>(half_edge + y));
+				
 				transform_component->SetPosition(position);
 			}
 		}
@@ -622,12 +630,12 @@ protected:
 		using namespace aoe;
 
 		ModelId model_id = model_manager.Load(L"Content/Cube.fbx", ModelLoaderOptions::kFlipUVs);
-		TextureId texture_id = texture_manager.kDefault;
+		TextureId texture_id = texture_manager.LoadRGBA(L"Content/Dirt.png");
 
 		Material material;
 		material.diffuse = { 1.0f, 1.0f, 1.0f };
-		material.specular = { 0.8f, 0.8f, 0.8f };
-		material.shininess = 32.0f;
+		material.specular = { 0.4f, 0.4f, 0.4f };
+		material.shininess = 12.0f;
 
 		Entity cube = world.CreateEntity();
 		world.AddComponent<TransformComponent>(cube);

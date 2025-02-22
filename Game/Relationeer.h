@@ -7,91 +7,76 @@ namespace aoe {
 template<typename TComponent>
 class Relationeer {
 public:
-	class RelationsComponent {
-	private:
-		friend class Relationeer<TComponent>;
-
-	public:
-		RelationsComponent()
-			: parent(Entity::Null())
-			, children()
-		{}
-
-	private:
-		Entity parent;
-		std::vector<Entity> children;
-	};
-
 	Relationeer(aoe::World& world)
 		: world_(world)
+		, relations_()
 	{
+		world_.ComponentAdded<TComponent>().Attach(
+			*this, &Relationeer<TComponent>::OnComponentAdded);
 		world_.ComponentRemoved<TComponent>().Attach(
-			*this, &Relationeer<TComponent>::OnRelatedComponentRemoved);
-		world_.ComponentRemoved<RelationsComponent>().Attach(
-			*this, &Relationeer<TComponent>::OnRelationsComponentRemoved);
+			*this, &Relationeer<TComponent>::OnComponentRemoved);
 	}
 
 	~Relationeer() {
+		world_.ComponentAdded<TComponent>().Detach(
+			*this, &Relationeer<TComponent>::OnComponentAdded);
 		world_.ComponentRemoved<TComponent>().Detach(
-			*this, &Relationeer<TComponent>::OnRelatedComponentRemoved);
-		world_.ComponentRemoved<RelationsComponent>().Detach(
-			*this, &Relationeer<TComponent>::OnRelationsComponentRemoved);
+			*this, &Relationeer<TComponent>::OnComponentRemoved);
 	}
 
 	bool HasRelations(Entity entity) const {
-		return world_.HasComponent<RelationsComponent>(entity);
-	}
-
-	void BreakRelations(Entity entity) {
-		world_.RemoveComponent<RelationsComponent>(entity);
+		return relations_.Has(entity.GetId());
 	}
 
 	Entity GetParent(Entity child) const {
-		auto relations = world_.GetComponent<RelationsComponent>(child);
-		return relations->parent;
+		AssertHasRelations(child);
+		const Relations& relations = GetRelations(child);
+		return relations.parent;
 	}
 
 	void SetParent(Entity child, Entity parent) {
-		AssertHasComponent(child);
-		AssertHasComponent(parent);
+		AssertHasRelations(child);
+		AssertHasRelations(parent);
 
-		auto child_relations = GetOrCreateRelations(child);
-		auto parent_relations = GetOrCreateRelations(parent);
+		Relations& child_relations = GetRelations(child);
+		Relations& parent_relations = GetRelations(parent);
 
 		AOE_ASSERT_MSG(child.GetId() != parent.GetId(), "Entity can't be parent for itself.");
-		AOE_ASSERT_MSG(!IsChildrenOf(parent, child), "Parent doesn't have to be a child.");
+		AOE_ASSERT_MSG(!IsChildOf(parent, child), "Parent doesn't have to be a child.");
 
 		MakeRoot(child);
-		child_relations->parent = parent;
-		parent_relations->children.push_back(child);
+		child_relations.parent = parent;
+		parent_relations.children.push_back(child);
 	}
 
 	void MakeRoot(Entity child) {
-		auto child_relations = world_.GetComponent<RelationsComponent>(child);
-		Entity parent = child_relations->parent;
+		Relations& child_relations = GetRelations(child);
+		Entity parent = child_relations.parent;
 
 		if (parent.IsNull()) {
 			return;
 		}
 
-		auto parent_relations = world_.GetComponent<RelationsComponent>(parent);
-		std::vector<Entity>& children = parent_relations->children;
+		child_relations.parent = Entity::Null();
 
-		auto it = std::find(children.begin(), children.end(), child);
-		children.erase(it);
+		Relations& parent_relations = GetRelations(parent);
+		std::vector<Entity>& parent_children = parent_relations.children;
+
+		auto it = std::remove(parent_children.begin(), parent_children.end(), child);
+		parent_children.erase(it, parent_children.end());
 	}
 
 	const std::vector<Entity>& GetChildren(Entity entity) const {
-		auto relations = world_.GetComponent<RelationsComponent>(entity);
-		return relations->children;
+		const Relations& relations = GetRelations(entity);
+		return relations.children;
 	}
 
-	bool IsRoot(Entity entity) {
-		return !HasRelations(entity) || GetParent(entity).IsNull();
+	bool IsRoot(Entity entity) const {
+		return GetParent(entity).IsNull();
 	}
 
-	bool IsChildrenOf(Entity child, Entity parent) const {
-		auto temp = world_.GetComponent<RelationsComponent>(child);
+	bool IsChildOf(Entity child, Entity parent) const {
+		const Relations* temp = &GetRelations(child);
 
 		do {
 			if (temp->parent.IsNull()) {
@@ -102,54 +87,63 @@ public:
 				return true;
 			}
 
-			temp = world_.GetComponent<RelationsComponent>(temp->parent);
+			temp = &GetRelations(temp->parent);
 		} while (true);
 	}
 
 private:
-	World& world_;
+	struct Relations {
+		Entity parent;
+		std::vector<Entity> children;
 
-	void AssertHasComponent(Entity entity) const {
-		AOE_ASSERT_MSG(world_.HasComponent<TComponent>(entity), "Entity doesn't contain relaited component.");
-	}
+		Relations()
+			: parent(Entity::Null())
+			, children()
+		{}
+	};
+
+	World& world_;
+	SparseMap<Relations> relations_;
 
 	void AssertHasRelations(Entity entity) const {
 		AOE_ASSERT_MSG(HasRelations(entity), "Entity hasn't relations.");
 	}
 
-	auto GetOrCreateRelations(Entity entity) const {
-		if (!HasRelations(entity)) {
-			world_.AddComponent<RelationsComponent>(entity);
-		}
-
-		return world_.GetComponent<RelationsComponent>(entity);
+	Relations& GetRelations(Entity entity) {
+		return relations_.Get(entity.GetId());
 	}
 
-	void OnRelatedComponentRemoved(Entity entity) {
-		BreakRelations(entity);
+	const Relations& GetRelations(Entity entity) const {
+		return relations_.Get(entity.GetId());
 	}
 
-	void OnRelationsComponentRemoved(Entity entity) {
+	void AddRelations(Entity entity) {
+		relations_.Emplace(entity.GetId());
+	}
+
+	void RemoveRelations(Entity entity) {
+		relations_.Remove(entity.GetId());
+	}
+
+	void OnComponentAdded(Entity entity) {
+		AddRelations(entity);
+	}
+
+	void OnComponentRemoved(Entity entity) {
 		BreakHierarchy(entity);
+		RemoveRelations(entity);
 	}
 
 	void BreakHierarchy(Entity entity) {
-		auto relations = world_.GetComponent<RelationsComponent>(entity);
+		MakeRoot(entity);
+		Relations& relations = GetRelations(entity);
 
-		for (Entity child : relations->children) {
-			auto child_relations = world_.GetComponent<RelationsComponent>(child);
-			child_relations->parent = Entity::Null();
+		for (Entity child : relations.children) {
+			Relations& child_relations = GetRelations(child);
+			child_relations.parent = Entity::Null();
 		}
 
-		if (relations->parent.IsNull()) {
-			return;
-		}
-
-		auto parent_relations = world_.GetComponent<RelationsComponent>(relations->parent);
-		parent_relations->children.erase(std::find(
-			parent_relations->children.begin(),
-			parent_relations->children.end(),
-			entity));
+		relations.children.clear();
 	}
 };
 

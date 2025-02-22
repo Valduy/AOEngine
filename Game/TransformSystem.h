@@ -34,27 +34,13 @@ private:
 		const Matrix4f origin = Matrix4f::Identity();
 
 		for (Entity entity : FilterEntities<TransformComponent>()) {
-			if (!relationeer_->IsRoot(entity)) {
-				continue;
-			}
-
-			if (relationeer_->HasRelations(entity)) {
-				UpdateTransformComponentsHierarchy(entity, origin, false);
-			} else {
-				UpdateSingleTransformComponent(entity, origin);
+			if (relationeer_->IsRoot(entity)) {
+				UpdateTransformComponents(entity, origin, false);
 			}
 		}
 	}
 
-	void UpdateSingleTransformComponent(Entity entity, const Matrix4f& transformation) {
-		auto transform_component = GetComponent<TransformComponent>(entity);
-
-		if (transform_component->HasChanged()) {
-			UpdateTransformComponent(entity, transform_component, transformation);
-		}
-	}
-
-	void UpdateTransformComponentsHierarchy(
+	void UpdateTransformComponents(
 		Entity entity, 
 		const Matrix4f& transformation,
 		bool has_changed) 
@@ -69,7 +55,7 @@ private:
 		const Matrix4f& global_world_matrix = transform_component->global_world_matrix_;
 
 		for (Entity children : relationeer_->GetChildren(entity)) {
-			UpdateTransformComponentsHierarchy(children, global_world_matrix, has_changed);
+			UpdateTransformComponents(children, global_world_matrix, has_changed);
 		}
 	}
 
