@@ -3,7 +3,7 @@
 #include "../ECS/World.h"
 #include "../Game/TransformUtils.h"
 
-#include "CameraComponent.h"
+#include "DX11CameraComponent.h"
 
 namespace aoe {
 

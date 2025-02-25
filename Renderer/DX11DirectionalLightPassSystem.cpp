@@ -39,16 +39,13 @@ void DX11DirectionalLightPassSystem::Render(Entity camera) {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	PrepareRenderContext();
 
-	Vector3fData data{};
-	data.value = GetGlobalPosition(camera);
-	camera_data_.Update(&data);
-
-	context.SetConstantBuffer(GPUShaderType::kPixel, camera_data_.buffer, 0);
+	auto camera_component = GetComponent<DX11CameraComponent>(camera);
+	context.SetConstantBuffer(GPUShaderType::kPixel, camera_component->GetTransformData().buffer, 1);
 
 	for (Entity entity : FilterEntities<TransformComponent, DX11DirectionalLightComponent>()) {
 		auto direction_light_component = GetComponent<DX11DirectionalLightComponent>(entity);
 
-		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_component->GetTransformData().buffer, 1);
+		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_component->GetTransformData().buffer, 0);
 		context.SetConstantBuffer(GPUShaderType::kPixel, direction_light_component->GetColorData().buffer, 2);
 		context.Draw(4);
 	}

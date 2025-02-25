@@ -2,6 +2,9 @@
 
 #include "../Core/Math.h"
 
+#include "DX11RenderData.h"
+#include "DX11BufferModels.h"
+
 namespace aoe {
 
 enum class Projection {
@@ -9,7 +12,12 @@ enum class Projection {
 	kOrthographic,
 };
 
-class CameraComponent {
+class DX11PreRenderPassSystem;
+
+class DX11CameraComponent {
+private:
+	friend class DX11PreRenderPassSystem;
+
 public:
 	Projection projection;
 	float width;
@@ -30,6 +38,18 @@ public:
 
 		return Matrix4f::Identity();
 	}
+
+	const DX11RenderData<Matrix4f>& GetCameraData() const {
+		return camera_data;
+	}
+
+	const DX11RenderData<Vector3fData>& GetTransformData() const {
+		return transform_data;
+	}
+
+private:
+	DX11RenderData<Matrix4f> camera_data;
+	DX11RenderData<Vector3fData> transform_data;
 };
 
 } // namespace aoe

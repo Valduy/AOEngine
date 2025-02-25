@@ -2,13 +2,16 @@
 
 struct CameraData {
     float4x4 view_projection;
-    float3 view_position;
-    float dummy;
 };
 
 struct TransformData {
     float4x4 world;
     float3 position;
+    float dummy;
+};
+
+struct CameraTransformData {
+    float3 view_position;
     float dummy;
 };
 
@@ -25,7 +28,11 @@ cbuffer TransformBuffer : register(b1) {
     TransformData Transform;
 };
 
-cbuffer ColorBuffer : register(b2) {
+cbuffer CameraTransformBuffer : register(b2){
+    CameraTransformData CameraTransform;
+};
+
+cbuffer ColorBuffer : register(b3) {
     ColorData Color;
 };
 
@@ -43,21 +50,20 @@ struct VertexIn {
 struct PixelIn {
     float4 position       : SV_POSITION0;
     float3 light_position : POSITION0;
-    float3 view_position  : POSITION1;
 };
 
 struct PixelOut {
     float4 accumulator : SV_TARGET0;
 };
 
-float4 CalculateLight(GBufferData gbuffer, float3 light_position, float3 view_position) {
+float4 CalculateLight(GBufferData gbuffer, float3 light_position) {
     float3 light_direction = normalize(gbuffer.position - light_position);
     
     float3 normal = normalize(gbuffer.normal);
     float diffuse_factor = saturate(dot(-light_direction, normal));
     float3 diffuse = diffuse_factor * gbuffer.diffuse;
     
-    float3 to_view_direction = normalize(view_position - gbuffer.position);
+    float3 to_view_direction = normalize(CameraTransform.view_position - gbuffer.position);
     float3 reflection_direction = normalize(reflect(light_direction, normal));
     float specular_factor = pow(max(0.0f, dot(to_view_direction, reflection_direction)), gbuffer.shininess);
     float3 specular = specular_factor * gbuffer.specular;
@@ -73,7 +79,6 @@ PixelIn VertexMain(VertexIn input) {
     PixelIn output;
     output.position = mul(position, world_view_projection);
     output.light_position = Transform.position;
-    output.view_position = Camera.view_position;
     
     return output;
 };
@@ -84,7 +89,7 @@ PixelOut PixelMain(PixelIn input) {
     GBufferData gbuffer = ReadGBufferData(DiffuseMap, SpecularMap, NormalMap, PositionMap, uv);
     
     PixelOut output;
-    output.accumulator = CalculateLight(gbuffer, input.light_position, input.view_position);
+    output.accumulator = CalculateLight(gbuffer, input.light_position);
     
     return output;
 }

@@ -15,7 +15,6 @@ DX11GeometryPassSystem::DX11GeometryPassSystem()
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/GeometryPass.hlsl"))
 	, sampler_(CreateSamplerDescription())
 	, blend_state_(CreateBlendStateDescription())
-	, camera_data_()
 	, model_manager_(nullptr)
 	, texture_manager_(nullptr)
 {}
@@ -77,11 +76,8 @@ void DX11GeometryPassSystem::Render(Entity camera) {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	PrepareRenderContext();
 
-	Matrix4f view_projection = GetCameraMatrix(camera);
-	Matrix4f view_projection_t = view_projection.Transpose();
-	camera_data_.Update(&view_projection_t);
-
-	context.SetConstantBuffer(GPUShaderType::kVertex, camera_data_.buffer, 0);
+	auto camera_component = GetComponent<DX11CameraComponent>(camera);
+	context.SetConstantBuffer(GPUShaderType::kVertex, camera_component->GetCameraData().buffer, 0);
 
 	for (Entity entity : FilterEntities<TransformComponent, DX11RenderComponent>()) {
 		auto render_component = GetComponent<DX11RenderComponent>(entity);

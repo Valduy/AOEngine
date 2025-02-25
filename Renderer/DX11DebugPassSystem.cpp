@@ -12,7 +12,6 @@ namespace aoe {
 DX11DebugPassSystem::DX11DebugPassSystem()
 	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/DebugPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/DebugPass.hlsl"))
-	, camera_data_()
 {}
 
 void DX11DebugPassSystem::Update(float dt) {
@@ -39,11 +38,8 @@ void DX11DebugPassSystem::Render(Entity camera) {
 	DX11GPUContext context = DX11GPUDevice::Instance().GetContext();
 	PrepareRenderContext();
 
-	Matrix4f view_projection = GetCameraMatrix(camera);
-	Matrix4f view_projection_t = view_projection.Transpose();
-	camera_data_.Update(&view_projection_t);
-
-	context.SetConstantBuffer(GPUShaderType::kVertex, camera_data_.buffer, 0);
+	auto camera_component = GetComponent<DX11CameraComponent>(camera);
+	context.SetConstantBuffer(GPUShaderType::kVertex, camera_component->GetCameraData().buffer, 0);
 
 	for (Entity entity : FilterEntities<TransformComponent, DX11LineComponent>()) {
 		auto line_component = GetComponent<DX11LineComponent>(entity);

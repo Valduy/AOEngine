@@ -11,7 +11,6 @@ namespace aoe {
 DX11PointLightPassSystem::DX11PointLightPassSystem()
 	: vertex_shader_(DX11ShaderHelper::CreateVertexShader(L"Content/PointLightPass.hlsl"))
 	, pixel_shader_(DX11ShaderHelper::CreatePixelShader(L"Content/PointLightPass.hlsl"))
-	, camera_data_()
 	, model_manager_(nullptr)
 	, sphere_id(DX11ModelManager::kDefault)
 {}
@@ -54,22 +53,15 @@ void DX11PointLightPassSystem::Render(Entity camera) {
 	const DX11ModelResources& sphere_resources = model_manager_->GetModelResources(sphere_id);
 	PrepareRenderContext();
 
-	Matrix4f view_projection = GetCameraMatrix(camera);
-	Vector3f view_position = GetGlobalPosition(camera);
-
-	PointLightCameraData data{};
-	data.view_projection = view_projection.Transpose();
-	data.view_position = view_position;
-
-	camera_data_.Update(&data);
-
-	context.SetConstantBuffer(GPUShaderType::kVertex, camera_data_.buffer, 0);
+	auto camera_component = GetComponent<DX11CameraComponent>(camera);
+	context.SetConstantBuffer(GPUShaderType::kVertex, camera_component->GetCameraData().buffer, 0);
+	context.SetConstantBuffer(GPUShaderType::kPixel, camera_component->GetTransformData().buffer, 2);
 
 	for (Entity entity : FilterEntities<DX11PointLightComponent>()) {
 		auto point_light_data_component = GetComponent<DX11PointLightComponent>(entity);
 
 		context.SetConstantBuffer(GPUShaderType::kVertex, point_light_data_component->GetTransformData().buffer, 1);
-		context.SetConstantBuffer(GPUShaderType::kPixel, point_light_data_component->GetColorData().buffer, 2);
+		context.SetConstantBuffer(GPUShaderType::kPixel, point_light_data_component->GetColorData().buffer, 3);
 
 		for (const DX11MeshResources& mesh_resource : sphere_resources.meshes_resources) {
 			context.SetVertexBuffer(mesh_resource.vertex_buffer);

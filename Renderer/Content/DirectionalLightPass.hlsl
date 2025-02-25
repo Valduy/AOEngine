@@ -1,12 +1,12 @@
 #include "GBuffer.hlsl"
 
-struct CameraData {
-    float3 view_position;
+struct TransformData {
+    float3 direction;
     float dummy;
 };
 
-struct TransformData {
-    float3 direction;
+struct CameraTransformData {
+    float3 view_position;
     float dummy;
 };
 
@@ -15,12 +15,12 @@ struct ColorData {
     float dummy;
 };
 
-cbuffer CameraBuffer : register(b0) {
-    CameraData Camera;
+cbuffer TransformBuffer : register(b0) {
+    TransformData Transform;
 }
 
-cbuffer TransformBuffer : register(b1) {
-    TransformData Transform;
+cbuffer CameraBuffer : register(b1) {
+    CameraTransformData CameraTransform;
 }
 
 cbuffer ColorBuffer : register(b2) {
@@ -45,7 +45,7 @@ float4 CalculateLight(GBufferData gbuffer) {
     float diffuse_factor = saturate(dot(-Transform.direction, normal));
     float3 diffuse = diffuse_factor * gbuffer.diffuse;
     
-    float3 to_view_direction = normalize(Camera.view_position - gbuffer.position);
+    float3 to_view_direction = normalize(CameraTransform.view_position - gbuffer.position);
     float3 reflection_direction = normalize(reflect(Transform.direction, normal));
     float specular_factor = pow(max(0.0f, dot(to_view_direction, reflection_direction)), gbuffer.shininess);
     float3 specular = specular_factor * gbuffer.specular;

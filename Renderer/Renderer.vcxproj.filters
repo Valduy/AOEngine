@@ -19,9 +19,6 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{b87deada-9d0b-46a0-ba8d-d4b241de75b2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Components">
-      <UniqueIdentifier>{6fdb202e-f372-4778-947b-4030f190c9f8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\DX11\RenderPasses">
       <UniqueIdentifier>{c2353d62-4f70-4547-8be2-06c8020e6b8f}</UniqueIdentifier>
     </Filter>
@@ -75,9 +72,6 @@
     <ClInclude Include="DX11DepthStates.h">
       <Filter>Header Files\DX11</Filter>
     </ClInclude>
-    <ClInclude Include="CameraComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="Colors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -130,6 +124,9 @@
       <Filter>Header Files\DX11\Components</Filter>
     </ClInclude>
     <ClInclude Include="DX11RenderComponent.h">
+      <Filter>Header Files\DX11\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11CameraComponent.h">
       <Filter>Header Files\DX11\Components</Filter>
     </ClInclude>
   </ItemGroup>

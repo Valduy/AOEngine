@@ -155,7 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DX11AmbientLightComponent.h" />
-    <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="DX11CameraComponent.h" />
     <ClInclude Include="CameraUtils.h" />
     <ClInclude Include="Colors.h" />
     <ClInclude Include="DebugUtils.h" />

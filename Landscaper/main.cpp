@@ -225,7 +225,7 @@ public:
 	}
 
 private:
-	int size_;
+	size_t size_;
 	std::vector<size_t> permutation_;
 
 	static aoe::Vector2f GetConstantVector(size_t corner) {
@@ -285,10 +285,10 @@ protected:
 
 		Entity camera = world.CreateEntity();
 		world.AddComponent<TransformComponent>(camera);
-		world.AddComponent<CameraComponent>(camera);
+		world.AddComponent<DX11CameraComponent>(camera);
 		world.AddComponent<FlyCameraComponent>(camera);
 
-		auto camera_component = world.GetComponent<CameraComponent>(camera);
+		auto camera_component = world.GetComponent<DX11CameraComponent>(camera);
 		camera_component->projection = Projection::kPerspective;
 		camera_component->width = application.GetWindow().GetWidth();
 		camera_component->height = application.GetWindow().GetHeight();
