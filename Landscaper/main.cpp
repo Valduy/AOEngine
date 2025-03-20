@@ -425,21 +425,105 @@ protected:
 
 		const float max_height = 8;
 
-		for (size_t x = 0; x < res - 1; ++x) {
-			for (size_t y = 0; y < res - 1; ++y) {
-				float value = (map[x][y] + 1.0f) / 2.0f;
-				
-				Entity cube = CreateCube(world, model_manager, texture_manager);
-				auto transform_component = world.GetComponent<TransformComponent>(cube);
-				
-				Vector3f position(
-					static_cast<float>(half_edge + x), 
-					value * max_height, 
-					static_cast<float>(half_edge + y));
-				
-				transform_component->SetPosition(position);
+		std::vector<Vertex> vertices;
+		std::vector<Index> indices;
+		const size_t side = res - 1;
+
+		Vector3f positions[side][side];
+
+		for (size_t y = 0; y < side; ++y) {
+			for (size_t x = 0; x < side; ++x) {
+				const float position_x = static_cast<float>(x);
+				const float position_y = (map[y][x] + 1.0f) / 2.0f * max_height;
+				const float position_z = static_cast<float>(y);
+
+				positions[y][x] = { position_x, position_y, position_z };
 			}
 		}
+
+		std::vector<Vector3f> normals;
+		normals.reserve(4);
+		
+		for (size_t y = 0; y < side; ++y) {
+			for (size_t x = 0; x < side; ++x) {
+				normals.clear();
+				aoe::Vector3f a = positions[y][x];
+
+				if (y > 1 && x > 1) {
+					Vector3f b = positions[y][x - 1];
+					Vector3f c = positions[y - 1][x];
+					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
+				}
+				if (y > 1 && x < side - 1) {
+					Vector3f b = positions[y - 1][x];
+					Vector3f c = positions[y][x + 1];
+					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
+				}
+				if (y < side - 1 && x < side - 1) {
+					Vector3f b = positions[y][x + 1];
+					Vector3f c = positions[y + 1][x];
+					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
+				}
+				if (y < side - 1 && x > 1) {
+					Vector3f b = positions[y + 1][x];
+					Vector3f c = positions[y][x - 1];
+					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
+				}
+				
+				Vector3f averaged_normal = normals[0];
+
+				for (size_t k = 1; k < normals.size(); ++k) {
+					const Vector3f& normal = normals[k];
+					averaged_normal = Vector3f::Lerp(averaged_normal, normal, 0.5f);
+				}
+
+				const float u = static_cast<float>(x % 2);
+				const float v = static_cast<float>(y % 2);
+				
+				Vector3f position = positions[y][x];
+				Vector3f normal = averaged_normal.Normalized();
+				Vector2f uv = { u, v };
+
+				Vertex vertex(position, normal, uv);
+				vertices.push_back(vertex);
+
+				if (y < side - 1) {
+					if (x >= 1) {
+						// c---d
+						// | \ |
+						// a---b
+
+						size_t b = side * y + x;
+						size_t a = b - 1;
+						size_t c = a + side;
+						size_t d = b + side;
+
+						indices.push_back(c);
+						indices.push_back(b);
+						indices.push_back(a);
+
+						indices.push_back(b);
+						indices.push_back(c);
+						indices.push_back(d);
+					}
+				}
+			}
+		}
+
+		Mesh mesh(std::move(vertices), std::move(indices));
+		Model model({ std::move(mesh) });
+		ModelId model_id = model_manager.Upload(model);
+
+		TextureId texture_id = texture_manager.LoadRGBA(L"Content/Dirt.png");
+
+		Material material;
+		material.diffuse = { 1.0f, 1.0f, 1.0f };
+		material.specular = { 0.1f, 0.1f, 0.1f };
+		material.shininess = 2.0f;
+
+		Entity sphere = world.CreateEntity();
+		world.AddComponent<TransformComponent>(sphere);
+		world.AddComponent<DX11RenderComponent>(sphere, model_id, texture_id, material);
 	}
 
 	void PerTickUpdate(float dt) override {
