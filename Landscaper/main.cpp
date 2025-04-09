@@ -424,12 +424,9 @@ protected:
 		}
 
 		const float max_height = 8;
-
-		std::vector<Vertex> vertices;
-		std::vector<Index> indices;
 		const size_t side = res - 1;
 
-		Vector3f positions[side][side];
+		Grid2D<Vector3f> positions(side, side);
 
 		for (size_t y = 0; y < side; ++y) {
 			for (size_t x = 0; x < side; ++x) {
@@ -437,83 +434,11 @@ protected:
 				const float position_y = (map[y][x] + 1.0f) / 2.0f * max_height;
 				const float position_z = static_cast<float>(y);
 
-				positions[y][x] = { position_x, position_y, position_z };
+				positions(x, y) = { position_x, position_y, position_z };
 			}
 		}
 
-		std::vector<Vector3f> normals;
-		normals.reserve(4);
-		
-		for (size_t y = 0; y < side; ++y) {
-			for (size_t x = 0; x < side; ++x) {
-				normals.clear();
-				aoe::Vector3f a = positions[y][x];
-
-				if (y > 1 && x > 1) {
-					Vector3f b = positions[y][x - 1];
-					Vector3f c = positions[y - 1][x];
-					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
-				}
-				if (y > 1 && x < side - 1) {
-					Vector3f b = positions[y - 1][x];
-					Vector3f c = positions[y][x + 1];
-					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
-				}
-				if (y < side - 1 && x < side - 1) {
-					Vector3f b = positions[y][x + 1];
-					Vector3f c = positions[y + 1][x];
-					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
-				}
-				if (y < side - 1 && x > 1) {
-					Vector3f b = positions[y + 1][x];
-					Vector3f c = positions[y][x - 1];
-					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
-				}
-				
-				Vector3f averaged_normal = normals[0];
-
-				for (size_t k = 1; k < normals.size(); ++k) {
-					const Vector3f& normal = normals[k];
-					averaged_normal = Vector3f::Lerp(averaged_normal, normal, 0.5f);
-				}
-
-				const float u = static_cast<float>(x % 2);
-				const float v = static_cast<float>(y % 2);
-				
-				Vector3f position = positions[y][x];
-				Vector3f normal = averaged_normal.Normalized();
-				Vector2f uv = { u, v };
-
-				Vertex vertex(position, normal, uv);
-				vertices.push_back(vertex);
-
-				if (y < side - 1) {
-					if (x >= 1) {
-						// c---d
-						// | \ |
-						// a---b
-
-						size_t b = side * y + x;
-						size_t a = b - 1;
-						size_t c = a + side;
-						size_t d = b + side;
-
-						indices.push_back(c);
-						indices.push_back(b);
-						indices.push_back(a);
-
-						indices.push_back(b);
-						indices.push_back(c);
-						indices.push_back(d);
-					}
-				}
-			}
-		}
-
-		Mesh mesh(std::move(vertices), std::move(indices));
-		Model model({ std::move(mesh) });
-		ModelId model_id = model_manager.Upload(model);
-
+		ModelId model_id = GenerateTerrainMesh(model_manager, positions);
 		TextureId texture_id = texture_manager.LoadRGBA(L"Content/Dirt.png");
 
 		Material material;
@@ -657,6 +582,89 @@ protected:
 		}
 
 		return false;
+	}
+
+	static aoe::ModelId GenerateTerrainMesh(
+		aoe::DX11ModelManager& model_manager,
+		const Grid2D<aoe::Vector3f>& positions) 
+	{
+		using namespace aoe;
+
+		std::vector<Vertex> vertices;
+		std::vector<Index> indices;
+		std::vector<Vector3f> normals;
+
+		for (size_t y = 0; y < positions.GetHeight(); ++y) {
+			for (size_t x = 0; x < positions.GetWidth(); ++x) {
+				normals.clear();
+				aoe::Vector3f a = positions(x, y);
+
+				if (y > 1 && x > 1) {
+					Vector3f b = positions(x - 1, y);
+					Vector3f c = positions(x, y - 1);
+					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
+				}
+				if (y > 1 && x < positions.GetWidth() - 1) {
+					Vector3f b = positions(x, y - 1);
+					Vector3f c = positions(x + 1, y);
+					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
+				}
+				if (y < positions.GetHeight() - 1 && x < positions.GetWidth() - 1) {
+					Vector3f b = positions(x + 1, y);
+					Vector3f c = positions(x, y + 1);
+					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
+				}
+				if (y < positions.GetHeight() - 1 && x > 1) {
+					Vector3f b = positions(x, y + 1);
+					Vector3f c = positions(x - 1, y);
+					normals.emplace_back(Vector3f::CrossProduct(a - b, c - b));
+				}
+
+				Vector3f averaged_normal = normals[0];
+
+				for (size_t k = 1; k < normals.size(); ++k) {
+					const Vector3f& normal = normals[k];
+					averaged_normal = Vector3f::Lerp(averaged_normal, normal, 0.5f);
+				}
+
+				const float u = static_cast<float>(x % 2);
+				const float v = static_cast<float>(y % 2);
+
+				Vector3f position = positions(x, y);
+				Vector3f normal = averaged_normal.Normalized();
+				Vector2f uv = { u, v };
+
+				Vertex vertex(position, normal, uv);
+				vertices.push_back(vertex);
+
+				if (y < positions.GetHeight() - 1) {
+					if (x >= 1) {
+						// c---d
+						// | \ |
+						// a---b
+
+						size_t b = positions.GetWidth() * y + x;
+						size_t a = b - 1;
+						size_t c = a + positions.GetWidth();
+						size_t d = b + positions.GetWidth();
+
+						indices.push_back(c);
+						indices.push_back(b);
+						indices.push_back(a);
+
+						indices.push_back(b);
+						indices.push_back(c);
+						indices.push_back(d);
+					}
+				}
+			}
+		}
+
+		Mesh mesh(std::move(vertices), std::move(indices));
+		Model model({ std::move(mesh) });
+		ModelId model_id = model_manager.Upload(model);
+
+		return model_id;
 	}
 
 	static aoe::Entity CreateAmbientLight(aoe::World& world) {
