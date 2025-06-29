@@ -249,6 +249,19 @@ private:
 	}
 };
 
+namespace std {
+
+	template<>
+	struct hash<aoe::Vector2i> {
+		size_t operator()(const aoe::Vector2i& value) const noexcept {
+			size_t hash0 = hash<int>()(value.x);
+			size_t hash1 = hash<int>()(value.y);
+			return hash0 ^ hash1;
+		}
+	};
+
+} // namespace std
+
 class LandscaperScene : public aoe::SceneBase {
 public:
 	LandscaperScene(aoe::Application& application)
@@ -311,7 +324,7 @@ protected:
 
 		auto it = std::remove_if(random_points.begin(), random_points.end(),
 			[&centroid](const aoe::Vector2f p) {
-				return aoe::Vector2f::Distance(centroid, p) > half_edge;
+				return aoe::Vector2f::Distance(centroid, p) >= half_edge;
 			});
 		random_points.erase(it, random_points.end());
 
@@ -326,62 +339,6 @@ protected:
 		Graph<Triangle2D> graph = CreateTriangulationGraph(triangulation);
 		std::vector<NodeId> outline = FindOutline(graph);
 		
-		//for (const Triangle2D& triangle : triangulation) {
-		//	CreateTriangle(world, triangle);
-		//}
-
-		//std::sort(outline.begin(), outline.end(), 
-		//	[&triangulation, &centroid](const NodeId& lhs, const NodeId& rhs) {
-		//		const Triangle2D& lhs_triangle = triangulation[lhs];
-		//		const aoe::Vector2f lhs_centroid = Algorithms::FindCentroid(
-		//			lhs_triangle.vertices.begin(), 
-		//			lhs_triangle.vertices.end());
-
-		//		const Triangle2D& rhs_triangle = triangulation[rhs];
-		//		const aoe::Vector2f rhs_centroid = Algorithms::FindCentroid(
-		//			rhs_triangle.vertices.begin(),
-		//			rhs_triangle.vertices.end());
-
-		//		const int lhs_sign = aoe::Math::Sign(lhs_centroid.y);
-		//		const int rhs_sign = aoe::Math::Sign(rhs_centroid.y);
-
-		//		if (lhs_sign != rhs_sign) {
-		//			return lhs_sign > rhs_sign;
-		//		}
-
-		//		const aoe::Vector2f axis = aoe::Math::kAxisX2f;
-		//		const aoe::Vector2f lhs_direction = (lhs_centroid - centroid).Normalized();
-		//		const aoe::Vector2f rhs_direction = (rhs_centroid - centroid).Normalized();
-
-		//		const float lhs_angle = aoe::Math::Acos(aoe::Vector2f::DotProduct(axis, lhs_direction));
-		//		const float rhs_angle = aoe::Math::Acos(aoe::Vector2f::DotProduct(axis, rhs_direction));
-
-		//		if (lhs_sign > 0) {
-		//			return lhs_angle < rhs_angle;
-		//		} else {
-		//			return lhs_angle > rhs_angle;
-		//		}
-		//	});
-
-		//const float color_step = 1.0f / outline.size();
-		//float color_factor_b = 0;
-
-		//for (size_t i = 0; i < outline.size(); ++i) {
-		//	const NodeId id = outline[i];
-		//	const Triangle2D& triangle = triangulation[id];
-		//	const Vector2f triangle_centroid = Algorithms::FindCentroid(
-		//		triangle.vertices.begin(), 
-		//		triangle.vertices.end());
-
-		//	aoe::DebugUtils::CreateLine(
-		//		world,
-		//		{ { centroid.x, 0.0f, centroid.y }, { triangle_centroid.x, 0.0f, triangle_centroid.y } },
-		//		{},
-		//		{ 1.0f, 0.0f, color_factor_b });
-
-		//	color_factor_b += color_step;
-		//}
-
 		for (NodeId id : outline) {
 			graph.RemoveNode(id);
 		}
@@ -400,43 +357,107 @@ protected:
 			}
 		}
 
-		const size_t size = 8;
-		const size_t divs = 8;
-		const size_t res = size * divs;
+		const size_t divisions = 10;
+		const size_t subdivisions = 10;
+		const size_t side = subdivisions * divisions;
+		const float max_height = 8;
 
-		float map[res][res];
-		PerlinNoise2D noise(random, size);
-		
-		for (size_t x = 0; x < size; ++x) {
-			for (size_t y = 0; y < size; ++y) {
-				float offset = 1.0f / divs;
-				
-				for (size_t div_x = 0; div_x < divs; ++div_x) {
-					for (size_t div_y = 0; div_y < divs; ++div_y) {
-						const float i = static_cast<float>(x) + offset + offset * div_x;
-						const float j = static_cast<float>(y) + offset + offset * div_y;
-						
-						float value = noise(i, j);
-						map[divs * x + div_x][divs * y + div_y] = value;
+		std::vector<Grid2D<float>> plates_noises = GeneratePlatesNoises(
+			plates, graph, { -half_edge, -half_edge }, { half_edge, half_edge }, side);
+
+		for (Grid2D<float>& plate_noise : plates_noises) {
+			std::unordered_set<Vector2i> visited;
+			std::queue<Vector2i> frontier;
+
+			for (int x = 1; x < plate_noise.GetWidth() - 1; ++x) {
+				for (int y = 1; y < plate_noise.GetHeight() - 1; ++y) {
+					int factor = 
+						static_cast<int>(plate_noise(x - 1, y) > 0) +
+						static_cast<int>(plate_noise(x + 1, y) > 0) +
+						static_cast<int>(plate_noise(x, y - 1) > 0) +
+						static_cast<int>(plate_noise(x, y + 1) > 0);
+
+					if (factor == 0) {
+						continue;
+					} else if (factor == 4) {
+						visited.insert({ x, y });
+					} else {
+						frontier.push({ x, y });
+					}
+				}
+			}
+
+			while (!frontier.empty()) {
+				const Vector2i position = frontier.front();
+				frontier.pop();
+
+				visited.insert(position);
+				float propagate = plate_noise[position] * plate_noise[position] * 0.95f;
+
+				if (propagate <= 0.01f) {
+					continue;
+				}
+
+				if (position.x > 0 && plate_noise(position.x - 1, position.y) < propagate) {
+					plate_noise[{ position.x - 1, position.y }] = propagate;
+					frontier.push({ position.x - 1, position.y });
+				} else if (position.x < plate_noise.GetWidth() - 1 && plate_noise(position.x + 1, position.y) < propagate) {
+					plate_noise[{ position.x + 1, position.y }] = propagate;
+					frontier.push({ position.x + 1, position.y });
+				} else if (position.y > 0 && plate_noise(position.x, position.y - 1) < propagate) {
+					plate_noise[{ position.x, position.y - 1 }] = propagate;
+					frontier.push({ position.x, position.y - 1 });
+				} else if (position.y < plate_noise.GetHeight() - 1 && plate_noise(position.x, position.y + 1) < propagate) {
+					plate_noise[{ position.x, position.y + 1 }] = propagate;
+					frontier.push({ position.x, position.y + 1 });
+				}
+			}
+		}
+
+		Grid2D<float> noise(side, side);
+
+		for (size_t x = 0; x < noise.GetWidth(); ++x) {
+			for (size_t y = 0; y < noise.GetHeight(); ++y) {
+				noise(x, y) = 0.0f;
+			}
+		}
+
+		for (size_t i = 0; i < 3; ++i) {
+			Grid2D<float> random_noise = GenerateNoise(random, divisions, subdivisions);
+
+			for (size_t x = 0; x < random_noise.GetWidth(); ++x) {
+				for (size_t y = 0; y < random_noise.GetHeight(); ++y) {
+					random_noise(x, y) /= 2.0f;
+				}
+			}
+
+			plates_noises.emplace_back(std::move(random_noise));
+		}
+
+		for (size_t i = 0; i < plates_noises.size(); ++i) {
+			// if (i != 2) continue;
+
+			Grid2D<float>& plate_noise = plates_noises[i];
+
+			for (size_t x = 0; x < plate_noise.GetWidth(); ++x) {
+				for (size_t y = 0; y < plate_noise.GetHeight(); ++y) {
+					if (plate_noise(x, y) > 0) {
+						noise(x, y) += plate_noise(x, y);
 					}
 				}
 			}
 		}
 
-		const float max_height = 8;
-		const size_t side = res - 1;
-
-		Grid2D<Vector3f> positions(side, side);
-
-		for (size_t y = 0; y < side; ++y) {
-			for (size_t x = 0; x < side; ++x) {
-				const float position_x = static_cast<float>(x);
-				const float position_y = (map[y][x] + 1.0f) / 2.0f * max_height;
-				const float position_z = static_cast<float>(y);
-
-				positions(x, y) = { position_x, position_y, position_z };
+		for (size_t x = 0; x < noise.GetWidth(); ++x) {
+			for (size_t y = 0; y < noise.GetHeight(); ++y) {
+				if (noise(x, y) > 0) {
+					noise(x, y) /= plates_noises.size();
+				}
 			}
 		}
+
+		//Grid2D<float> noise = GenerateNoise(random, divisions, subdivisions);
+		Grid2D<Vector3f> positions = NoiseToPositions(noise, max_height);
 
 		ModelId model_id = GenerateTerrainMesh(model_manager, positions);
 		TextureId texture_id = texture_manager.LoadRGBA(L"Content/Dirt.png");
@@ -488,10 +509,10 @@ protected:
 
 	static std::vector<NodeId> FindOutline(const Graph<Triangle2D>& graph) {
 		std::vector<NodeId> outline;
-		const NodesCollection& nodes_ids_ = graph.GetNodesIds();
+		const NodesCollection& nodes_ids = graph.GetNodesIds();
 
-		for (NodeId id : nodes_ids_) {
-			const NodesCollection arcs = graph.GetArcs(id);
+		for (NodeId id : nodes_ids) {
+			const NodesCollection& arcs = graph.GetArcs(id);
 
 			if (arcs.size() < 3) {
 				outline.push_back(id);
@@ -584,6 +605,127 @@ protected:
 		return false;
 	}
 
+	static std::vector<Grid2D<float>> GeneratePlatesNoises(
+		const std::vector<std::vector<NodeId>>& plates,
+		const Graph<Triangle2D>& graph,
+		const aoe::Vector2f& min,
+		const aoe::Vector2f& max,
+		size_t resolution) 
+	{
+		std::vector<Grid2D<float>> result;
+		result.reserve(plates.size());
+
+		for (const std::vector<NodeId>& plate : plates) {
+			Grid2D<float> noise = GeneratePlateNoise(plate, graph, min, max, resolution);
+			result.emplace_back(std::move(noise));			
+		}
+
+		CleanupPlatesNoisesIntersections(result);
+		return result;
+	}
+
+	static Grid2D<float> GeneratePlateNoise(
+		const std::vector<NodeId>& plate,
+		const Graph<Triangle2D>& graph,
+		const aoe::Vector2f& min,
+		const aoe::Vector2f& max,
+		size_t resolution) 
+	{
+		using namespace aoe;
+
+		Grid2D<float> result(resolution, resolution);
+
+		for (size_t x = 0; x < result.GetWidth(); ++x) {
+			const float point_x = Math::Map(x, 0, result.GetWidth(), min.x, max.x);
+
+			for (size_t y = 0; y < result.GetHeight(); ++y) {
+				const float point_y = Math::Map(y, 0, result.GetHeight(), min.y, max.y);
+				const Vector2f point(point_x, point_y);
+				result(x, y) = 0.0f;
+
+				for (NodeId id : plate) {
+					const Triangle2D& triangle = graph.GetData(id);
+					int factor = 0;
+
+					for (const Edge2D& edge : triangle.ToEdges()) {
+						const Vector2f to_vertex = edge.b - edge.a;
+						const Vector2f to_point = point - edge.a;
+
+						factor += Math::Sign(Math::CrossProduct(to_vertex, to_point));
+					}
+
+					// This mean that point is inside of the triangle.
+					if (Math::Abs(factor) == 3) {
+						result(x, y) = 1.0f;
+						break;
+					}
+				}
+			}
+		}
+
+		return result;
+	}
+
+	static void CleanupPlatesNoisesIntersections(std::vector<Grid2D<float>> plates_noises) {
+		for (size_t i = 0; i < plates_noises.size(); ++i) {
+			const Grid2D<float>& stencil = plates_noises[i];
+
+			for (size_t j = i + 1; j < plates_noises.size(); ++j) {
+				Grid2D<float>& plate_noise = plates_noises[j];
+
+				for (size_t x = 0; x < plate_noise.GetWidth(); ++x) {
+					for (size_t y = 0; y < plate_noise.GetHeight(); ++y) {
+						if (stencil(x, y) > 0 && plate_noise(x, y) > 0) {
+							plate_noise(x, y) = 0.0f;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	static Grid2D<float> GenerateNoise(aoe::Random& random, const size_t divisions, const size_t subdivisions) {
+		const size_t resolution = divisions * subdivisions;
+		Grid2D<float> noise(resolution, resolution);
+		PerlinNoise2D generator(random, divisions);
+
+		for (size_t division_x = 0; division_x < divisions; ++division_x) {
+			for (size_t division_y = 0; division_y < divisions; ++division_y) {
+				float step = 1.0f / subdivisions;
+
+				for (size_t subdivision_x = 0; subdivision_x < subdivisions; ++subdivision_x) {
+					for (size_t subdivision_y = 0; subdivision_y < subdivisions; ++subdivision_y) {
+						const float xf = step * subdivision_x;
+						const float yf = step * subdivision_y;
+						
+						const size_t x = subdivisions * division_x + subdivision_x;
+						const size_t y = subdivisions * division_y + subdivision_y;
+
+						noise(x, y) = (generator(xf + division_x, yf + division_y) + 1.0f) / 2.0f;
+					}
+				}
+			}
+		}
+
+		return noise;
+	}
+
+	static Grid2D<aoe::Vector3f> NoiseToPositions(const Grid2D<float>& noise, const float max_height) {
+		Grid2D<aoe::Vector3f> positions(noise.GetWidth(), noise.GetHeight());
+
+		for (size_t x = 0; x < noise.GetWidth(); ++x) {
+			for (size_t y = 0; y < noise.GetHeight(); ++y) {
+				const float position_x = static_cast<float>(x);
+				const float position_y = noise(x, y) * max_height;
+				const float position_z = static_cast<float>(y);
+
+				positions(x, y) = { position_x, position_y, position_z };
+			}
+		}
+
+		return positions;
+	}
+
 	static aoe::ModelId GenerateTerrainMesh(
 		aoe::DX11ModelManager& model_manager,
 		const Grid2D<aoe::Vector3f>& positions) 
@@ -594,8 +736,8 @@ protected:
 		std::vector<Index> indices;
 		std::vector<Vector3f> normals;
 
-		for (size_t y = 0; y < positions.GetHeight(); ++y) {
-			for (size_t x = 0; x < positions.GetWidth(); ++x) {
+		for (size_t x = 0; x < positions.GetWidth(); ++x) {
+			for (size_t y = 0; y < positions.GetHeight(); ++y) {
 				normals.clear();
 				aoe::Vector3f a = positions(x, y);
 
@@ -637,16 +779,16 @@ protected:
 				Vertex vertex(position, normal, uv);
 				vertices.push_back(vertex);
 
-				if (y < positions.GetHeight() - 1) {
-					if (x >= 1) {
+				if (x < positions.GetWidth() - 1) {
+					if (y >= 1) {
 						// c---d
 						// | \ |
 						// a---b
 
-						size_t b = positions.GetWidth() * y + x;
-						size_t a = b - 1;
-						size_t c = a + positions.GetWidth();
-						size_t d = b + positions.GetWidth();
+						size_t c = positions.GetHeight() * x + y;
+						size_t a = c - 1;
+						size_t d = c + positions.GetHeight();
+						size_t b = a + positions.GetHeight();
 
 						indices.push_back(c);
 						indices.push_back(b);

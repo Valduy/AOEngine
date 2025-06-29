@@ -103,4 +103,12 @@ float Math::Asin(float sin) {
 	return std::asin(sin);
 }
 
+float Math::Map(float value, float old_min, float old_max, float new_min, float new_max) {
+	return new_min + (value - old_min) * ((new_max - new_min) / (old_max - old_min));
+}
+
+float Math::CrossProduct(Vector2f lhs, Vector2f rhs) {
+	return lhs.x * rhs.y - lhs.y * rhs.x;
+}
+
 } // namespace aoe

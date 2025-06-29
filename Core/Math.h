@@ -107,6 +107,9 @@ public:
 	static float Cos(float angle);
 	static float Acos(float cos);
 	static float Asin(float sin);
+	static float Map(float value, float old_min, float old_max, float new_min, float new_max);
+
+	static float CrossProduct(Vector2f lhs, Vector2f rhs);
 };
 
 template<typename T>

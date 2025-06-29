@@ -127,7 +127,7 @@ private:
 		AOE_ASSERT_MSG(x >= 0, "Component x is less than zero.");
 		AOE_ASSERT_MSG(y >= 0, "Component y is less than zero.");
 
-		return width_ * y + x;
+		return height_ * x + y;
 	}
 
 	size_t ToIndex(const aoe::Vector2i& position) const {
@@ -420,9 +420,9 @@ private:
 			aoe::Math::Min(grid.GetWidth() - 1, grid_position.x + 2),
 			aoe::Math::Min(grid.GetHeight() - 1, grid_position.y + 2));
 
-		for (int i = grid_from.x; i <= grid_to.x; ++i) {
-			for (int j = grid_from.y; j <= grid_to.y; ++j) {
-				const PoissonCell& cell = grid(i, j);
+		for (int x = grid_from.x; x <= grid_to.x; ++x) {
+			for (int y = grid_from.y; y <= grid_to.y; ++y) {
+				const PoissonCell& cell = grid(x, y);
 
 				if (!cell.is_distributed) {
 					continue;
